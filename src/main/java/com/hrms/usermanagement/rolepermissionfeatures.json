@@ -1,0 +1,17 @@
+[
+  {
+    "Role": "admin",
+    "Permission": "Contributor",
+    "Features": []
+  },
+  {
+    "Role": "manager",
+    "Permission": "Reader",
+    "Features": ["a", "b"]
+  },
+  {
+    "Role": "user",
+    "Permission": "Reader",
+    "Features": []
+  }
+]

@@ -1,17 +1,24 @@
 package com.hrms.usermanagement.service;
 
-import com.hrms.usermanagement.repository.HRISUserRepository;
+import com.hrms.usermanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ActivationService {
     @Autowired
-    private HRISUserRepository userRepository;
+    private UserRepository userRepository;
 
-    @Bean
-    public void activateUser(String username, boolean status) {
+    public void activate(String username) {
         var user = userRepository.findByUsername(username);
-        user.setEnabled(status);
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
+
+    public void disable(String username) {
+        var user = userRepository.findByUsername(username);
+        user.setEnabled(false);
         userRepository.save(user);
     }
 }

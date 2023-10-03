@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import com.hrms.usermanagement.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,9 +41,6 @@ public class Employee extends RepresentationModel<Employee> {
 	private String dateJoined;
 	@Column(name = "teamunit")
 	private String teamUnit;
-//
-//	@OneToOne
-//	private User userInfo;
 
 	public String printOut() {
 		return "Employee{" +
@@ -51,5 +49,12 @@ public class Employee extends RepresentationModel<Employee> {
 				", lastName='" + lastName + '\'' +
 				", email='" + email + '\'' +
 				'}';
+	}
+
+	@OneToOne(mappedBy = "employee")
+	private User user;
+
+	public String getFullname() {
+		return firstName + " " + lastName;
 	}
 }

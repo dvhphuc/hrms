@@ -1,6 +1,7 @@
 package com.hrms.usermanagement.model;
 
 import com.fasterxml.jackson.annotation.*;
+import com.hrms.employeemanagement.models.Employee;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,4 +37,8 @@ public class User {
 
     @Column(name = "created_at")
     private Date createdAt;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "employee_id", referencedColumnName = "employeeid")
+    private Employee employee;
 }

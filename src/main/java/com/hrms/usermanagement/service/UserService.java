@@ -27,6 +27,7 @@ public class UserService {
         modelMapper.typeMap(User.class, UserDto.class)
                 .addMappings(mapper -> {
                    mapper.map(src -> src.getRole().getName(), UserDto::setRole);
+                   mapper.map(src -> src.getEmployee().getFullname(), UserDto::setName);
                    mapper.map(User::isEnabled, UserDto::setStatus);
                 });
     }

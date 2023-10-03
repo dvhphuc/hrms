@@ -6,21 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "unit")
 public class Unit {
     @Id
-    @Column(name = "unitid", nullable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    @Column(name = "unitname")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "unit_id")
+    private int id;
+    @Column(name = "unit_name")
     private String unitName;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "employeeid")
-    @Column(name = "sumid")
-    private Employee sumId;
+
+    @ManyToOne
+    @JoinColumn(name = "sum_id")
+    private EmployeeRole sum;
 }

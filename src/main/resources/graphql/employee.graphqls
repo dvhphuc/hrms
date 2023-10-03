@@ -1,6 +1,6 @@
 # Define the Employee type
 type Employee {
-  id: String!
+  id: Int!
   firstName: String
   lastName: String
   email: String
@@ -15,8 +15,7 @@ type Employee {
 # Define a query to fetch employees
 type Query {
   findAllEmployees: [Employee]
-  findEmployeeById(id: String!): Employee
-  findEmployeeByEmail(email: String!): Employee
+  findEmployeeById(id: Int!): Employee
   countEmployees: Int
   findNewEmployeeOfMonth: [Employee]
 }
@@ -24,6 +23,6 @@ type Query {
 # Define a mutation to create a new employee
 type Mutation {
   newEmployee(firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
-  deleteEmployee(id: String!): Boolean
-  updateEmployee(id: String!, firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
+  deleteEmployee(id: Int!): Boolean
+  updateEmployee(id: Int!, firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
 }

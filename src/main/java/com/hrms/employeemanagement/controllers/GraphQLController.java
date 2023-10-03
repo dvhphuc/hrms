@@ -28,7 +28,7 @@ public class GraphQLController {
     }
 
     @QueryMapping
-    public Optional<Employee> findEmployeeById(@Argument String id) {
+    public Optional<Employee> findEmployeeById(@Argument int id) {
         return employeeService.getEmployeeById(id);
     }
 
@@ -55,13 +55,13 @@ public class GraphQLController {
     }
 
     @MutationMapping
-    public boolean deleteEmployee(@Argument String id) {
+    public boolean deleteEmployee(@Argument int id) {
         employeeService.deleteEmployeeById(id);
         return true;
     }
 
     @MutationMapping
-    public Employee updateEmployee(@Argument String id, @Argument String firstName, @Argument String lastName,
+    public Employee updateEmployee(@Argument int id, @Argument String firstName, @Argument String lastName,
                                    @Argument String email, @Argument String gender, @Argument String dateOfBirth,
                                    @Argument String phoneNumber, @Argument String address, @Argument String positionLevel) {
         Employee employee = new Employee();

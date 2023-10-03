@@ -7,25 +7,31 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "project")
 public class Project extends RepresentationModel<Project> {
     @Id
-    @Column(name = "projectid", nullable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    @Column(name = "projectname")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "project_id")
+    private int id;
+    @Column(name = "project_name")
     private String projectName;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "employeeroleid")
-    @Column(name = "projectmanagerid")
-    private EmployeeRole projectManager;
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "employeeroleid")
-    @Column(name = "engagemanagerid")
-    private EmployeeRole engagementManager;
+
+    @ManyToOne
+    @JoinColumn(name = "project_mamnager_id")
+    private Employee projectManager;
+
+    @ManyToOne
+    @JoinColumn(name = "engage_manager_id")
+    private Employee engageManager;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<EmployeeProject> employeeProjects;
 }

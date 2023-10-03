@@ -6,22 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmployeeRole {
+public class CompanyRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "employee_role_id")
+    @Column(name = "company_role_id")
     private int id;
+    @Column(name = "company_role_name")
+    private String CompanyRoleName;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-
-    @ManyToOne
-    @JoinColumn(name = "company_role_id")
-    private CompanyRole companyRole;
+    @OneToMany(mappedBy = "companyRole", cascade = CascadeType.ALL)
+    private List<EmployeeRole> employeeCompanyRoles;
 }

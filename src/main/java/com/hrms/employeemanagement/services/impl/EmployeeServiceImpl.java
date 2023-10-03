@@ -1,4 +1,5 @@
 package com.hrms.employeemanagement.services.impl;
+import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
@@ -7,10 +8,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,7 +22,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 	private EmployeeRepository employeeRepository;
 
 	@Override
-	public Iterable<Employee> getAllEmployees() {
+	public List<Employee> getAllEmployees() {
 		return employeeRepository.findAll();
 	}
 
@@ -31,19 +32,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Optional<Employee> getEmployeeById(String id) {
+	public Optional<Employee> getEmployeeById(int id) {
 		Optional<Employee> optional = employeeRepository.findById(id);
 		if (optional.isEmpty()) {
-			throw new RuntimeException(" Employee not found for id :: " + id);
+			throw new EmployeeNotFoundException(" Employee not found for id :: " + id);
 		}
 		return optional;
 	}
 
 	@Override
-	public Optional<Employee> uploadEmployee(String id, Employee employee) {
+	public Optional<Employee> updateEmployee(int id, Employee employee) {
 		Optional<Employee> employeeOptional = employeeRepository.findById(id);
 		if (employeeOptional.isEmpty())
-			throw new RuntimeException(" Employee not found for id :: " + id);
+			throw new EmployeeNotFoundException(" Employee not found for id :: " + id);
 		employee.setId(id);
 		employeeRepository.save(employee);
 		return employeeOptional;
@@ -51,7 +52,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
 	@Override
-	public void deleteEmployeeById(String id) {
+	public void deleteEmployeeById(int id) {
 		this.employeeRepository.deleteById(id);
 	}
 
@@ -75,13 +76,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Optional<Employee> assignEmployeeToUnit(String id, String teamUnit) {
+	public Optional<Employee> assignEmployeeToUnit(int id, String unitId) {
 		Optional<Employee> employeeOp = employeeRepository.findById(id);
-		if (employeeOp.isEmpty()) {
-			throw new RuntimeException(" Employee not found for id :: " + id);
-		}
-		employeeOp.get().setTeamUnit(teamUnit);
-		employeeRepository.save(employeeOp.get());
+//		if (employeeOp.isEmpty()) {
+//			throw new RuntimeException(" Employee not found for id :: " + id);
+//		}
+//		Unit teamUnit = new Unit();
+//		employeeOp.get().setUnit(teamUnit);
+//		employeeRepository.save(employeeOp.get());
 		return employeeOp;
 	}
 

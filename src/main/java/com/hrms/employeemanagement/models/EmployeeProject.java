@@ -5,21 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "employeeproject")
-public class EmployeeProject extends RepresentationModel<EmployeeProject> {
+public class EmployeeProject {
     @Id
-    @Column(name = "employeeprojectid", nullable = false)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-    @Column(name = "projectid")
-    private String teamProjectId;
-    @Column(name = "employeeid")
-    private String employeeId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "employee_project_id")
+    private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
 }

@@ -12,13 +12,13 @@ public class ActivationService {
 
     public void activate(String username) {
         var user = userRepository.findByUsername(username);
-        user.setEnabled(true);
+        user.setIsEnabled(true);
         userRepository.save(user);
     }
 
     public void disable(String username) {
         var user = userRepository.findByUsername(username);
-        user.setEnabled(false);
+        user.setIsEnabled(false);
         userRepository.save(user);
     }
 }

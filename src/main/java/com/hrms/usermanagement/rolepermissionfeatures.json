@@ -1,0 +1,17 @@
+[
+  {
+    "Role": "admin",
+    "Permission": "contributor",
+    "Features": ["login", "changePassword", "activation" , "manageRoles", "manageUsers"]
+  },
+  {
+    "Role": "manager",
+    "Permission": "reader",
+    "Features": ["login","changePassword","manageUsers"]
+  },
+  {
+    "Role": "user",
+    "Permission": "reader",
+    "Features": ["login","changePassword"]
+  }
+]

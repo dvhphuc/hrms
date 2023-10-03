@@ -18,6 +18,7 @@ public class ChangePasswordService {
         var user = userRepository.findByUsername(username);
         var oldPassword = changePassWordDto.getOldPassword();
         var newPassword = changePassWordDto.getNewPassword();
+        //Front-end check if oldPassword is different from newPassword
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new Exception("Wrong password");

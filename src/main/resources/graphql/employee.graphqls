@@ -9,6 +9,7 @@ type Employee {
   address: String
   phoneNumber: String
   positionLevel: String
+  dateJoin: String
 }
 
 # Define a query to fetch employees
@@ -17,6 +18,7 @@ type Query {
   findEmployeeById(id: String!): Employee
   findEmployeeByEmail(email: String!): Employee
   countEmployees: Int
+  findNewEmployeeOfMonth: [Employee]
 }
 
 # Define a mutation to create a new employee

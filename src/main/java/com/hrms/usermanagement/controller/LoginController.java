@@ -1,26 +1,36 @@
 package com.hrms.usermanagement.controller;
 
 import com.hrms.usermanagement.dto.LoginDto;
-import com.hrms.usermanagement.repository.UserRepository;
-import com.hrms.usermanagement.service.LoginService;
+import com.hrms.usermanagement.model.User;
+import com.hrms.usermanagement.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/login")
 public class LoginController {
     @Autowired
-    private LoginService loginService;
+    private AuthenticationService authenticationService;
 
     @PostMapping("/auth")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
-        var isValid = loginService.login(loginDto.getUsername(), loginDto.getPassword());
-        if (!isValid) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+    public String login(
+            @RequestHeader("Authentication") String jwtToken,
+            @RequestBody LoginDto loginDto
+    ) throws Exception {
+        if (jwtToken.isEmpty()) {
+            return authenticationService.login(loginDto.getUsername(), loginDto.getPassword());
         }
+        return "Already logged in";
+    }
 
-        return ResponseEntity.ok().body("Login successful");
+    @GetMapping("/users/{username}")
+    public ResponseEntity<User> getUser(@PathVariable String username) {
+        var user = authenticationService.getUser(username);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(user);
     }
 }

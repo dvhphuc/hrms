@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,9 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -24,14 +23,17 @@ public class Project extends RepresentationModel<Project> {
     @Column(name = "project_name")
     private String projectName;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "project_mamnager_id")
+    @JsonIgnore
     private Employee projectManager;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "engage_manager_id")
+    @JsonIgnore
     private Employee engageManager;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<EmployeeProject> employeeProjects;
 }

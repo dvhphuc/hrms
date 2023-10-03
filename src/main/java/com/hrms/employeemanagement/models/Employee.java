@@ -8,48 +8,42 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "employee")
 public class Employee extends RepresentationModel<Employee> {
 	@Id
 	@Column(name = "employee_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
-	@Column(name = "firstname")
-	private String firstName;
-	@Column(name = "lastname")
 	private String lastName;
-	@Column(name = "email")
-	private String email;
+	@Column(name = "first_name")
+	private String firstName;
 	@Column(name = "gender")
 	private String gender;
-	@Column(name = "dateofbirth")
-	private String dateOfBirth;
-	@Column(name = "phonenumber")
-	private String phoneNumber;
 	@Column(name = "address")
 	private String address;
-	@Column(name = "positionlevel")
-	private String positionLevel;
-	@Column(name = "datejoined")
+	@Column(name = "email")
+	private String email;
+	@Column(name = "date_of_birth")
+	private String dateOfBirth;
+	@Column(name = "phone_number")
+	private String phoneNumber;
+	@Column(name = "date_joined")
 	private String dateJoined;
-	@Column(name = "teamunit")
-	private String teamUnit;
+	@Column(name = "position_level")
+	private String positionLevel;
 
-	public String printOut() {
-		return "Employee{" +
-				"id='" + id + '\'' +
-				", firstName='" + firstName + '\'' +
-				", lastName='" + lastName + '\'' +
-				", email='" + email + '\'' +
-				'}';
-	}
+	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+	private List<EmployeeProject> employeeProjects;
+
+	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+	private List<EmployeeRole> employeeRoles;
 
 	@OneToOne(mappedBy = "employee")
 	private User user;

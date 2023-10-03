@@ -8,11 +8,11 @@ import java.util.Optional;
 public interface EmployeeService {
 	Iterable<Employee> getAllEmployees();
 	Employee saveEmployee(Employee employee);
-	Optional<Employee> getEmployeeById(String id);
-	Optional<Employee> uploadEmployee(String id, Employee employee);
-	void deleteEmployeeById(String id);
+	Optional<Employee> getEmployeeById(int id);
+	Optional<Employee> updateEmployee(int id, Employee employee);
+	void deleteEmployeeById(int id);
 	Page<Employee> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);
 	long countEmployee();
 	Iterable<Employee> getNewEmployeeOfMonth();
-	Optional<Employee> assignEmployeeToUnit(String id, String teamUnit);
+	Optional<Employee> assignEmployeeToUnit(int id, String teamUnit);
 }

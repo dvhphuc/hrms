@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface EmployeeRepository extends JpaRepository<Employee, String> {
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query(value = "SELECT * FROM employee " +
             "WHERE STR_TO_DATE(datejoined, '%Y-%m-%d') >= DATE_SUB(NOW(), INTERVAL 1 MONTH)", nativeQuery = true)
     Iterable<Employee> findNewEmployeeOfMonth();

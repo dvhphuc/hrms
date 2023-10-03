@@ -36,7 +36,7 @@ public class EmployeeController {
 	}
 
 	@GetMapping("/{id}")
-	public HttpEntity<Employee> getEmployeeByID(@PathVariable String id) {
+	public HttpEntity<Employee> getEmployeeByID(@PathVariable int id) {
 		Optional<Employee> employeeOptional = employeeService.getEmployeeById(id);
 		if(employeeOptional.isEmpty()) {
 			throw new EmployeeNotFoundException("id-" + id);
@@ -72,21 +72,22 @@ public class EmployeeController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Employee> updateEmployee(@PathVariable String id, @RequestBody Employee employee) {
-		employeeService.uploadEmployee(id, employee);
+	public ResponseEntity<Employee> updateEmployee(@PathVariable int id, @RequestBody Employee employee) {
+		employeeService.updateEmployee(id, employee);
 		return ResponseEntity.noContent().build();
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Employee> deleteEmployee(@PathVariable String id) {
+	public ResponseEntity<Employee> deleteEmployee(@PathVariable int id) {
 		employeeService.deleteEmployeeById(id);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/assign/unit/{employeeId}")
 	public ResponseEntity<Employee> assignUnitEmployee(@PathVariable String employeeId, @RequestBody String unitName) {
-		employeeService.assignEmployeeToUnit(employeeId, unitName);
-		return ResponseEntity.noContent().build();
+//		employeeService.assignEmployeeToUnit(employeeId, unitName);
+//		return ResponseEntity.noContent().build();
+		return null;
 	}
 
 	@PutMapping("/assign/unit/{employeeId}/{projectId}")

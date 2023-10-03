@@ -43,13 +43,4 @@ public class Employee extends RepresentationModel<Employee> {
 //
 //	@OneToOne
 //	private User userInfo;
-
-	public String printOut() {
-		return "Employee{" +
-				"id='" + id + '\'' +
-				", firstName='" + firstName + '\'' +
-				", lastName='" + lastName + '\'' +
-				", email='" + email + '\'' +
-				'}';
-	}
 }

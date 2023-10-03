@@ -2,6 +2,8 @@ package com.hrms.usermanagement.dto;
 
 import lombok.*;
 
+import java.sql.Date;
+
 @Data
 public class SignupDto {
     private String username;
@@ -12,4 +14,5 @@ public class SignupDto {
     private String phoneNumber;
     private String address;
     private String city;
+    private Date createdAt;
 }

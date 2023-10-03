@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
+
 @Entity
 @Setter
 @Getter
@@ -32,6 +34,6 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @Column(name = "salt")
-    private String salt;
+    @Column(name = "created_at")
+    private Date createdAt;
 }

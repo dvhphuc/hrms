@@ -3,16 +3,16 @@ package com.hrms.employeemanagement.services;
 import com.hrms.employeemanagement.models.Employee;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeService {
-	List<Employee> getAllEmployees();
-	void saveEmployee(Employee employee);
-	Employee getEmployeeById(String id);
+	Iterable<Employee> getAllEmployees();
+	Employee saveEmployee(Employee employee);
+	Optional<Employee> getEmployeeById(String id);
+	Optional<Employee> uploadEmployee(String id, Employee employee);
 	void deleteEmployeeById(String id);
 	Page<Employee> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);
-
-	Employee getEmployeeByEmail(String email);
-
 	long countEmployee();
+	Iterable<Employee> getNewEmployeeOfMonth();
+	Optional<Employee> assignEmployeeToUnit(String id, String teamUnit);
 }

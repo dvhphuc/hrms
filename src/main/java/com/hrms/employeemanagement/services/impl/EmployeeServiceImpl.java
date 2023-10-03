@@ -7,38 +7,48 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
 
 	@Override
-	public List<Employee> getAllEmployees() {
+	public Iterable<Employee> getAllEmployees() {
 		return employeeRepository.findAll();
 	}
 
 	@Override
-	public void saveEmployee(Employee employee) {
-		this.employeeRepository.save(employee);
+	public Employee saveEmployee(Employee employee) {
+		return this.employeeRepository.save(employee);
 	}
 
 	@Override
-	public Employee getEmployeeById(String id) {
+	public Optional<Employee> getEmployeeById(String id) {
 		Optional<Employee> optional = employeeRepository.findById(id);
-		Employee employee = null;
-		if (optional.isPresent()) {
-			employee = optional.get();
-		} else {
+		if (optional.isEmpty()) {
 			throw new RuntimeException(" Employee not found for id :: " + id);
 		}
-		return employee;
+		return optional;
 	}
+
+	@Override
+	public Optional<Employee> uploadEmployee(String id, Employee employee) {
+		Optional<Employee> employeeOptional = employeeRepository.findById(id);
+		if (employeeOptional.isEmpty())
+			throw new RuntimeException(" Employee not found for id :: " + id);
+		employee.setId(id);
+		employeeRepository.save(employee);
+		return employeeOptional;
+	}
+
 
 	@Override
 	public void deleteEmployeeById(String id) {
@@ -51,18 +61,28 @@ public class EmployeeServiceImpl implements EmployeeService {
 			Sort.by(sortField).descending();
 		
 		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
-		List<Employee> employeeList = this.employeeRepository.findAll(pageable).getContent();
-		employeeList.forEach(employee -> System.out.println(employee.printOut()));
 		return this.employeeRepository.findAll(pageable);
-	}
-
-	@Override
-	public Employee getEmployeeByEmail(String email) {
-		return employeeRepository.findByEmail(email);
 	}
 
 	@Override
 	public long countEmployee() {
 		return employeeRepository.count();
 	}
+
+	@Override
+	public Iterable<Employee> getNewEmployeeOfMonth() {
+		return employeeRepository.findNewEmployeeOfMonth();
+	}
+
+	@Override
+	public Optional<Employee> assignEmployeeToUnit(String id, String teamUnit) {
+		Optional<Employee> employeeOp = employeeRepository.findById(id);
+		if (employeeOp.isEmpty()) {
+			throw new RuntimeException(" Employee not found for id :: " + id);
+		}
+		employeeOp.get().setTeamUnit(teamUnit);
+		employeeRepository.save(employeeOp.get());
+		return employeeOp;
+	}
+
 }

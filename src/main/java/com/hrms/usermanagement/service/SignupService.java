@@ -23,7 +23,7 @@ public class SignupService {
         var user = new User();
         user.setUsername(signupDto.getUsername());
         user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
-        user.setEnabled(false);
+        user.setIsEnabled(false);
 
         userRepository.save(user);
     }

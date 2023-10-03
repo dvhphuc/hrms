@@ -84,10 +84,9 @@ public class EmployeeController {
 	}
 
 	@PutMapping("/assign/unit/{employeeId}")
-	public ResponseEntity<Employee> assignUnitEmployee(@PathVariable String employeeId, @RequestBody String unitName) {
-//		employeeService.assignEmployeeToUnit(employeeId, unitName);
-//		return ResponseEntity.noContent().build();
-		return null;
+	public ResponseEntity<Employee> assignUnitEmployee(@PathVariable int employeeId, @RequestParam int unitId) {
+		employeeService.assignEmployeeToUnit(employeeId, unitId);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/assign/unit/{employeeId}/{projectId}")

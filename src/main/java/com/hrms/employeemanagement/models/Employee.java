@@ -1,5 +1,9 @@
 package com.hrms.employeemanagement.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.hrms.usermanagement.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +13,6 @@ import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -41,13 +44,21 @@ public class Employee extends RepresentationModel<Employee> {
 	private String positionLevel;
 
 	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<EmployeeProject> employeeProjects;
 
 	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private List<EmployeeRole> employeeRoles;
 
-	@OneToOne(mappedBy = "employee")
+	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
+	@JsonIgnore
 	private User user;
+
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "unit_id")
+	@JsonIgnore
+	private Unit unit;
 
 	public String getFullname() {
 		return firstName + " " + lastName;

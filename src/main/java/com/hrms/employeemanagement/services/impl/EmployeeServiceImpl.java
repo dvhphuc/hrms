@@ -1,7 +1,10 @@
 package com.hrms.employeemanagement.services.impl;
 import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
+import com.hrms.employeemanagement.exception.UnitNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.Unit;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
+import com.hrms.employeemanagement.repositories.UnitRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
+	@Autowired
+	private UnitRepository unitRepository;
 
 	@Override
 	public List<Employee> getAllEmployees() {
@@ -62,6 +67,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 			Sort.by(sortField).descending();
 		
 		Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sort);
+		List<Employee> employees = employeeRepository.findAll(pageable).getContent();
+		for (Employee employee : employees) {
+			System.out.println(employee.getEmail());
+		}
 		return this.employeeRepository.findAll(pageable);
 	}
 
@@ -76,14 +85,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Optional<Employee> assignEmployeeToUnit(int id, String unitId) {
+	public Optional<Employee> assignEmployeeToUnit(int id, int unitId) {
 		Optional<Employee> employeeOp = employeeRepository.findById(id);
-//		if (employeeOp.isEmpty()) {
-//			throw new RuntimeException(" Employee not found for id :: " + id);
-//		}
-//		Unit teamUnit = new Unit();
-//		employeeOp.get().setUnit(teamUnit);
-//		employeeRepository.save(employeeOp.get());
+		if (employeeOp.isEmpty()) {
+			throw new EmployeeNotFoundException(" Employee not found for id :: " + id);
+		}
+		Optional<Unit> unit = unitRepository.findById(unitId);
+		if (unit.isEmpty()) {
+			throw new UnitNotFoundException(" Unit not found for id :: " + unitId);
+		}
+		employeeOp.get().setUnit(unit.get());
+		employeeRepository.save(employeeOp.get());
 		return employeeOp;
 	}
 

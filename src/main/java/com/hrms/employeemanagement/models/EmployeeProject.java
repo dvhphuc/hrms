@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,11 +18,13 @@ public class EmployeeProject {
     @Column(name = "employee_project_id")
     private int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "project_id")
+    @JsonIgnore
     private Project project;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id")
+    @JsonIgnore
     private Employee employee;
 }

@@ -2,7 +2,7 @@
   {
     "Role": "admin",
     "Permission": "contributor",
-    "Features": ["login", "changePassword", "manageRoles", "manageUsers"]
+    "Features": ["login", "changePassword", "activation" , "manageRoles", "manageUsers"]
   },
   {
     "Role": "manager",

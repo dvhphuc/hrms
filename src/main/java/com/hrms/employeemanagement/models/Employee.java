@@ -42,15 +42,6 @@ public class Employee extends RepresentationModel<Employee> {
 	@Column(name = "teamunit")
 	private String teamUnit;
 
-	public String printOut() {
-		return "Employee{" +
-				"id='" + id + '\'' +
-				", firstName='" + firstName + '\'' +
-				", lastName='" + lastName + '\'' +
-				", email='" + email + '\'' +
-				'}';
-	}
-
 	@OneToOne(mappedBy = "employee")
 	private User user;
 

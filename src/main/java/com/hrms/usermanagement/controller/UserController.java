@@ -26,7 +26,7 @@ public class UserController {
         return userService.getAll(pageNo, pageSize);
     }
 
-    @PostMapping("/update/{username}")
+    @PutMapping("/update/{username}")
     public ResponseEntity updateUser(@PathVariable String username,
                                      @RequestParam(name = "role") String roleName,
                                      @RequestParam(name = "isEnable") boolean isEnable)

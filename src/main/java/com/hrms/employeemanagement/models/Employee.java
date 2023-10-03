@@ -18,7 +18,7 @@ import java.util.Optional;
 @Table(name = "employee")
 public class Employee extends RepresentationModel<Employee> {
 	@Id
-	@Column(name = "employeeid", nullable = false)
+	@Column(name = "employee_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private String id;
 	@Column(name = "firstname")

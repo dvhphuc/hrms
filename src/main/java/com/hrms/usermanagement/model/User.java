@@ -39,7 +39,7 @@ public class User {
     private Date createdAt;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "employee_id", referencedColumnName = "employeeid")
+    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
 
 }

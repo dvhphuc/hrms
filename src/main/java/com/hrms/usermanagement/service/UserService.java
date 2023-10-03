@@ -39,9 +39,9 @@ public class UserService {
         modelMapper = new ModelMapper();
         modelMapper.typeMap(User.class, UserDto.class)
                 .addMappings(mapper -> {
-                   mapper.map(src -> src.getRole().getName(), UserDto::setRole);
-                   mapper.map(src -> src.getEmployee().getFullname(), UserDto::setName);
-                   mapper.map(User::getIsEnabled, UserDto::setStatus);
+                    mapper.map(src -> src.getRole().getName(), UserDto::setRole);
+                    mapper.map(src -> src.getEmployee().getFullname(), UserDto::setName);
+                    mapper.map(User::getIsEnabled, UserDto::setStatus);
                 });
     }
 
@@ -55,11 +55,11 @@ public class UserService {
     }
 
     public List<UserDto> getAll(int pageNo, int pageSize) {
-        var paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC,"createdAt"));
+        var paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         var users = userRepository.findAll(paging);
 
         return users.stream()
-                .map(u -> modelMapper.map(u,UserDto.class))
+                .map(u -> modelMapper.map(u, UserDto.class))
                 .collect(Collectors.toList());
     }
 

@@ -23,10 +23,6 @@ public class UserDto {
         this.name = name;
     }
 
-    public boolean isStatus() {
-        return status;
-    }
-
     public void setStatus(boolean status) {
         this.status = status;
     }
@@ -39,17 +35,6 @@ public class UserDto {
         this.username = username;
     }
 
-    public Date getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getRole() {
-        return role;
-    }
 
     public void setRole(String role) {
         this.role = role;

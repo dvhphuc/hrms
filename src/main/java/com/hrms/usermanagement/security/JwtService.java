@@ -1,16 +1,37 @@
 package com.hrms.usermanagement.security;
 
 import com.auth0.jwt.algorithms.Algorithm;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.impl.DefaultClaims;
+import io.jsonwebtoken.impl.DefaultHeader;
+import io.jsonwebtoken.impl.DefaultJwsHeader;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class JwtService {
-    private final String JwtSecret = "secret";
+    private final String JWTSECRET = "secret";
 
     private final int JwtExpiration = 86400;
 
+
+
+    public String genToken(String username) {
+        Map header = new HashMap<String, String>();
+        header.put("alg", "256");
+
+        Claims claims = new DefaultClaims();
+        String jwt = Jwts.builder().setHeader(header).setClaims(claims).compact();
+
+        return jwt;
+    }
+
     public String generateToken(String username) {
-        Algorithm algorithm = Algorithm.HMAC256(JwtSecret);
+        Algorithm algorithm = Algorithm.HMAC256(JWTSECRET);
         return com.auth0.jwt.JWT.create()
                 .withClaim("username", username)
                 .sign(algorithm);

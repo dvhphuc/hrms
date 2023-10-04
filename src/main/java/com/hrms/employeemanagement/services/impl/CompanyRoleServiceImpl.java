@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.employeemanagement.exception.ProjectNotFoundException;
 import com.hrms.employeemanagement.exception.RoleNotFoundException;
 import com.hrms.employeemanagement.models.CompanyRole;
 import com.hrms.employeemanagement.repositories.CompanyRoleRepository;
@@ -13,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class RoleServiceImpl implements RoleService {
+public class CompanyRoleServiceImpl implements RoleService {
     @Autowired
     private CompanyRoleRepository companyRoleRepository;
 

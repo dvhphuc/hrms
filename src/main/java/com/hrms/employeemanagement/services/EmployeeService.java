@@ -14,5 +14,5 @@ public interface EmployeeService {
 	Page<Employee> findPaginated(int pageNo, int pageSize, String sortField, String sortDirection);
 	long countEmployee();
 	Iterable<Employee> getNewEmployeeOfMonth();
-	Optional<Employee> assignEmployeeToUnit(int id, String teamUnit);
+	Optional<Employee> assignEmployeeToUnit(int id, int teamUnit);
 }

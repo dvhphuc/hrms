@@ -19,8 +19,8 @@ import java.util.Set;
 public class Employee extends RepresentationModel<Employee> {
 	@Id
 	@Column(name = "employee_id", nullable = false)
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private String id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 	private String lastName;
 	@Column(name = "first_name")
 	private String firstName;

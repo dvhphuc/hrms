@@ -1,26 +1,16 @@
 package com.hrms.usermanagement.service;
 
-import com.hrms.usermanagement.dto.UpdateDto;
 import com.hrms.usermanagement.dto.UserDto;
-import com.hrms.usermanagement.model.Role;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.RoleRepository;
 import com.hrms.usermanagement.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.spi.DestinationSetter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
-
-import javax.print.attribute.standard.Destination;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +36,7 @@ public class UserService {
     }
 
     public List<UserDto> getAll() {
-        var sort = Sort.by(Sort.Direction.ASC, "createdAt");
+        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
         var users = userRepository.findAll(sort);
 
         return users.stream()
@@ -54,13 +44,54 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public List<UserDto> getAll(int pageNo, int pageSize) {
-        var paging = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
-        var users = userRepository.findAll(paging);
+    public Page<UserDto> getAll(Pageable pageable) {
+        Pageable sortedByCreatedAtDesc = PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by("createdAt").descending());
+        return userRepository.findAll(sortedByCreatedAtDesc).map(u -> modelMapper.map(u, UserDto.class));
 
-        return users.stream()
-                .map(u -> modelMapper.map(u, UserDto.class))
-                .collect(Collectors.toList());
+    }
+
+    public Page<UserDto> getFilterOfRole(@Param("roleName") String roleName, Pageable pageable) {
+        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        var userDtos = userRepository.findAll(PageRequest.of
+                        (pageable.getPageNumber(), pageable.getPageSize(), sort))
+                .map(u -> modelMapper.map(u, UserDto.class));
+        return new PageImpl<>(userDtos.stream()
+                .filter(u -> u.getRole().equals(roleName))
+                .collect(Collectors.toList()));
+    }
+
+    public Page<UserDto> getFilterOfStatus(@Param("status") Boolean status, Pageable pageable) {
+        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return userRepository.findAllByIsEnabled(status, PageRequest.of
+                        (pageable.getPageNumber(), pageable.getPageSize(), sort))
+                .map(u -> modelMapper.map(u, UserDto.class));
+    }
+
+    public Page<UserDto> getFilterOfRoleAndStatus(@Param("roleName") String role,
+                                                  @Param("status") Boolean status,
+                                                  Pageable pageable)
+    {
+        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return userRepository.findAllByRoleAndIsEnabled(role, status, PageRequest.of
+                        (pageable.getPageNumber(), pageable.getPageSize(), sort))
+                .map(u -> modelMapper.map(u, UserDto.class));
+    }
+
+
+    public Page<UserDto> getAll(@Param("roleName") String roleName, @Param("status") Boolean status, Pageable pageable) {
+        if (roleName == null && status == null) {
+            return getAll(pageable);
+        }
+        if (roleName == null) {
+            return getFilterOfStatus(status, pageable);
+        }
+        if (status == null) {
+            return getFilterOfRole(roleName, pageable);
+        }
+        return getFilterOfRoleAndStatus(roleName, status, pageable);
     }
 
     public void updateUser(String username, String roleName, boolean isEnable) {

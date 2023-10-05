@@ -1,21 +1,13 @@
 package com.hrms.usermanagement.dto;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.hateoas.PagedModel;
+import com.hrms.usermanagement.model.User;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.sql.Date;
 
-@Data
-public class UserDto {
+public class UserDtoModel extends RepresentationModel<UserDtoModel> {
     private String name;
     private boolean status;
-    private String username;
-
-    private Date createdAt;
-    private int role;
 
     public String getName() {
         return name;
@@ -23,6 +15,10 @@ public class UserDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isStatus() {
+        return status;
     }
 
     public void setStatus(boolean status) {
@@ -37,7 +33,24 @@ public class UserDto {
         this.username = username;
     }
 
-    public void setRole(int role) {
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
         this.role = role;
     }
+
+    private String username;
+
+    private Date createdAt;
+    private String role;
 }

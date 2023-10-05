@@ -1,5 +1,7 @@
 package com.hrms.usermanagement.service;
 
+import com.hrms.usermanagement.exception.UserNotFoundException;
+import com.hrms.usermanagement.exception.WrongPasswordException;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.UserRepository;
 import com.hrms.usermanagement.security.JwtService;
@@ -23,14 +25,14 @@ public class AuthenticationService {
     public User getUser(String username) {
         return userRepository.findByUsername(username);
     }
-    public String login(String username, String password) throws Exception { //3 values, throw Exception, password + salt
+    public String login(String username, String password) throws UserNotFoundException, WrongPasswordException { //3 values, throw Exception, password + salt
         var user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new CredentialNotFoundException("User not found");
+            throw new UserNotFoundException("User not found");
         }
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new CredentialNotFoundException("Wrong password");
+            throw new WrongPasswordException("Wrong password");
         }
 
         return jwtService.generateToken(username);

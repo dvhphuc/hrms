@@ -22,10 +22,10 @@ public class HRMSUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
-        var username_ = user.getUsername();
+        var userName = user.getUsername();
         var password = user.getPassword();
         var authorities = Collections
                 .singletonList(new SimpleGrantedAuthority(user.getRole().toString()));
-        return new org.springframework.security.core.userdetails.User(username_, password, authorities);
+        return new org.springframework.security.core.userdetails.User(userName, password, authorities);
     }
 }

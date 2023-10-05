@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class HRMSSecurityConfig {
     @Autowired
     private UserRepository userRepository;

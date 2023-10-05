@@ -8,8 +8,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +29,7 @@ public class UserService {
         modelMapper = new ModelMapper();
         modelMapper.typeMap(User.class, UserDto.class)
                 .addMappings(mapper -> {
-                    mapper.map(src -> src.getRole().getName(), UserDto::setRole);
+                    mapper.map(src -> src.getRole().getRoleId(), UserDto::setRole);
                     mapper.map(src -> src.getEmployee().getFullname(), UserDto::setName);
                     mapper.map(User::getIsEnabled, UserDto::setStatus);
                 });
@@ -53,46 +53,15 @@ public class UserService {
 
     }
 
-    public Page<UserDto> getFilterOfRole(@Param("roleName") String roleName, Pageable pageable) {
-        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        var userDtos = userRepository.findAll(PageRequest.of
-                        (pageable.getPageNumber(), pageable.getPageSize(), sort))
-                .map(u -> modelMapper.map(u, UserDto.class));
-        return new PageImpl<>(userDtos.stream()
-                .filter(u -> u.getRole().equals(roleName))
-                .collect(Collectors.toList()));
+    public Page<UserDto> getAllByFilter(Specification spec, Pageable pageable) {
+        Pageable sortedByCreatedAtDesc = PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by("createdAt").descending());
+        return userRepository.findAll(spec, sortedByCreatedAtDesc).map(u -> modelMapper.map(u, UserDto.class));
+
     }
 
-    public Page<UserDto> getFilterOfStatus(@Param("status") Boolean status, Pageable pageable) {
-        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        return userRepository.findAllByIsEnabled(status, PageRequest.of
-                        (pageable.getPageNumber(), pageable.getPageSize(), sort))
-                .map(u -> modelMapper.map(u, UserDto.class));
-    }
-
-    public Page<UserDto> getFilterOfRoleAndStatus(@Param("roleName") String role,
-                                                  @Param("status") Boolean status,
-                                                  Pageable pageable)
-    {
-        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        return userRepository.findAllByRoleAndIsEnabled(role, status, PageRequest.of
-                        (pageable.getPageNumber(), pageable.getPageSize(), sort))
-                .map(u -> modelMapper.map(u, UserDto.class));
-    }
-
-
-    public Page<UserDto> getAll(@Param("roleName") String roleName, @Param("status") Boolean status, Pageable pageable) {
-        if (roleName == null && status == null) {
-            return getAll(pageable);
-        }
-        if (roleName == null) {
-            return getFilterOfStatus(status, pageable);
-        }
-        if (status == null) {
-            return getFilterOfRole(roleName, pageable);
-        }
-        return getFilterOfRoleAndStatus(roleName, status, pageable);
-    }
 
     public void updateUser(String username, String roleName, boolean isEnable) {
         var user = userRepository.findByUsername(username);
@@ -100,5 +69,25 @@ public class UserService {
         user.setIsEnabled(isEnable);
         user.setRole(role);
         userRepository.save(user);
+    }
+
+    public Page<UserDto> getUserByStatus(@Param("status") Boolean status,
+                                         PageRequest pageRequest)
+    {
+        return userRepository.findAllByIsEnabled(status, pageRequest)
+                .map(user -> modelMapper.map(user, UserDto.class));
+    }
+
+    public Page<UserDto> filter(Specification<User> spec, Pageable pageable) {
+        return userRepository.findAll(spec, pageable)
+                .map(user -> modelMapper.map(user, UserDto.class));
+    }
+
+    public Page<UserDto> getUsersByRoleNameAndStatus(@Param("roleName") String roleName,
+                                                     @Param("status") Boolean status,
+                                                     PageRequest pageRequest)
+    {
+        return userRepository.findAllByRoleNameAndIsEnabled(roleName, status, pageRequest)
+                .map(user -> modelMapper.map(user, UserDto.class));
     }
 }

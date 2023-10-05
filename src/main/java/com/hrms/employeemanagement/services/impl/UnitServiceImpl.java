@@ -1,7 +1,7 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.employeemanagement.exception.UnitNotFoundException;
-import com.hrms.employeemanagement.models.Unit;
+import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.repositories.UnitRepository;
 import com.hrms.employeemanagement.services.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +17,18 @@ public class UnitServiceImpl implements UnitService {
     private UnitRepository unitRepository;
 
     @Override
-    public Iterable<Unit> getAllUnits() {
+    public Iterable<Department> getAllUnits() {
         return unitRepository.findAll();
     }
 
     @Override
-    public Unit saveUnit(Unit unit) {
-        return unitRepository.save(unit);
+    public Department saveUnit(Department department) {
+        return unitRepository.save(department);
     }
 
     @Override
-    public Optional<Unit> getUnitById(int id) {
-        Optional<Unit> unit = unitRepository.findById(id);
+    public Optional<Department> getUnitById(int id) {
+        Optional<Department> unit = unitRepository.findById(id);
         if (unit.isEmpty()) {
             throw new UnitNotFoundException("Unit not found for id :: " + id);
         }
@@ -36,12 +36,12 @@ public class UnitServiceImpl implements UnitService {
     }
 
     @Override
-    public Optional<Unit> updateUnit(int id, Unit unit) {
-        Optional<Unit> unitOptional = unitRepository.findById(id);
+    public Optional<Department> updateUnit(int id, Department department) {
+        Optional<Department> unitOptional = unitRepository.findById(id);
         if (unitOptional.isEmpty())
             throw new UnitNotFoundException("Unit not found for id :: " + id);
-        unit.setId(id);
-        unitRepository.save(unit);
+        department.setId(id);
+        unitRepository.save(department);
         return unitOptional;
     }
 

@@ -2,12 +2,15 @@ package com.hrms.employeemanagement.controllers;
 
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,7 +22,7 @@ public class GraphQLController {
 
     @QueryMapping
     public Iterable<Employee> findAllEmployees() {
-        return employeeService.getAllEmployees();
+        return employeeService.findAll(Specification.allOf());
     }
 
     @QueryMapping
@@ -28,8 +31,8 @@ public class GraphQLController {
     }
 
     @QueryMapping
-    public Optional<Employee> findEmployeeById(@Argument int id) {
-        return employeeService.getEmployeeById(id);
+    public List<Employee> findEmployeeById(@Argument int id) {
+        return employeeService.findAll(EmployeeSpecifications.hasId(id));
     }
 
     @QueryMapping
@@ -49,7 +52,6 @@ public class GraphQLController {
         employee.setDateOfBirth(dateOfBirth);
         employee.setPhoneNumber(phoneNumber);
         employee.setAddress(address);
-        employee.setPositionLevel(positionLevel);
         employeeService.saveEmployee(employee);
         return employee;
     }
@@ -73,7 +75,6 @@ public class GraphQLController {
         employee.setDateOfBirth(dateOfBirth);
         employee.setPhoneNumber(phoneNumber);
         employee.setAddress(address);
-        employee.setPositionLevel(positionLevel);
         employeeService.saveEmployee(employee);
         return employee;
     }

@@ -1,14 +1,14 @@
 package com.hrms.employeemanagement.services;
 
 
-import com.hrms.employeemanagement.models.Unit;
+import com.hrms.employeemanagement.models.Department;
 
 import java.util.Optional;
 
 public interface UnitService {
-    Iterable<Unit> getAllUnits();
-    Unit saveUnit(Unit role);
-    Optional<Unit> getUnitById(int id);
-    Optional<Unit> updateUnit(int id, Unit role);
+    Iterable<Department> getAllUnits();
+    Department saveUnit(Department role);
+    Optional<Department> getUnitById(int id);
+    Optional<Department> updateUnit(int id, Department role);
     void deleteUnitById(int id);
 }

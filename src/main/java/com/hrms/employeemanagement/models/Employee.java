@@ -1,9 +1,6 @@
 package com.hrms.employeemanagement.models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.hrms.usermanagement.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,8 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -40,25 +35,22 @@ public class Employee extends RepresentationModel<Employee> {
 	private String phoneNumber;
 	@Column(name = "date_joined")
 	private String dateJoined;
-	@Column(name = "position_level")
-	private String positionLevel;
+	@Column(name = "current_contract")
+	private int currentContract;
+	@Column(name = "profile_bio")
+	private String profileBio;
 
-	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-	@JsonIgnore
-	private List<EmployeeProject> employeeProjects;
+	@ManyToOne
+	@JoinColumn(name = "department_id")
+	private Department department;
 
-	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
-	@JsonIgnore
-	private List<EmployeeRole> employeeRoles;
+	@ManyToOne
+	@JoinColumn(name = "position_level_id")
+	private PositionLevel positionLevel;
 
 	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
 	@JsonIgnore
 	private User user;
-
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "unit_id")
-	@JsonIgnore
-	private Unit unit;
 
 	public String getFullname() {
 		return firstName + " " + lastName;

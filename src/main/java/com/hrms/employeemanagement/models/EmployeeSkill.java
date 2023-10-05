@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,19 +11,22 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmployeeRole {
+public class EmployeeSkill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "employee_role_id")
-    private int id;
+    @Column(name = "employee_skill_id")
+    private int ID;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "employee_id")
-    @JsonIgnore
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "company_role_id")
-    @JsonIgnore
-    private CompanyRole companyRole;
+    @ManyToOne
+    @JoinColumn(name = "skill_id")
+    private Skill skill;
+
+    @ManyToOne
+    @JoinColumn(name = "proficiency_level_id")
+    private ProficiencyLevel proficiencyLevel;
 }
+

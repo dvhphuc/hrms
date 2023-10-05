@@ -15,7 +15,7 @@ type Employee {
 # Define a query to fetch employees
 type Query {
   findAllEmployees: [Employee]
-  findEmployeeById(id: Int!): Employee
+  findEmployeeById(id: Int!): [Employee]
   countEmployees: Int
   findNewEmployeeOfMonth: [Employee]
 }

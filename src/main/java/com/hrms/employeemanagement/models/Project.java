@@ -32,8 +32,4 @@ public class Project extends RepresentationModel<Project> {
     @JoinColumn(name = "engage_manager_id")
     @JsonIgnore
     private Employee engageManager;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<EmployeeProject> employeeProjects;
 }

@@ -1,9 +1,9 @@
 package com.hrms.employeemanagement.services.impl;
 
 import com.hrms.employeemanagement.exception.RoleNotFoundException;
-import com.hrms.employeemanagement.models.CompanyRole;
+import com.hrms.employeemanagement.models.Position;
 import com.hrms.employeemanagement.repositories.CompanyRoleRepository;
-import com.hrms.employeemanagement.services.RoleService;
+import com.hrms.employeemanagement.services.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,23 +12,23 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class CompanyRoleServiceImpl implements RoleService {
+public class CompanyPositionServiceImpl implements PositionService {
     @Autowired
     private CompanyRoleRepository companyRoleRepository;
 
     @Override
-    public Iterable<CompanyRole> getAllRoles() {
+    public Iterable<Position> getAllRoles() {
         return companyRoleRepository.findAll();
     }
 
     @Override
-    public CompanyRole saveRole(CompanyRole role) {
+    public Position saveRole(Position role) {
         return companyRoleRepository.save(role);
     }
 
     @Override
-    public Optional<CompanyRole> getRoleById(int id) {
-        Optional<CompanyRole> role = companyRoleRepository.findById(id);
+    public Optional<Position> getRoleById(int id) {
+        Optional<Position> role = companyRoleRepository.findById(id);
         if (role.isEmpty()) {
             throw new RoleNotFoundException("Role not found for id :: " + id);
         }
@@ -36,8 +36,8 @@ public class CompanyRoleServiceImpl implements RoleService {
     }
 
     @Override
-    public Optional<CompanyRole> updateRole(int id, CompanyRole role) {
-        Optional<CompanyRole> roleOptional = companyRoleRepository.findById(id);
+    public Optional<Position> updateRole(int id, Position role) {
+        Optional<Position> roleOptional = companyRoleRepository.findById(id);
         if (roleOptional.isEmpty())
             throw new RoleNotFoundException("Role not found for id :: " + id);
         role.setId(id);

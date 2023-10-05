@@ -1,13 +1,14 @@
 package com.hrms.employeemanagement.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hrms.usermanagement.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -35,23 +36,30 @@ public class Employee extends RepresentationModel<Employee> {
 	@Column(name = "date_joined")
 	private String dateJoined;
 	@Column(name = "current_contract")
-	private int currentContract;
+	private Integer currentContract;
 	@Column(name = "profile_bio")
 	private String profileBio;
-
+	@Column(name = "facebook_link")
+	private String facebookLink;
+	@Column(name = "twitter_link")
+	private String twitterLink;
+	@Column(name = "linked_in_link")
+	private String linkedInLink;
+	@Column(name = "instagram_link")
+	private String instagramLink;
 	@ManyToOne
 	@JoinColumn(name = "department_id")
 	private Department department;
-
 	@ManyToOne
 	@JoinColumn(name = "position_level_id")
 	private PositionLevel positionLevel;
-
+	@OneToMany(mappedBy = "employee")
+	private List<EmergencyContact> emergencyContacts;
+	@OneToMany(mappedBy = "employee")
+	private List<EmployeeSkill> employeeSkills;
+	@OneToMany(mappedBy = "employee")
+	private List<EmployeeProject> employeeProjects;
 	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
 	@JsonIgnore
 	private User user;
-
-	public String getFullname() {
-		return firstName + " " + lastName;
-	}
 }

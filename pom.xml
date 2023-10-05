@@ -102,7 +102,7 @@
             <artifactId>java-jwt</artifactId>
             <version>4.4.0</version>
         </dependency>
-<<<<<<< HEAD
+
         <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -126,13 +126,11 @@
             <scope>runtime</scope>
         </dependency>
 
-=======
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version> <!-- Use the latest version -->
         </dependency>
->>>>>>> a8d406219297fdfd92689fcba697cebe7c6671f6
 
     </dependencies>
 

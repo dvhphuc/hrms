@@ -16,10 +16,9 @@ import org.springframework.hateoas.RepresentationModel;
 @NoArgsConstructor
 public class Employee extends RepresentationModel<Employee> {
 	@Id
+	@Column(name = "employee_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "employee_id")
 	private int id;
-	@Column(name = "last_name")
 	private String lastName;
 	@Column(name = "first_name")
 	private String firstName;

@@ -1,7 +1,8 @@
-package com.hrms.usermanagement.model;
+package com.hrms.employeemanagement.models;
 
-import com.fasterxml.jackson.annotation.*;
-import com.hrms.employeemanagement.models.Employee;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +22,6 @@ public class Skill {
 
     @ManyToOne
     @JoinColumn(name = "skill_set_id")
+    @JsonIgnore
     private SkillSet skillset;
-
-    // getters and setters
 }

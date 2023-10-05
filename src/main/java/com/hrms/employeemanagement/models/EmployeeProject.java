@@ -20,7 +20,6 @@ public class EmployeeProject {
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "project_id")
-    @JsonIgnore
     private Project project;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

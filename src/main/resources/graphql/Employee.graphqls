@@ -1,0 +1,49 @@
+# Define the Employee type
+type Employee {
+    id: Int!
+    firstName: String
+    lastName: String
+    email: String
+    gender: String
+    dateOfBirth: String
+    address: String
+    phoneNumber: String
+    positionLevel: String
+    dateJoined: String
+    currentContract: Int
+    profileBio: String
+    facebookLink: String
+    twitterLink: String
+    linkedinLink: String
+    instagramLink: String
+    department: Department
+    emergencyContacts: [EmergencyContact]
+    employeeSkills: [EmployeeSkill]
+    employeeProjects: [EmployeeProject]
+}
+
+type EmployeeEdge {
+    cursor: String!
+    node: Employee!
+}
+
+type EmployeeConnection {
+    totalCount: Int!
+    edges: [EmployeeEdge]!
+    pagination: Pagination!
+}
+
+# Define a query to fetch employees
+type Query {
+    findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
+    findEmployeeById(id: Int!): [Employee]
+    countEmployees: Int
+    findNewEmployeeOfMonth: [Employee]
+}
+
+# Define a mutation to create a new employee
+type Mutation {
+    newEmployee(firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
+    deleteEmployee(id: Int!): Boolean
+    updateEmployee(id: Int!, firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
+}

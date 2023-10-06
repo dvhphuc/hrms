@@ -1,0 +1,6 @@
+type EmployeeSkill {
+    id: Int!
+    employee: Employee
+    skill: Skill
+    proficiencyLevel: ProficiencyLevel
+}

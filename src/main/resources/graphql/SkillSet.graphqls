@@ -1,0 +1,5 @@
+type SkillSet {
+    id: Int!
+    skillSetName: String
+    competency: Competency
+}

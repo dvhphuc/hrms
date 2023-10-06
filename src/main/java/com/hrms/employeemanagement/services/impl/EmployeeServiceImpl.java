@@ -63,7 +63,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public long countEmployee() {
-		return employeeRepository.count();
+		return employeeRepository.count(Specification.allOf());
 	}
 
 	@Override
@@ -75,11 +75,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public void assignEmployeeToUnit(int id, int unitId) {
 		Optional<Employee> employeeOp = employeeRepository.findById(id);
 		if (employeeOp.isEmpty()) {
-			throw new EmployeeNotFoundException(" Employee not found for id :: " + id);
+			throw new EmployeeNotFoundException("Employee not found for id :: " + id);
 		}
 		Optional<Department> unit = unitRepository.findById(unitId);
 		if (unit.isEmpty()) {
-			throw new UnitNotFoundException(" Unit not found for id :: " + unitId);
+			throw new UnitNotFoundException("Unit not found for id :: " + unitId);
 		}
 		employeeOp.get().setDepartment(unit.get());
 		employeeRepository.save(employeeOp.get());

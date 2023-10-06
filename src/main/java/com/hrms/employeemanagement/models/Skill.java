@@ -23,5 +23,5 @@ public class Skill {
     @ManyToOne
     @JoinColumn(name = "skill_set_id")
     @JsonIgnore
-    private SkillSet skillset;
+    private SkillSet skillSet;
 }

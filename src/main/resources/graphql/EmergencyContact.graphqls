@@ -1,0 +1,7 @@
+type EmergencyContact {
+    id: Int!
+    firstName: String
+    lastName: String
+    phoneNumber: String
+    employee: Employee
+}

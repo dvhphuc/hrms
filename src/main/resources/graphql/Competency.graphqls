@@ -1,0 +1,6 @@
+type Competency {
+    id: Int!
+    competencyName: String
+    description: String
+    competencyGroup: CompetencyGroup
+}

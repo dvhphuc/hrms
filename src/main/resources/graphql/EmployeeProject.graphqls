@@ -1,0 +1,5 @@
+type EmployeeProject{
+    id: Int!
+    project: Project
+    employee: Employee
+}

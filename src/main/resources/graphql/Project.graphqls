@@ -1,0 +1,6 @@
+type Project {
+    id: Int!
+    projectName: String
+    projectManager: Employee
+    engageManager: Employee
+}

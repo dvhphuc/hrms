@@ -1,0 +1,6 @@
+type Pagination {
+    pageNo: Int!
+    pageSize: Int!
+    totalItems: Int!
+    totalPages: Int!
+}

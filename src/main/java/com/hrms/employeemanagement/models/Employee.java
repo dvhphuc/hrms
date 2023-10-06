@@ -43,10 +43,13 @@ public class Employee extends RepresentationModel<Employee> {
 	private String facebookLink;
 	@Column(name = "twitter_link")
 	private String twitterLink;
-	@Column(name = "linked_in_link")
-	private String linkedInLink;
+	@Column(name = "linkedin_link")
+	private String linkedinLink;
 	@Column(name = "instagram_link")
 	private String instagramLink;
+	@Lob
+	@Column(name = "profile_picture")
+	private String profilePicture;
 	@ManyToOne
 	@JoinColumn(name = "department_id")
 	private Department department;

@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.service;
 
+import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.RoleRepository;
@@ -9,15 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.Param;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -35,59 +38,46 @@ public class UserService {
                 });
     }
 
-    public List<UserDto> getAll() {
-        var sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        var users = userRepository.findAll(sort);
-
-        return users.stream()
-                .map(u -> modelMapper.map(u, UserDto.class))
-                .collect(Collectors.toList());
+    public Page<UserDto> getAll(PageRequest pageRequest) {
+        return userRepository.findAll(pageRequest).map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public Page<UserDto> getAll(Pageable pageable) {
-        Pageable sortedByCreatedAtDesc = PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        Sort.by("createdAt").descending());
-        return userRepository.findAll(sortedByCreatedAtDesc).map(u -> modelMapper.map(u, UserDto.class));
-
+    public Page<UserDto> getAllByFilter(List<String> roles, List<Boolean> status, Pageable pageable) {
+        Specification<User> rolesFilter = Specification.where(null);
+        Specification<User> statusFilter = Specification.where(null);
+        if (roles != null) {
+            for (String role : roles) {
+                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("name"), role));
+            }
+        }
+        if (status != null) {
+            for (Boolean s : status) {
+                statusFilter = statusFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isEnabled"), s));
+            }
+        }
+        return userRepository
+                .findAll(rolesFilter.and(statusFilter), pageable)
+                .map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public Page<UserDto> getAllByFilter(Specification spec, Pageable pageable) {
-        Pageable sortedByCreatedAtDesc = PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        Sort.by("createdAt").descending());
-        return userRepository.findAll(spec, sortedByCreatedAtDesc).map(u -> modelMapper.map(u, UserDto.class));
-
+    public UserDto getUser(String username) {
+        return modelMapper.map(userRepository.findByUsername(username), UserDto.class);
     }
 
-
-    public void updateUser(String username, String roleName, boolean isEnable) {
-        var user = userRepository.findByUsername(username);
-        var role = roleRepository.findRoleByName(roleName.toUpperCase());
-        user.setIsEnabled(isEnable);
-        user.setRole(role);
+    public UserDto createUser(SignupDto signupDto) {
+        var user = new User();
+        user.setUsername(signupDto.getUsername());
+        user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
+        user.setIsEnabled(false);
         userRepository.save(user);
+        return modelMapper.map(user, UserDto.class);
     }
 
-    public Page<UserDto> getUserByStatus(@Param("status") Boolean status,
-                                         PageRequest pageRequest)
-    {
-        return userRepository.findAllByIsEnabled(status, pageRequest)
-                .map(user -> modelMapper.map(user, UserDto.class));
-    }
-
-    public Page<UserDto> filter(Specification<User> spec, Pageable pageable) {
-        return userRepository.findAll(spec, pageable)
-                .map(user -> modelMapper.map(user, UserDto.class));
-    }
-
-    public Page<UserDto> getUsersByRoleNameAndStatus(@Param("roleName") String roleName,
-                                                     @Param("status") Boolean status,
-                                                     PageRequest pageRequest)
-    {
-        return userRepository.findAllByRoleNameAndIsEnabled(roleName, status, pageRequest)
-                .map(user -> modelMapper.map(user, UserDto.class));
+    public UserDto updateUser(Integer id, Boolean status, String role) {
+        var user = userRepository.findById(Long.valueOf(id)).orElseThrow();
+        user.setIsEnabled(status);
+        user.setRole(roleRepository.findRoleByName(role));
+        userRepository.save(user);
+        return modelMapper.map(user, UserDto.class);
     }
 }

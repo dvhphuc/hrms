@@ -6,32 +6,24 @@ import com.hrms.usermanagement.exception.WrongPasswordException;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.security.auth.login.CredentialNotFoundException;
 
-@RestController
-@RequestMapping("/login")
+@Controller
 public class LoginController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @PostMapping("/auth")
-    public String login(
-            @RequestHeader("Authentication") String jwtToken,
-            @RequestBody LoginDto loginDto)
+    @QueryMapping("authUser")
+    public String login(@Argument String username, @Argument String password)
             throws UserNotFoundException, WrongPasswordException
     {
-        return authenticationService.login(loginDto.getUsername(), loginDto.getPassword());
+        return authenticationService.login(username, password);
     }
 
-    @GetMapping("/users/{username}")
-    public ResponseEntity<User> getUser(@PathVariable String username) {
-        var user = authenticationService.getUser(username);
-        if (user == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(user);
-    }
 }

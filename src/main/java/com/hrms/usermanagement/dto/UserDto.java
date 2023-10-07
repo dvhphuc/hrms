@@ -40,4 +40,8 @@ public class UserDto {
     public void setRole(int role) {
         this.role = role;
     }
+
+    public String getCreatedAt() {
+        return createdAt.toString();
+    }
 }

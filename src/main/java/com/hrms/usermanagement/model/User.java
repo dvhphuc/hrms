@@ -2,6 +2,7 @@ package com.hrms.usermanagement.model;
 
 import com.fasterxml.jackson.annotation.*;
 import com.hrms.employeemanagement.models.Employee;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,7 @@ public class User {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "roleId")
     @ManyToOne
     @JoinColumn(name = "role_id")
+    @Nullable
     private Role role;
 
     @Column(name = "created_at")

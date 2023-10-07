@@ -14,12 +14,5 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     User findByUsername(@Param("username") String username);
-
-    List<User> findAll(Sort sort);
     Page<User> findAll(Specification<User> spec, Pageable pageable);
-
-    Page<User> findAllByIsEnabled(@Param("status") Boolean isEnable, Pageable pageable);
-
-    Page<User> findAllByRoleNameAndIsEnabled(@Param("roleName") String roleName, @Param("status") Boolean isEnable, Pageable pageable);
-
 }

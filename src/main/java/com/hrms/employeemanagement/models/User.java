@@ -3,6 +3,7 @@ package com.hrms.employeemanagement.models;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,6 +35,7 @@ public class User {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "roleId")
     @ManyToOne
     @JoinColumn(name = "role_id")
+    @Nullable
     private Role role;
 
     @Column(name = "created_at")

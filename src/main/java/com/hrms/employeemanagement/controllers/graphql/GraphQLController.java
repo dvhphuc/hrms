@@ -1,8 +1,14 @@
 package com.hrms.employeemanagement.controllers.graphql;
 
+import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.PositionLevel;
+import com.hrms.employeemanagement.services.DepartmentService;
 import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.employeemanagement.services.PositionLevelService;
+import com.hrms.employeemanagement.specifications.DepartmentSpecifications;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
+import com.hrms.employeemanagement.specifications.PositionLevelSpecifications;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +29,20 @@ import java.util.List;
 
 @RestController
 public class GraphQLController {
+    EmployeeService employeeService;
+
+    PositionLevelService positionLevelService;
+
+    DepartmentService departmentService;
+
     @Autowired
-    private EmployeeService employeeService;
+    public GraphQLController(EmployeeService employeeService, PositionLevelService positionLevelService,
+                             DepartmentService departmentService)
+    {
+        this.employeeService = employeeService;
+        this.positionLevelService = positionLevelService;
+        this.departmentService = departmentService;
+    }
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -71,10 +89,12 @@ public class GraphQLController {
                                 @Argument String phoneNumber, @Argument String address, @Argument String dateJoined,
                                 @Argument Integer currentContract, @Argument String profileBio,
                                 @Argument String facebookLink, @Argument String twitterLink,
-                                @Argument String linkedinLink, @Argument String instagramLink) {
+                                @Argument String linkedinLink, @Argument String instagramLink,
+                                  @Argument Integer positionLevelId, @Argument Integer departmentId) {
         Employee employee = new Employee();
         return setEmployeeInfo(firstName, lastName, email, gender, dateOfBirth, phoneNumber, address, dateJoined,
-                currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, employee);
+                currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, positionLevelId,
+                departmentId, employee);
     }
 
     @MutationMapping
@@ -89,10 +109,12 @@ public class GraphQLController {
                                    @Argument String phoneNumber, @Argument String address, @Argument String dateJoined,
                                    @Argument Integer currentContract, @Argument String profileBio,
                                    @Argument String facebookLink, @Argument String twitterLink,
-                                   @Argument String linkedinLink, @Argument String instagramLink) {
+                                   @Argument String linkedinLink, @Argument String instagramLink,
+                                   @Argument Integer positionLevelId, @Argument Integer departmentId) {
         Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
         return setEmployeeInfo(firstName, lastName, email, gender, dateOfBirth, phoneNumber, address, dateJoined,
-                currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, employee);
+                currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, positionLevelId,
+                departmentId, employee);
     }
 
     @NotNull
@@ -102,7 +124,8 @@ public class GraphQLController {
                                      @Argument String dateJoined, @Argument Integer currentContract,
                                      @Argument String profileBio, @Argument String facebookLink,
                                      @Argument String twitterLink, @Argument String linkedinLink,
-                                     @Argument String instagramLink, Employee employee) {
+                                     @Argument String instagramLink, @Argument Integer positionLevelId,
+                                     @Argument Integer departmentId, Employee employee) {
         employee.setFirstName(firstName);
         employee.setLastName(lastName);
         employee.setEmail(email);
@@ -117,6 +140,10 @@ public class GraphQLController {
         employee.setTwitterLink(twitterLink);
         employee.setLinkedinLink(linkedinLink);
         employee.setInstagramLink(instagramLink);
+        PositionLevel pl = positionLevelService.findAll(PositionLevelSpecifications.hasId(positionLevelId)).get(0);
+        employee.setPositionLevel(pl);
+        Department department = departmentService.findAll(DepartmentSpecifications.hasId(departmentId)).get(0);
+        employee.setDepartment(department);
         employeeService.saveEmployee(employee);
         return employee;
     }

@@ -31,11 +31,13 @@ type EmployeeConnection {
 # Define a query to fetch employees
 type Query {
     findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
+    filterEmployees(departmentId: Int, currentContract: Int, status: Boolean): [Employee]!
     findEmployeeById(id: Int!): [Employee]
-    countEmployees: Int
+    countEmployees: Int!
     findNewEmployeeOfMonth: [Employee]
     getEmployeeImage(id: Int!): EmployeeImageData
 }
+
 
 # Define a mutation to create a new employee
 type Mutation {
@@ -54,7 +56,27 @@ type Mutation {
         twitterLink: String!
         linkedinLink: String!
         instagramLink: String!
+        positionLevelId: Int!
+        departmentId: Int!
     ): Employee
     inactiveEmployee(id: Int!): Boolean
-    updateEmployee(id: Int!, firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
+    updateEmployee(
+        id: Int!,
+        firstName: String!
+        lastName: String!
+        email: String!
+        gender: String!
+        dateOfBirth: String!
+        phoneNumber: String!
+        address: String!
+        dateJoined: String!
+        currentContract: Int!
+        profileBio: String!
+        facebookLink: String!
+        twitterLink: String!
+        linkedinLink: String!
+        instagramLink: String!
+        positionLevelId: Int!
+        departmentId: Int!
+    ): Employee
 }

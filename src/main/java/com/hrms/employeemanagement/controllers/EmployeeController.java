@@ -6,8 +6,6 @@ import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,8 +33,11 @@ public class EmployeeController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    EmployeeService employeeService;
     @Autowired
-    private EmployeeService employeeService;
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
 
     @GetMapping
     public ResponseEntity<Page<Employee>> getEmployeesPaging(

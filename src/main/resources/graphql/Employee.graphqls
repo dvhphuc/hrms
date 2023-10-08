@@ -22,14 +22,9 @@ type Employee {
     employeeProjects: [EmployeeProject]
 }
 
-type EmployeeEdge {
-    cursor: String!
-    node: Employee!
-}
-
 type EmployeeConnection {
     totalCount: Int!
-    edges: [EmployeeEdge]!
+    data: [Employee]!
     pagination: Pagination!
 }
 
@@ -39,11 +34,27 @@ type Query {
     findEmployeeById(id: Int!): [Employee]
     countEmployees: Int
     findNewEmployeeOfMonth: [Employee]
+    getEmployeeImage(id: Int!): EmployeeImageData
 }
 
 # Define a mutation to create a new employee
 type Mutation {
-    newEmployee(firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
-    deleteEmployee(id: Int!): Boolean
+    createProfile(
+        firstName: String!
+        lastName: String!
+        email: String!
+        gender: String!
+        dateOfBirth: String!
+        phoneNumber: String!
+        address: String!
+        dateJoined: String!
+        currentContract: Int!
+        profileBio: String!
+        facebookLink: String!
+        twitterLink: String!
+        linkedinLink: String!
+        instagramLink: String!
+    ): Employee
+    inactiveEmployee(id: Int!): Boolean
     updateEmployee(id: Int!, firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
 }

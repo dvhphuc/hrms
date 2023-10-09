@@ -41,8 +41,7 @@ public class GraphQLController {
 
     @Autowired
     public GraphQLController(EmployeeService employeeService, PositionLevelService positionLevelService,
-                             DepartmentService departmentService)
-    {
+                             DepartmentService departmentService) {
         this.employeeService = employeeService;
         this.positionLevelService = positionLevelService;
         this.departmentService = departmentService;
@@ -58,7 +57,7 @@ public class GraphQLController {
                                                @Nullable @Argument Boolean status) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<Employee> employeeList =
-                employeeService.getAllByFilter(departmentIds,currentContracts,status, pageable);
+                employeeService.getAllByFilter(departmentIds, currentContracts, status, pageable);
         long totalCount = employeeList.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
@@ -75,7 +74,7 @@ public class GraphQLController {
         return employeeService.findAll(EmployeeSpecifications.hasId(id));
     }
 
-    @QueryMapping
+    @QueryMapping(name = "employeeOfTheMonth")
     public Iterable<Employee> findNewEmployeeOfMonth() {
         return employeeService.getNewEmployeeOfMonth();
     }
@@ -91,16 +90,20 @@ public class GraphQLController {
         return new EmployeeImageData(imageUrl, imageBase64);
     }
 
+    @QueryMapping(name = "departments")
+    public List<Department> findAllDepartments() {
+        return departmentService.findAll(Specification.allOf());
+    }
 
 
     @MutationMapping
     public Employee createProfile(@Argument String firstName, @Argument String lastName,
-                                @Argument String email, @Argument String gender, @Argument String dateOfBirth,
-                                @Argument String phoneNumber, @Argument String address, @Argument String dateJoined,
-                                @Argument Integer currentContract, @Argument String profileBio,
-                                @Argument String facebookLink, @Argument String twitterLink,
-                                @Argument String linkedinLink, @Argument String instagramLink,
-                                @Argument Integer positionLevelId, @Argument Integer departmentId) {
+                                  @Argument String email, @Argument String gender, @Argument String dateOfBirth,
+                                  @Argument String phoneNumber, @Argument String address, @Argument String dateJoined,
+                                  @Argument Integer currentContract, @Argument String profileBio,
+                                  @Argument String facebookLink, @Argument String twitterLink,
+                                  @Argument String linkedinLink, @Argument String instagramLink,
+                                  @Argument Integer positionLevelId, @Argument Integer departmentId) {
         Employee employee = new Employee();
         return setEmployeeInfo(firstName, lastName, email, gender, dateOfBirth, phoneNumber, address, dateJoined,
                 currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, positionLevelId,
@@ -110,7 +113,7 @@ public class GraphQLController {
     @MutationMapping
     public Boolean inactiveEmployee(@Argument int id) {
         Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
-        if(employee != null && employee.getUser().getIsEnabled()) {
+        if (employee != null && employee.getUser().getIsEnabled()) {
             employee.getUser().setIsEnabled(false);
             employeeService.saveEmployee(employee);
             return true;

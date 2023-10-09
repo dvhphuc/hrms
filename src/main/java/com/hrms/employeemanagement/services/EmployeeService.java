@@ -18,5 +18,5 @@ public interface EmployeeService {
 	long countEmployee();
 	Iterable<Employee> getNewEmployeeOfMonth();
 	void assignEmployeeToUnit(int id, int teamUnit);
-	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, List<Boolean> statuses, Pageable pageable);
+	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, Boolean status, Pageable pageable);
 }

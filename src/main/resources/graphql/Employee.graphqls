@@ -8,7 +8,6 @@ type Employee {
     dateOfBirth: String
     address: String
     phoneNumber: String
-    positionLevel: String
     dateJoined: String
     currentContract: Int
     profileBio: String
@@ -17,9 +16,11 @@ type Employee {
     linkedinLink: String
     instagramLink: String
     department: Department
+    positionLevel: PositionLevel
     emergencyContacts: [EmergencyContact]
     employeeSkills: [EmployeeSkill]
     employeeProjects: [EmployeeProject]
+    user: User
 }
 
 
@@ -36,6 +37,7 @@ type EmployeeConnection {
 type Query {
     findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
     filterEmployees(departmentIds: [Int], currentContacts: [Int], statuses: [Boolean], pageNo: Int!, pageSize: Int!): [Employee]
+    employees(pageNo: Int!, pageSize: Int = 10, departmentIds: [Int], currentContracts: [Int], status: Boolean): EmployeeConnection!
     findEmployeeById(id: Int!): [Employee]
     countEmployees: Int!
     findNewEmployeeOfMonth: [Employee]

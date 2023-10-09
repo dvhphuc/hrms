@@ -3,5 +3,11 @@ type UserDto {
     status: Boolean
     username: String
     createdAt: String
-    role: Int
+    role: Role
+}
+
+type UserDtoConnection {
+    data: [UserDto]
+    totalCount: Int
+    pagination: Pagination
 }

@@ -36,6 +36,8 @@ type EmployeeConnection {
 
 # Define a query to fetch employees
 type Query {
+    findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
+    filterEmployees(departmentIds: [Int], currentContacts: [Int], statuses: [Boolean], pageNo: Int!, pageSize: Int!): [Employee]
     employees(pageNo: Int!, pageSize: Int = 10, departmentIds: [Int], currentContracts: [Int], status: Boolean): EmployeeConnection!
     findEmployeeById(id: Int!): [Employee]
     countEmployees: Int!
@@ -44,7 +46,7 @@ type Query {
     authUser(username: String!, password: String!): String
     user(id: Int): UserDto
     users(pageNo: Int, pageSize: Int): [UserDto]
-    filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): [UserDto]
+    filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): UserDtoConnection
 }
 
 # Define a mutation to create a new employee

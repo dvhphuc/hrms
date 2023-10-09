@@ -5,3 +5,9 @@ type UserDto {
     createdAt: String
     role: Int
 }
+
+type UserDtoConnection {
+    data: [UserDto]
+    totalCount: Int
+    pagination: Pagination
+}

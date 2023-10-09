@@ -22,21 +22,32 @@ type Employee {
     employeeProjects: [EmployeeProject]
 }
 
+
+
 type EmployeeConnection {
     totalCount: Int!
     data: [Employee]!
     pagination: Pagination!
 }
 
+
+
 # Define a query to fetch employees
 type Query {
     findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
-    filterEmployees(departmentId: Int, currentContract: Int, status: Boolean): [Employee]!
+    filterEmployees(departmentIds: [Int], currentContacts: [Int], statuses: [Boolean], pageNo: Int!, pageSize: Int!): [Employee]
     findEmployeeById(id: Int!): [Employee]
     countEmployees: Int!
     findNewEmployeeOfMonth: [Employee]
     getEmployeeImage(id: Int!): EmployeeImageData
+    authUser(username: String!, password: String!): String
+    user(id: Int): UserDto
+    users(pageNo: Int, pageSize: Int): [UserDto]
+    filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): UserDtoConnection
 }
+
+
+
 
 
 # Define a mutation to create a new employee
@@ -79,4 +90,6 @@ type Mutation {
         positionLevelId: Int!
         departmentId: Int!
     ): Employee
+    createUser(signupDto: SignupDto!): UserDto!
+    updateUser(id: Int!, status: Boolean, role: Int): UserDto!
 }

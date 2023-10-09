@@ -1,7 +1,9 @@
 package com.hrms.usermanagement.controller;
 
+import com.hrms.employeemanagement.controllers.graphql.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,18 +37,21 @@ public class UserController {
     }
 
     @QueryMapping
-    public Page<UserDto> filteredUsers(@Argument List<String> roles,
-                                       @Argument List<Boolean> status,
-                                       @Argument int pageNo,
-                                       @Argument int pageSize)
+    public UserDtoConnection filteredUsers(@Argument List<String> roles,
+                                           @Argument List<Boolean> status,
+                                           @Argument int pageNo,
+                                           @Argument int pageSize)
     {
         var sortedByCreatedAtDesc = PageRequest.of(
                 pageNo,
                 pageSize,
                 Sort.by("createdAt").descending()
         );
-        return userService.getAllByFilter(roles, status, sortedByCreatedAtDesc);
+        var users = userService.getAllByFilter(roles, status, sortedByCreatedAtDesc);
+        var pagination = new Pagination(pageNo, pageSize, users.getTotalElements(), users.getTotalPages());
+        return new UserDtoConnection(users, pagination, users.getTotalElements());
     }
+
     @MutationMapping
     public UserDto createUser(@Argument SignupDto signupDto) {
         return userService.createUser(signupDto);

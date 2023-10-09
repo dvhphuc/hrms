@@ -1,0 +1,7 @@
+type UserDto {
+    name: String
+    status: Boolean
+    username: String
+    createdAt: String
+    role: Int
+}

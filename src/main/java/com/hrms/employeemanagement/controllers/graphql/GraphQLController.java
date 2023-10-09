@@ -9,10 +9,11 @@ import com.hrms.employeemanagement.services.PositionLevelService;
 import com.hrms.employeemanagement.specifications.DepartmentSpecifications;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.employeemanagement.specifications.PositionLevelSpecifications;
+import com.unboundid.util.NotNull;
 import jakarta.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -85,10 +86,12 @@ public class GraphQLController {
     }
 
     @QueryMapping
-    public List<Employee> filterEmployees(@Nullable int departmentId,
-                                          @Nullable int positionLevelId,
-                                          @Nullable boolean isEnabled) {
-        return employeeService.findAll(EmployeeSpecifications.hasFilter(departmentId, positionLevelId, isEnabled));
+    public Page<Employee> filterEmployees(@Nullable @Argument List<Integer> departmentIds,
+                                          @Nullable @Argument List<Integer> currentContacts,
+                                          @Nullable @Argument List<Boolean> statuses,
+                                          @Argument int pageNo, @Argument int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return employeeService.getAllByFilter(departmentIds, currentContacts, statuses, pageable);
     }
 
     @MutationMapping

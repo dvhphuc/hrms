@@ -1,0 +1,4 @@
+input SignupDto {
+    username: String
+    password: String
+}

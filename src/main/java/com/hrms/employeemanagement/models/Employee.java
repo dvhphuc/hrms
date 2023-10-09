@@ -66,4 +66,7 @@ public class Employee extends RepresentationModel<Employee> {
 	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
 	@JsonIgnore
 	private User user;
+	private String getFullName() {
+		return this.firstName + " " + this.lastName;
+	}
 }

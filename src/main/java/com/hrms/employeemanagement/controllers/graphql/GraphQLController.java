@@ -106,9 +106,14 @@ public class GraphQLController {
     }
 
     @MutationMapping
-    public boolean inactiveEmployee(@Argument int id) {
-        employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0).getUser().setIsEnabled(false);
-        return true;
+    public Boolean inactiveEmployee(@Argument int id) {
+        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
+        if(employee != null && employee.getUser().getIsEnabled()) {
+            employee.getUser().setIsEnabled(false);
+            employeeService.saveEmployee(employee);
+            return true;
+        }
+        return false;
     }
 
     @MutationMapping

@@ -9,6 +9,7 @@ import com.hrms.employeemanagement.services.PositionLevelService;
 import com.hrms.employeemanagement.specifications.DepartmentSpecifications;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.employeemanagement.specifications.PositionLevelSpecifications;
+import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +84,13 @@ public class GraphQLController {
         return new EmployeeImageData(imageUrl, imageBase64);
     }
 
+    @QueryMapping
+    public List<Employee> filterEmployees(@Nullable int departmentId,
+                                          @Nullable int positionLevelId,
+                                          @Nullable boolean isEnabled) {
+        return employeeService.findAll(EmployeeSpecifications.hasFilter(departmentId, positionLevelId, isEnabled));
+    }
+
     @MutationMapping
     public Employee createProfile(@Argument String firstName, @Argument String lastName,
                                 @Argument String email, @Argument String gender, @Argument String dateOfBirth,
@@ -90,7 +98,7 @@ public class GraphQLController {
                                 @Argument Integer currentContract, @Argument String profileBio,
                                 @Argument String facebookLink, @Argument String twitterLink,
                                 @Argument String linkedinLink, @Argument String instagramLink,
-                                  @Argument Integer positionLevelId, @Argument Integer departmentId) {
+                                @Argument Integer positionLevelId, @Argument Integer departmentId) {
         Employee employee = new Employee();
         return setEmployeeInfo(firstName, lastName, email, gender, dateOfBirth, phoneNumber, address, dateJoined,
                 currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, positionLevelId,
@@ -98,9 +106,14 @@ public class GraphQLController {
     }
 
     @MutationMapping
-    public boolean inactiveEmployee(@Argument int id) {
-        employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0).getUser().setIsEnabled(false);
-        return true;
+    public Boolean inactiveEmployee(@Argument int id) {
+        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
+        if(employee != null && employee.getUser().getIsEnabled()) {
+            employee.getUser().setIsEnabled(false);
+            employeeService.saveEmployee(employee);
+            return true;
+        }
+        return false;
     }
 
     @MutationMapping

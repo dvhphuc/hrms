@@ -100,11 +100,11 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping("/unit/{unitId}")
-    public ResponseEntity<Page<Employee>> getEmployeeByUnitId(@PathVariable(value = "unitId") int unitId
+    @GetMapping("/department/{departmentId}")
+    public ResponseEntity<Page<Employee>> getEmployeeByDepartmentId(@PathVariable(value = "departmentId") int departmentId
             , @RequestParam(value = "pageNo", defaultValue = "1") int pageNo
             , @RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
-        Page<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasUnitId(unitId)
+        Page<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasDepartmentId(departmentId)
                 , PageRequest.of(pageNo - 1, pageSize));
         employees.map(employee -> employee.add(
                 linkTo(methodOn(EmployeeController.class).getEmployeeByID(employee.getId())).withSelfRel()));

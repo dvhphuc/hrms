@@ -1,0 +1,4 @@
+type Position {
+    id: Int!
+    positionName: String
+}

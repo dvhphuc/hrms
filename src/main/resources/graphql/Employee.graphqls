@@ -8,7 +8,6 @@ type Employee {
     dateOfBirth: String
     address: String
     phoneNumber: String
-    positionLevel: String
     dateJoined: String
     currentContract: Int
     profileBio: String
@@ -17,10 +16,14 @@ type Employee {
     linkedinLink: String
     instagramLink: String
     department: Department
+    positionLevel: PositionLevel
     emergencyContacts: [EmergencyContact]
     employeeSkills: [EmployeeSkill]
     employeeProjects: [EmployeeProject]
+    user: User
 }
+
+
 
 type EmployeeConnection {
     totalCount: Int!
@@ -28,15 +31,23 @@ type EmployeeConnection {
     pagination: Pagination!
 }
 
+
+
 # Define a query to fetch employees
 type Query {
-    findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
-    filterEmployees(departmentId: Int, currentContract: Int, status: Boolean): [Employee]!
+    employees(pageNo: Int!, pageSize: Int = 10, departmentIds: [Int], currentContracts: [Int], status: Boolean): EmployeeConnection!
     findEmployeeById(id: Int!): [Employee]
     countEmployees: Int!
     findNewEmployeeOfMonth: [Employee]
     getEmployeeImage(id: Int!): EmployeeImageData
+    authUser(username: String!, password: String!): String
+    user(id: Int): UserDto
+    users(pageNo: Int, pageSize: Int): [UserDto]
+    filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): [UserDto]
 }
+
+
+
 
 
 # Define a mutation to create a new employee
@@ -79,4 +90,6 @@ type Mutation {
         positionLevelId: Int!
         departmentId: Int!
     ): Employee
+    createUser(signupDto: SignupDto!): UserDto!
+    updateUser(id: Int!, status: Boolean, role: Int): UserDto!
 }

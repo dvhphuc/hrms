@@ -20,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "https://hrms-tan.vercel.app")
 public class GraphQLController {
     EmployeeService employeeService;
 
@@ -49,10 +51,14 @@ public class GraphQLController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    @QueryMapping
-    public EmployeeConnection findAllEmployees(@Argument int pageNo, @Argument int pageSize) {
+    @QueryMapping(name = "employees")
+    public EmployeeConnection findAllEmployees(@Argument int pageNo, @Argument int pageSize,
+                                               @Nullable @Argument List<Integer> departmentIds,
+                                               @Nullable @Argument List<Integer> currentContacts,
+                                               @Nullable @Argument Boolean status) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        List<Employee> employeeList = employeeService.findAll(Specification.allOf(), pageable).getContent();
+        List<Employee> employeeList =
+                employeeService.getAllByFilter(departmentIds,currentContacts,status, pageable).getContent();
         long totalCount = employeeService.countEmployee();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
@@ -85,14 +91,7 @@ public class GraphQLController {
         return new EmployeeImageData(imageUrl, imageBase64);
     }
 
-    @QueryMapping
-    public Page<Employee> filterEmployees(@Nullable @Argument List<Integer> departmentIds,
-                                          @Nullable @Argument List<Integer> currentContacts,
-                                          @Nullable @Argument List<Boolean> statuses,
-                                          @Argument int pageNo, @Argument int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return employeeService.getAllByFilter(departmentIds, currentContacts, statuses, pageable);
-    }
+
 
     @MutationMapping
     public Employee createProfile(@Argument String firstName, @Argument String lastName,

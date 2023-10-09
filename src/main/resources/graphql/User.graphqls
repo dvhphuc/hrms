@@ -1,0 +1,13 @@
+type User {
+    userId: Int!
+    username: String
+    password: String
+    isEnabled: Boolean
+    createdAt: String
+    role: Role
+}
+
+type Role {
+    roleId: Int!
+    name: String
+}

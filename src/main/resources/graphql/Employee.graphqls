@@ -17,6 +17,7 @@ type Employee {
     instagramLink: String
     department: Department
     positionLevel: PositionLevel
+    profilePicture: String
     emergencyContacts: [EmergencyContact]
     employeeSkills: [EmployeeSkill]
     employeeProjects: [EmployeeProject]
@@ -45,10 +46,6 @@ type Query {
     users(pageNo: Int, pageSize: Int): [UserDto]
     filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): [UserDto]
 }
-
-
-
-
 
 # Define a mutation to create a new employee
 type Mutation {

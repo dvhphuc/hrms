@@ -114,4 +114,5 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .findAll(idsFilter.and(currentContactsFilter).and(statusesFilter), pageable);
     }
 
+
 }

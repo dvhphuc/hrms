@@ -54,15 +54,15 @@ public class GraphQLController {
     @QueryMapping(name = "employees")
     public EmployeeConnection findAllEmployees(@Argument int pageNo, @Argument int pageSize,
                                                @Nullable @Argument List<Integer> departmentIds,
-                                               @Nullable @Argument List<Integer> currentContacts,
+                                               @Nullable @Argument List<Integer> currentContracts,
                                                @Nullable @Argument Boolean status) {
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        List<Employee> employeeList =
-                employeeService.getAllByFilter(departmentIds,currentContacts,status, pageable).getContent();
-        long totalCount = employeeService.countEmployee();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<Employee> employeeList =
+                employeeService.getAllByFilter(departmentIds,currentContracts,status, pageable);
+        long totalCount = employeeList.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new EmployeeConnection(employeeList, pagination, totalCount);
+        return new EmployeeConnection(employeeList.getContent(), pagination, totalCount);
     }
 
     @QueryMapping

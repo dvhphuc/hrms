@@ -1,7 +1,6 @@
 package com.hrms.usermanagement.repository;
 
 import com.hrms.employeemanagement.models.User;
-import com.hrms.usermanagement.model.User;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;

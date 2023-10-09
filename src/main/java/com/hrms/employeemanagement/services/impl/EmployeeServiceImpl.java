@@ -3,9 +3,11 @@ import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.exception.UnitNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.Department;
+import com.hrms.employeemanagement.models.User;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.UnitRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.usermanagement.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -83,6 +85,34 @@ public class EmployeeServiceImpl implements EmployeeService {
 		}
 		employeeOp.get().setDepartment(unit.get());
 		employeeRepository.save(employeeOp.get());
+	}
+
+	@Override
+	public Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContracts, List<Boolean> statuses, Pageable pageable) {
+		Specification<Employee> idsFilter = Specification.where(null);
+		Specification<Employee> currentContactsFilter = Specification.where(null);
+		Specification<Employee> statusesFilter = Specification.where(null);
+
+		if (ids != null) {
+			for (Integer id : ids) {
+				idsFilter = idsFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("department").get("id"), id));
+			}
+		}
+
+		if (currentContracts != null) {
+			for (Integer currentContract : currentContracts) {
+				currentContactsFilter = currentContactsFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("currentContract"), currentContract));
+			}
+		}
+
+		if (statuses != null) {
+			for (Boolean status : statuses) {
+				statusesFilter = statusesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("isEnabled"), status));
+			}
+		}
+
+		return employeeRepository
+				.findAll(idsFilter.and(currentContactsFilter).and(statusesFilter), pageable);
 	}
 
 }

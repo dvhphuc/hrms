@@ -1,28 +1,95 @@
-## Define the Employee type
-#type Employee {
-#  id: Int!
-#  firstName: String
-#  lastName: String
-#  email: String
-#  gender: String
-#  dateOfBirth: String
-#  address: String
-#  phoneNumber: String
-#  positionLevel: String
-#  dateJoin: String
-#}
-#
-## Define a query to fetch employees
-#type Query {
-#  findAllEmployees: [Employee]
-#  findEmployeeById(id: Int!): Employee
-#  countEmployees: Int
-#  findNewEmployeeOfMonth: [Employee]
-#}
-#
-## Define a mutation to create a new employee
-#type Mutation {
-#  newEmployee(firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
-#  deleteEmployee(id: Int!): Boolean
-#  updateEmployee(id: Int!, firstName: String!, lastName: String!, email: String!, gender: String!, dateOfBirth: String!, phoneNumber: String!, address: String!, positionLevel: String!): Employee
-#}
+# Define the Employee type
+type Employee {
+    id: Int!
+    firstName: String
+    lastName: String
+    email: String
+    gender: String
+    dateOfBirth: String
+    address: String
+    phoneNumber: String
+    positionLevel: String
+    dateJoined: String
+    currentContract: Int
+    profileBio: String
+    facebookLink: String
+    twitterLink: String
+    linkedinLink: String
+    instagramLink: String
+    department: Department
+    emergencyContacts: [EmergencyContact]
+    employeeSkills: [EmployeeSkill]
+    employeeProjects: [EmployeeProject]
+}
+
+
+
+type EmployeeConnection {
+    totalCount: Int!
+    data: [Employee]!
+    pagination: Pagination!
+}
+
+
+
+# Define a query to fetch employees
+type Query {
+    findAllEmployees(pageNo: Int!, pageSize: Int!): EmployeeConnection!
+    filterEmployees(departmentIds: [Int], currentContacts: [Int], statuses: [Boolean], pageNo: Int!, pageSize: Int!): [Employee]
+    findEmployeeById(id: Int!): [Employee]
+    countEmployees: Int!
+    findNewEmployeeOfMonth: [Employee]
+    getEmployeeImage(id: Int!): EmployeeImageData
+    authUser(username: String!, password: String!): String
+    user(id: Int): UserDto
+    users(pageNo: Int, pageSize: Int): [UserDto]
+    filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): [UserDto]
+}
+
+
+
+
+
+# Define a mutation to create a new employee
+type Mutation {
+    createProfile(
+        firstName: String!
+        lastName: String!
+        email: String!
+        gender: String!
+        dateOfBirth: String!
+        phoneNumber: String!
+        address: String!
+        dateJoined: String!
+        currentContract: Int!
+        profileBio: String!
+        facebookLink: String!
+        twitterLink: String!
+        linkedinLink: String!
+        instagramLink: String!
+        positionLevelId: Int!
+        departmentId: Int!
+    ): Employee
+    inactiveEmployee(id: Int!): Boolean
+    updateEmployee(
+        id: Int!,
+        firstName: String!
+        lastName: String!
+        email: String!
+        gender: String!
+        dateOfBirth: String!
+        phoneNumber: String!
+        address: String!
+        dateJoined: String!
+        currentContract: Int!
+        profileBio: String!
+        facebookLink: String!
+        twitterLink: String!
+        linkedinLink: String!
+        instagramLink: String!
+        positionLevelId: Int!
+        departmentId: Int!
+    ): Employee
+    createUser(signupDto: SignupDto!): UserDto!
+    updateUser(id: Int!, status: Boolean, role: Int): UserDto!
+}

@@ -59,10 +59,10 @@ public class GraphQLController {
     public EmployeePaging findAllEmployees(@Argument int pageNo, @Argument int pageSize,
                                            @Nullable @Argument List<Integer> departmentIds,
                                            @Nullable @Argument List<Integer> currentContracts,
-                                           @Nullable @Argument Boolean status) {
+                                           @Nullable @Argument Boolean status, @Nullable @Argument String name) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<Employee> employeeList =
-                employeeService.getAllByFilter(departmentIds, currentContracts, status, pageable);
+                employeeService.getAllByFilter(departmentIds, currentContracts, status, name, pageable);
         long totalCount = employeeList.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
@@ -161,7 +161,6 @@ public class GraphQLController {
         employee.setPhoneNumber(input.getPhoneNumber());
         employee.setAddress(input.getAddress());
         employee.setCurrentContract(input.getCurrentContract());
-        employee.setDateJoined(input.getDateJoined());
         employee.setProfileBio(input.getProfileBio());
         employee.setFacebookLink(input.getFacebookLink());
         employee.setTwitterLink(input.getTwitterLink());

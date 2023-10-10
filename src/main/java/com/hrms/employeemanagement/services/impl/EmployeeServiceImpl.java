@@ -1,7 +1,9 @@
 package com.hrms.employeemanagement.services.impl;
+
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,30 +49,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContracts, Boolean status, Pageable pageable) {
-        Specification<Employee> idsFilter = Specification.where(null);
-        Specification<Employee> currentContactsFilter = Specification.where(null);
-        Specification<Employee> statusesFilter = Specification.where(null);
-
-        if (ids != null) {
-            for (Integer id : ids) {
-                idsFilter = idsFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("department").get("id"), id));
-            }
-        }
-
-        if (currentContracts != null) {
-            for (Integer currentContract : currentContracts) {
-                currentContactsFilter = currentContactsFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("currentContract"), currentContract));
-            }
-        }
-
-        if (status != null) {
-            statusesFilter = (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("user").get("isEnabled"), status);
-        }
-
+    public Page<Employee> getAllByFilter(List<Integer> departmentIds, List<Integer> currentContracts,
+                                         Boolean status, String name, Pageable pageable) {
         return employeeRepository
-                .findAll(idsFilter.and(currentContactsFilter).and(statusesFilter), pageable);
+                .findAll(EmployeeSpecifications.hasFilter(departmentIds, currentContracts, status, name), pageable);
     }
-
-
 }

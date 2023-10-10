@@ -13,7 +13,7 @@ public class LoginController {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @QueryMapping("authUser")
+    @QueryMapping("jwtToken")
     public String login(@Argument String username, @Argument String password)
             throws UserNotFoundException, WrongPasswordException
     {

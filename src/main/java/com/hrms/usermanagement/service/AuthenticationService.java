@@ -33,6 +33,10 @@ public class AuthenticationService {
             throw new WrongPasswordException("Wrong password");
         }
 
+        if (!user.getIsEnabled()) {
+            throw new WrongPasswordException("User is not active");
+        }
+
         return jwtService.generateToken(username);
     }
 }

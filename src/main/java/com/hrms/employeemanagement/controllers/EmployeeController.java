@@ -39,30 +39,6 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    @GetMapping
-    public ResponseEntity<Page<Employee>> getEmployeesPaging(
-            @RequestParam(value = "pageNo", defaultValue = "1") int pageNo,
-            @RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
-        Page<Employee> employees = employeeService.findAll(Specification.allOf()
-                , PageRequest.of(pageNo - 1, pageSize));
-        employees.map(employee -> employee.add(
-                linkTo(methodOn(EmployeeController.class).getEmployeeByID(employee.getId())).withSelfRel()));
-        return ResponseEntity.ok(employees);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<List<Employee>> getEmployeeByID(@PathVariable(value = "id") int id) {
-        List<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasId(id));
-        for (Employee employee : employees) {
-            if (employee == null) {
-                throw new EmployeeNotFoundException("id-" + id);
-            }
-            employee.add(
-                    linkTo(methodOn(EmployeeController.class).getEmployeeByID(id)).withSelfRel());
-        }
-        return ResponseEntity.ok(employees);
-    }
-
     @PostMapping("/{id}/upload")
     public ResponseEntity<String> uploadImage(
             @PathVariable(value = "id") int id, @RequestParam("file") MultipartFile file){
@@ -98,45 +74,5 @@ public class EmployeeController {
         } catch (IOException e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @GetMapping("/department/{departmentId}")
-    public ResponseEntity<Page<Employee>> getEmployeeByDepartmentId(@PathVariable(value = "departmentId") int departmentId
-            , @RequestParam(value = "pageNo", defaultValue = "1") int pageNo
-            , @RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
-        Page<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasDepartmentId(departmentId)
-                , PageRequest.of(pageNo - 1, pageSize));
-        employees.map(employee -> employee.add(
-                linkTo(methodOn(EmployeeController.class).getEmployeeByID(employee.getId())).withSelfRel()));
-        return ResponseEntity.ok(employees);
-    }
-
-    @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-        Employee savedEmployee = employeeService.saveEmployee(employee);
-
-        employee.add(linkTo(methodOn(EmployeeController.class)
-                .getEmployeeByID(savedEmployee.getId())).withSelfRel());
-
-        return ResponseEntity.created(linkTo(methodOn(EmployeeController.class)
-                .getEmployeeByID(savedEmployee.getId())).toUri()).body(savedEmployee);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateEmployee(@PathVariable int id, @RequestBody Employee employee) {
-        employeeService.updateEmployee(id, employee);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable int id) {
-        employeeService.deleteEmployeeById(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/assign/unit")
-    public ResponseEntity<Void> assignUnitEmployee(@RequestParam int employeeId, @RequestParam int unitId) {
-        employeeService.assignEmployeeToUnit(employeeId, unitId);
-        return ResponseEntity.noContent().build();
     }
 }

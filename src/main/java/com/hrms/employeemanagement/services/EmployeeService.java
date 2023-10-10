@@ -13,10 +13,6 @@ public interface EmployeeService {
 	List<Employee> findAll(Specification<Employee> spec, Sort sort);
 	Page<Employee> findAll(Specification<Employee> spec, Pageable pageable);
 	Employee saveEmployee(Employee employee);
-	void updateEmployee(int id, Employee employee);
-	void deleteEmployeeById(int id);
-	long countEmployee();
 	Iterable<Employee> getNewEmployeeOfMonth();
-	void assignEmployeeToUnit(int id, int teamUnit);
 	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, Boolean status, Pageable pageable);
 }

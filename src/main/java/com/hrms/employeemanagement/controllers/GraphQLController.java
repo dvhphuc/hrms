@@ -1,16 +1,15 @@
-package com.hrms.employeemanagement.controllers.graphql;
+package com.hrms.employeemanagement.controllers;
 
-import com.hrms.employeemanagement.models.Department;
-import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.Position;
-import com.hrms.employeemanagement.models.PositionLevel;
-import com.hrms.employeemanagement.services.DepartmentService;
-import com.hrms.employeemanagement.services.EmployeeService;
-import com.hrms.employeemanagement.services.PositionLevelService;
-import com.hrms.employeemanagement.services.PositionService;
-import com.hrms.employeemanagement.specifications.DepartmentSpecifications;
-import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
-import com.hrms.employeemanagement.specifications.PositionLevelSpecifications;
+import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
+import com.hrms.employeemanagement.exception.JobLevelNotFoundException;
+import com.hrms.employeemanagement.exception.PositionLevelNotFoundException;
+import com.hrms.employeemanagement.exception.PositionNotFoundException;
+import com.hrms.employeemanagement.models.*;
+import com.hrms.employeemanagement.paging.EmployeePaging;
+import com.hrms.employeemanagement.paging.Pagination;
+import com.hrms.employeemanagement.services.*;
+import com.hrms.employeemanagement.services.impl.EmployeeImageData;
+import com.hrms.employeemanagement.specifications.*;
 import com.unboundid.util.NotNull;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,50 +32,48 @@ import java.util.Base64;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "https://hrms-tan.vercel.app")
+@CrossOrigin(origins = "*")
 public class GraphQLController {
     EmployeeService employeeService;
-
     PositionLevelService positionLevelService;
-
     DepartmentService departmentService;
-
     PositionService positionService;
+    JobLevelService jobLevelService;
 
     @Autowired
     public GraphQLController(EmployeeService employeeService, PositionLevelService positionLevelService,
-                             DepartmentService departmentService, PositionService positionService) {
+                             DepartmentService departmentService, PositionService positionService, JobLevelService jobLevelService) {
         this.employeeService = employeeService;
         this.positionLevelService = positionLevelService;
         this.departmentService = departmentService;
         this.positionService = positionService;
+        this.jobLevelService = jobLevelService;
     }
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     @QueryMapping(name = "employees")
-    public EmployeeConnection findAllEmployees(@Argument int pageNo, @Argument int pageSize,
-                                               @Nullable @Argument List<Integer> departmentIds,
-                                               @Nullable @Argument List<Integer> currentContracts,
-                                               @Nullable @Argument Boolean status) {
+    public EmployeePaging findAllEmployees(@Argument int pageNo, @Argument int pageSize,
+                                           @Nullable @Argument List<Integer> departmentIds,
+                                           @Nullable @Argument List<Integer> currentContracts,
+                                           @Nullable @Argument Boolean status) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<Employee> employeeList =
                 employeeService.getAllByFilter(departmentIds, currentContracts, status, pageable);
         long totalCount = employeeList.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new EmployeeConnection(employeeList.getContent(), pagination, totalCount);
-    }
-
-    @QueryMapping
-    public long countEmployees() {
-        return employeeService.countEmployee();
+        return new EmployeePaging(employeeList.getContent(), pagination, totalCount);
     }
 
     @QueryMapping(name = "employee")
-    public Employee findEmployeeById(@Argument int id) {
-        return employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
+    public Employee findEmployeeById(@Argument int id) throws EmployeeNotFoundException {
+        return employeeService
+                .findAll(EmployeeSpecifications.hasId(id))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
     }
 
     @QueryMapping(name = "employeeOfTheMonth")
@@ -85,8 +82,12 @@ public class GraphQLController {
     }
 
     @QueryMapping
-    public EmployeeImageData getEmployeeImage(@Argument int id) throws IOException {
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
+    public EmployeeImageData getEmployeeImage(@Argument int id) throws EmployeeNotFoundException, IOException {
+        Employee employee = employeeService
+                .findAll(EmployeeSpecifications.hasId(id))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
         String imagePath = employee.getProfilePicture();
         Path filePath = Paths.get(uploadDir, imagePath);
         byte[] imageBytes = Files.readAllBytes(filePath);
@@ -105,6 +106,11 @@ public class GraphQLController {
         return positionService.findAll(Specification.allOf());
     }
 
+    @QueryMapping(name = "jobLevels")
+    public List<JobLevel> findAllJobLevels() {
+        return jobLevelService.findAll(Specification.allOf());
+    }
+
     @MutationMapping
     public Employee createProfile(@Argument String firstName, @Argument String lastName,
                                   @Argument String email, @Argument String gender, @Argument String dateOfBirth,
@@ -112,18 +118,24 @@ public class GraphQLController {
                                   @Argument Integer currentContract, @Argument String profileBio,
                                   @Argument String facebookLink, @Argument String twitterLink,
                                   @Argument String linkedinLink, @Argument String instagramLink,
-                                  @Argument Integer positionId, @Argument Integer departmentId) {
+                                  @Argument Integer positionId, @Argument Integer jobLevelId,
+                                  @Argument Integer departmentId)
+            throws PositionNotFoundException, JobLevelNotFoundException, PositionLevelNotFoundException {
         Employee employee = new Employee();
         return setEmployeeInfo(firstName, lastName, email, gender, dateOfBirth, phoneNumber, address, dateJoined,
                 currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, positionId,
-                departmentId, employee);
+                jobLevelId, departmentId, employee);
     }
 
     @MutationMapping
-    public Boolean inactiveEmployee(@Argument int id) {
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
-        if (employee != null && employee.getUser().getIsEnabled()) {
-            employee.getUser().setIsEnabled(false);
+    public Boolean inactiveEmployee(@Argument int id) throws EmployeeNotFoundException {
+        Employee employee = employeeService
+                .findAll(EmployeeSpecifications.hasId(id))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
+        if (Boolean.TRUE.equals(employee.getUser().getIsEnabled())) {
+            employee.getUser().setIsEnabled(Boolean.FALSE);
             employeeService.saveEmployee(employee);
             return true;
         }
@@ -137,22 +149,28 @@ public class GraphQLController {
                                    @Argument Integer currentContract, @Argument String profileBio,
                                    @Argument String facebookLink, @Argument String twitterLink,
                                    @Argument String linkedinLink, @Argument String instagramLink,
-                                   @Argument Integer positionId, @Argument Integer departmentId) {
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
+                                   @Argument Integer positionId, @Argument Integer jobLevelId,
+                                   @Argument Integer departmentId)
+            throws EmployeeNotFoundException, PositionNotFoundException,
+            JobLevelNotFoundException, PositionLevelNotFoundException {
+        Employee employee = employeeService
+                .findAll(EmployeeSpecifications.hasId(id))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
         return setEmployeeInfo(firstName, lastName, email, gender, dateOfBirth, phoneNumber, address, dateJoined,
                 currentContract, profileBio, facebookLink, twitterLink, linkedinLink, instagramLink, positionId,
-                departmentId, employee);
+                jobLevelId, departmentId, employee);
     }
 
     @NotNull
-    private Employee setEmployeeInfo(@Argument String firstName, @Argument String lastName, @Argument String email,
-                                     @Argument String gender, @Argument String dateOfBirth,
-                                     @Argument String phoneNumber, @Argument String address,
-                                     @Argument String dateJoined, @Argument Integer currentContract,
-                                     @Argument String profileBio, @Argument String facebookLink,
-                                     @Argument String twitterLink, @Argument String linkedinLink,
-                                     @Argument String instagramLink, @Argument Integer positionId,
-                                     @Argument Integer departmentId, Employee employee) {
+    private Employee setEmployeeInfo(String firstName, String lastName, String email, String gender,
+                                     String dateOfBirth, String phoneNumber, String address, String dateJoined,
+                                     Integer currentContract, String profileBio, String facebookLink,
+                                     String twitterLink, String linkedinLink, String instagramLink,
+                                     Integer positionId, Integer jobLevelId, Integer departmentId,
+                                     Employee employee)
+            throws PositionNotFoundException, JobLevelNotFoundException, PositionLevelNotFoundException {
         employee.setFirstName(firstName);
         employee.setLastName(lastName);
         employee.setEmail(email);
@@ -167,7 +185,22 @@ public class GraphQLController {
         employee.setTwitterLink(twitterLink);
         employee.setLinkedinLink(linkedinLink);
         employee.setInstagramLink(instagramLink);
-        PositionLevel pl = positionLevelService.findAll(PositionLevelSpecifications.hasId(positionId)).get(0);
+        Position p = positionService
+                .findAll(PositionSpecifications.hasId(positionId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new PositionNotFoundException("Position not found with id: " + positionId));
+        JobLevel jl = jobLevelService
+                .findAll(JobLevelSpecifications.hasId(jobLevelId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new JobLevelNotFoundException("JobLevel not found with id: " + jobLevelId));
+        PositionLevel pl = positionLevelService
+                .findAll(PositionLevelSpecifications.hasPositionIdAndJobLevelID(p.getId(), jl.getId()))
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new PositionLevelNotFoundException("PositionLevel not found with positionId: "
+                        + p.getId() + " and jobLevelId: " + jl.getId()));
         employee.setPositionLevel(pl);
         Department department = departmentService.findAll(DepartmentSpecifications.hasId(departmentId)).get(0);
         employee.setDepartment(department);

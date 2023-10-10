@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.controllers.graphql;
+package com.hrms.employeemanagement.paging;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

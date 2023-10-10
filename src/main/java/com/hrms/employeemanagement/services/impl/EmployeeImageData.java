@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.controllers.graphql;
+package com.hrms.employeemanagement.services.impl;
 
 
 public record EmployeeImageData(String imageUrl, String imageBase64) { }

@@ -1,6 +1,6 @@
 package com.hrms.usermanagement.controller;
 
-import com.hrms.employeemanagement.controllers.graphql.Pagination;
+import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.graphql.UserDtoConnection;

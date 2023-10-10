@@ -1,13 +1,7 @@
 package com.hrms.employeemanagement.services.impl;
-
-import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
-import com.hrms.employeemanagement.exception.UnitNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.Department;
-import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
-import com.hrms.employeemanagement.specifications.DepartmentSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,9 +19,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private DepartmentRepository departmentRepository;
 
     @Override
     public List<Employee> findAll(Specification<Employee> spec) {
@@ -49,43 +40,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         return this.employeeRepository.save(employee);
     }
 
-    @Override
-    public void updateEmployee(int id, Employee employee) {
-        Optional<Employee> employeeOptional = employeeRepository.findById(id);
-        if (employeeOptional.isEmpty())
-            throw new EmployeeNotFoundException(" Employee not found for id :: " + id);
-        employee.setId(id);
-        employeeRepository.save(employee);
-    }
-
-
-    @Override
-    public void deleteEmployeeById(int id) {
-        this.employeeRepository.deleteById(id);
-    }
-
-    @Override
-    public long countEmployee() {
-        return employeeRepository.count(Specification.allOf());
-    }
 
     @Override
     public Iterable<Employee> getNewEmployeeOfMonth() {
         return employeeRepository.findNewEmployeeOfMonth();
-    }
-
-    @Override
-    public void assignEmployeeToUnit(int id, int unitId) {
-        Optional<Employee> employeeOp = employeeRepository.findById(id);
-        if (employeeOp.isEmpty()) {
-            throw new EmployeeNotFoundException("Employee not found for id :: " + id);
-        }
-        Department department = departmentRepository.findAll(DepartmentSpecifications.hasId(unitId)).get(0);
-        if (department == null) {
-            throw new UnitNotFoundException("Department not found for id :: " + unitId);
-        }
-        employeeOp.get().setDepartment(department);
-        employeeRepository.save(employeeOp.get());
     }
 
     @Override

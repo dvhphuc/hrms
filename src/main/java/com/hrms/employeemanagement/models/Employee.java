@@ -34,8 +34,6 @@ public class Employee extends RepresentationModel<Employee> {
 	private String dateOfBirth;
 	@Column(name = "phone_number")
 	private String phoneNumber;
-	@Column(name = "date_joined")
-	private String dateJoined;
 	@Column(name = "current_contract")
 	private Integer currentContract;
 	@Column(name = "profile_bio")

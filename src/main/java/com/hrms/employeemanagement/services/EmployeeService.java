@@ -14,5 +14,5 @@ public interface EmployeeService {
 	Page<Employee> findAll(Specification<Employee> spec, Pageable pageable);
 	Employee saveEmployee(Employee employee);
 	Iterable<Employee> getNewEmployeeOfMonth();
-	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, Boolean status, Pageable pageable);
+	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, Boolean status, String name, Pageable pageable);
 }

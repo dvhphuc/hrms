@@ -8,7 +8,6 @@ type Employee {
     dateOfBirth: String
     address: String
     phoneNumber: String
-    dateJoined: String
     currentContract: Int
     profileBio: String
     facebookLink: String
@@ -39,15 +38,14 @@ input EmployeeInput {
     dateOfBirth: String!
     phoneNumber: String!
     address: String!
-    dateJoined: String!
     currentContract: Int!
-    profileBio: String!
-    facebookLink: String!
-    twitterLink: String!
-    linkedinLink: String!
-    instagramLink: String!
+    profileBio: String
+    facebookLink: String
+    twitterLink: String
+    linkedinLink: String
+    instagramLink: String
     positionId: Int!
-    jobLevelId: Int!
+    jobLevelId: Int
     departmentId: Int!
     emergencyContacts: [EmergencyContactInput!]!
 }

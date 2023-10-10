@@ -19,4 +19,6 @@ public class Position {
     private int id;
     @Column(name = "position_name")
     private String positionName;
+    @Column(name = "has_Level")
+    private Boolean hasLevel;
 }

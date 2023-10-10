@@ -4,11 +4,10 @@ import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.exception.UnitNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.Department;
-import com.hrms.employeemanagement.models.User;
+import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
-import com.hrms.employeemanagement.repositories.UnitRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
-import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.employeemanagement.specifications.DepartmentSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +25,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
     @Autowired
-    private UnitRepository unitRepository;
+    private DepartmentRepository departmentRepository;
 
     @Override
     public List<Employee> findAll(Specification<Employee> spec) {
@@ -80,11 +80,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeOp.isEmpty()) {
             throw new EmployeeNotFoundException("Employee not found for id :: " + id);
         }
-        Optional<Department> unit = unitRepository.findById(unitId);
-        if (unit.isEmpty()) {
-            throw new UnitNotFoundException("Unit not found for id :: " + unitId);
+        Department department = departmentRepository.findAll(DepartmentSpecifications.hasId(unitId)).get(0);
+        if (department == null) {
+            throw new UnitNotFoundException("Department not found for id :: " + unitId);
         }
-        employeeOp.get().setDepartment(unit.get());
+        employeeOp.get().setDepartment(department);
         employeeRepository.save(employeeOp.get());
     }
 

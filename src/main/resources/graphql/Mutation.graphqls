@@ -15,7 +15,7 @@ type Mutation {
         twitterLink: String!
         linkedinLink: String!
         instagramLink: String!
-        positionLevelId: Int!
+        positionId: Int!
         departmentId: Int!
     ): Employee
     inactiveEmployee(id: Int!): Boolean

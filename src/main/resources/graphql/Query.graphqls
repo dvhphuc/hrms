@@ -2,10 +2,11 @@
 # Define a query to fetch employees
 type Query {
     employees(pageNo: Int!, pageSize: Int = 1, departmentIds: [Int], currentContracts: [Int], status: Boolean): EmployeeConnection!
-    findEmployeeById(id: Int!): [Employee]
+    employee(id: Int!): Employee
     countEmployees: Int!
     employeeOfTheMonth: [Employee]
     departments: [Department]
+    positions: [Position]
     getEmployeeImage(id: Int!): EmployeeImageData
     authUser(username: String!, password: String!): String
     user(id: Int): UserDto

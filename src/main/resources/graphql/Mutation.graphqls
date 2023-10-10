@@ -1,43 +1,8 @@
 # Define a mutation to create a new employee
 type Mutation {
-    createProfile(
-        firstName: String!
-        lastName: String!
-        email: String!
-        gender: String!
-        dateOfBirth: String!
-        phoneNumber: String!
-        address: String!
-        dateJoined: String!
-        currentContract: Int!
-        profileBio: String!
-        facebookLink: String!
-        twitterLink: String!
-        linkedinLink: String!
-        instagramLink: String!
-        positionId: Int!
-        departmentId: Int!
-    ): Employee
+    createProfile(input: EmployeeInput!): Employee
     inactiveEmployee(id: Int!): Boolean
-    updateEmployee(
-        id: Int!,
-        firstName: String!
-        lastName: String!
-        email: String!
-        gender: String!
-        dateOfBirth: String!
-        phoneNumber: String!
-        address: String!
-        dateJoined: String!
-        currentContract: Int!
-        profileBio: String!
-        facebookLink: String!
-        twitterLink: String!
-        linkedinLink: String!
-        instagramLink: String!
-        positionLevelId: Int!
-        departmentId: Int!
-    ): Employee
+    updateEmployee(id: Int!, input: EmployeeInput!): Employee
     createUser(signupDto: SignupDto!): UserDto!
     updateUser(id: Int!, status: Boolean, role: Int): UserDto!
 }

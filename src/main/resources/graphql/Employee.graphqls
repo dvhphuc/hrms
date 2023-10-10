@@ -24,12 +24,31 @@ type Employee {
     user: User
 }
 
-
-
 type EmployeePaging {
     totalCount: Int!
     data: [Employee]!
     pagination: Pagination!
+}
+
+input EmployeeInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    gender: String!
+    dateOfBirth: String!
+    phoneNumber: String!
+    address: String!
+    dateJoined: String!
+    currentContract: Int!
+    profileBio: String!
+    facebookLink: String!
+    twitterLink: String!
+    linkedinLink: String!
+    instagramLink: String!
+    positionId: Int!
+    jobLevelId: Int!
+    departmentId: Int!
+    emergencyContacts: [EmergencyContactInput!]!
 }
 
 

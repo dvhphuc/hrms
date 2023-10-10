@@ -5,3 +5,9 @@ type EmergencyContact {
     phoneNumber: String
     employee: Employee
 }
+
+input EmergencyContactInput {
+    firstName: String
+    lastName: String
+    phoneNumber: String
+}

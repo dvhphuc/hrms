@@ -9,7 +9,7 @@ type Query {
     positions: [Position]
     jobLevels: [JobLevel]
     getEmployeeImage(id: Int!): EmployeeImageData
-    authUser(username: String!, password: String!): String
+    jwtToken(username: String!, password: String!): String
     user(id: Int): UserDto
     users(pageNo: Int, pageSize: Int): [UserDto]
     filteredUsers(roles: [String], status: [Boolean], pageNo: Int, pageSize: Int): UserDtoConnection

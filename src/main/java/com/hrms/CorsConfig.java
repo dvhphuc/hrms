@@ -15,7 +15,7 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("https://hrms-tan.vercel.app"); // Allow requests from any origin
+        configuration.addAllowedOrigin("*"); // Allow requests from any origin
         configuration.addAllowedMethod("*"); // Allow all HTTP methods
         configuration.addAllowedHeader("*"); // Allow all headers
 

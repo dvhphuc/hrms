@@ -37,7 +37,7 @@ public class HRMSSecurityConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.applyPermitDefaultValues(); // Configure default CORS settings
-        corsConfig.addAllowedOrigin("https://hrms-tan.vercel.app"); // Allow specific origin
+        corsConfig.addAllowedOrigin("*"); // Allow specific origin
         corsConfig.setAllowCredentials(true); // Allow credentials (cookies)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

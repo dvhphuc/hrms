@@ -28,7 +28,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Optional<Project> getProjectById(int id) {
+    public Optional<Project> getProjectById(int id) throws ProjectNotFoundException {
         Optional<Project> project = projectRepository.findById(id);
         if (project.isEmpty()) {
             throw new ProjectNotFoundException("Project not found for id :: " + id);
@@ -37,7 +37,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Optional<Project> updateProject(int id, Project project) {
+    public Optional<Project> updateProject(int id, Project project) throws ProjectNotFoundException {
         Optional<Project> projectOptional = projectRepository.findById(id);
         if (projectOptional.isEmpty())
             throw new ProjectNotFoundException("Project not found for id :: " + id);

@@ -1,14 +1,10 @@
 package com.hrms.employeemanagement.controllers;
 
-import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,10 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/employees")

@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmployeeInput {
+    private Integer id;
     private String firstName;
     private String lastName;
     private String email;

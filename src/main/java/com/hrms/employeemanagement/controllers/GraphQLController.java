@@ -116,7 +116,7 @@ public class GraphQLController {
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInput input)
             throws PositionNotFoundException, JobLevelNotFoundException,
-            PositionLevelNotFoundException, DepartmentNotFoundException {
+            PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
         Employee employee = new Employee();
         return setEmployeeInfo(input, employee);
     }
@@ -137,21 +137,22 @@ public class GraphQLController {
     }
 
     @MutationMapping
-    public Employee updateEmployee(@Argument Integer id, @Argument EmployeeInput input)
+    public Employee updateEmployee(@Argument EmployeeInput input)
             throws EmployeeNotFoundException, PositionNotFoundException,
-            JobLevelNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException {
+            JobLevelNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException,
+            EmergencyContactNotFoundException {
         Employee employee = employeeService
-                .findAll(EmployeeSpecifications.hasId(id))
+                .findAll(EmployeeSpecifications.hasId(input.getId()))
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + input.getId()));
         return setEmployeeInfo(input, employee);
     }
 
     @NotNull
     private Employee setEmployeeInfo(EmployeeInput input, Employee employee)
             throws PositionNotFoundException, JobLevelNotFoundException,
-            PositionLevelNotFoundException, DepartmentNotFoundException {
+            PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
         employee.setFirstName(input.getFirstName());
         employee.setLastName(input.getLastName());
         employee.setEmail(input.getEmail());
@@ -193,12 +194,28 @@ public class GraphQLController {
                         new DepartmentNotFoundException("Department not found with id: " + input.getDepartmentId()));
         employee.setDepartment(department);
         for (EmergencyContactInput emergencyContactInput : input.getEmergencyContacts()) {
-            EmergencyContact emergencyContact = new EmergencyContact();
-            emergencyContact.setFirstName(emergencyContactInput.getFirstName());
-            emergencyContact.setLastName(emergencyContactInput.getLastName());
-            emergencyContact.setPhoneNumber(emergencyContactInput.getPhoneNumber());
-            emergencyContact.setEmployee(employee);
-            emergencyContactService.save(emergencyContact);
+            if(emergencyContactInput.getId() == null) {
+                EmergencyContact emergencyContact = new EmergencyContact();
+                emergencyContact.setFirstName(emergencyContactInput.getFirstName());
+                emergencyContact.setLastName(emergencyContactInput.getLastName());
+                emergencyContact.setPhoneNumber(emergencyContactInput.getPhoneNumber());
+                emergencyContact.setEmployee(employee);
+                emergencyContactService.save(emergencyContact);
+            }
+            else {
+                EmergencyContact emergencyContact = emergencyContactService
+                        .findAll(EmergencyContactSpecifications.hasId(emergencyContactInput.getId()))
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() ->
+                                new EmergencyContactNotFoundException("EmergencyContact not found with id: "
+                                        + emergencyContactInput.getId()));
+                emergencyContact.setFirstName(emergencyContactInput.getFirstName());
+                emergencyContact.setLastName(emergencyContactInput.getLastName());
+                emergencyContact.setPhoneNumber(emergencyContactInput.getPhoneNumber());
+                emergencyContact.setEmployee(employee);
+                emergencyContactService.save(emergencyContact);
+            }
         }
         employeeService.saveEmployee(employee);
         return employee;

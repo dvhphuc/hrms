@@ -2,7 +2,7 @@
 type Mutation {
     createProfile(input: EmployeeInput!): Employee
     inactiveEmployee(id: Int!): Boolean
-    updateEmployee(id: Int!, input: EmployeeInput!): Employee
+    updateEmployee(input: EmployeeInput!): Employee
     createUser(signupDto: SignupDto!): UserDto!
     updateUser(id: Int!, status: Boolean, role: Int): UserDto!
 }

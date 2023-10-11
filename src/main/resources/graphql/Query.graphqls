@@ -9,6 +9,7 @@ type Query {
     positions: [Position]
     jobLevels: [JobLevel]
     getEmployeeImage(id: Int!): EmployeeImageData
+    roles: [Role]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
     users(roles: [ID], status: [Boolean], pageNo: Int, pageSize: Int): UserDtoConnection

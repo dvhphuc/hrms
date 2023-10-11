@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.controller;
 
+import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
@@ -53,6 +54,11 @@ public class UserController {
                               @Argument String role)
     {
         return userService.updateUser(id, status, role);
+    }
+
+    @QueryMapping
+    public List<Role> roles() {
+        return userService.getRoles();
     }
 
 }

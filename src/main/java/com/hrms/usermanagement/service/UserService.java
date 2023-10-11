@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.service;
 
+import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
@@ -32,7 +33,7 @@ public class UserService {
         modelMapper = new ModelMapper();
         modelMapper.typeMap(User.class, UserDto.class)
                 .addMappings(mapper -> {
-                    mapper.map(src -> src.getRole().getRoleId(), UserDto::setRole);
+                    mapper.map(src -> src.getRole(), UserDto::setRole);
                     mapper.map(src -> src.getEmployee().getFirstName(), UserDto::setName);
                     mapper.map(User::getIsEnabled, UserDto::setStatus);
                 });
@@ -79,5 +80,9 @@ public class UserService {
         user.setRole(roleRepository.findRoleByName(role));
         userRepository.save(user);
         return modelMapper.map(user, UserDto.class);
+    }
+
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
     }
 }

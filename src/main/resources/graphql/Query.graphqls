@@ -12,5 +12,5 @@ type Query {
     roles: [Role]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
-    users(roles: [ID], status: [Boolean], pageNo: Int, pageSize: Int): UserDtoConnection
+    users(search: String, roles: [ID], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
 }

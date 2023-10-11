@@ -4,9 +4,7 @@ type Mutation {
     createProfile(input: EmployeeInput!): Employee
     inactiveEmployee(id: Int!): Boolean
     updateEmployee(input: EmployeeInput!): Employee
-#    uploadFile(file: Upload!): String
     createUser(signupDto: SignupDto!): UserDto!
-    updateUser(id: Int!, status: Boolean, role: Int): UserDto!
-    #upload(file: Upload!): String!
+    updateUsers(ids: [Int]!, status: Boolean, role: Int): Boolean!
 }
 

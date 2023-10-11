@@ -6,6 +6,7 @@ import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,12 +24,13 @@ public class UserController {
     private UserService userService;
 
     @QueryMapping
-    public UserDto user(@Argument String username) {
-        return userService.getUser(username);
+    public UserDto user(@Argument Integer id) {
+        return userService.getUser(id);
     }
 
     @QueryMapping
-    public UserDtoConnection users(@Argument List<Integer> roles,
+    public UserDtoConnection users(@Nullable @Argument String search,
+                                           @Argument List<Integer> roles,
                                            @Argument Boolean status,
                                            @Argument int pageNo,
                                            @Argument int pageSize)
@@ -38,7 +40,7 @@ public class UserController {
                 pageSize,
                 Sort.by("createdAt").descending()
         );
-        var users = userService.getAllByFilter(roles, status, sortedByCreatedAtDesc);
+        var users = userService.getAllByFilter(search, roles, status, sortedByCreatedAtDesc);
         var pagination = new Pagination(pageNo, pageSize, users.getTotalElements(), users.getTotalPages());
         return new UserDtoConnection(users, pagination, users.getTotalElements());
     }
@@ -49,11 +51,11 @@ public class UserController {
     }
 
     @MutationMapping
-    public UserDto updateUser(@Argument Integer id,
+    public Boolean updateUsers(@Argument List<Integer> ids,
                               @Argument Boolean status,
-                              @Argument String role)
+                              @Argument Integer role)
     {
-        return userService.updateUser(id, status, role);
+        return userService.updateUsers(ids, status, role);
     }
 
     @QueryMapping

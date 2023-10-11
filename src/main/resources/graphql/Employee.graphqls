@@ -49,5 +49,3 @@ input EmployeeInput {
     departmentId: Int!
     emergencyContacts: [EmergencyContactInput!]!
 }
-
-

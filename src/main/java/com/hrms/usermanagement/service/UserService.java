@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.service;
 
+import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
@@ -32,7 +33,7 @@ public class UserService {
         modelMapper = new ModelMapper();
         modelMapper.typeMap(User.class, UserDto.class)
                 .addMappings(mapper -> {
-                    mapper.map(src -> src.getRole().getRoleId(), UserDto::setRole);
+                    mapper.map(src -> src.getRole(), UserDto::setRole);
                     mapper.map(src -> src.getEmployee().getFirstName(), UserDto::setName);
                     mapper.map(User::getIsEnabled, UserDto::setStatus);
                 });
@@ -42,26 +43,31 @@ public class UserService {
         return userRepository.findAll(pageRequest).map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public Page<UserDto> getAllByFilter(List<String> roles, List<Boolean> status, Pageable pageable) {
+    public Page<UserDto> getAllByFilter(String search, List<Integer> roles, Boolean status, Pageable pageable) {
         Specification<User> rolesFilter = Specification.where(null);
         Specification<User> statusFilter = Specification.where(null);
+        Specification<User> searchFilter = Specification.where(null);
         if (roles != null) {
-            for (String role : roles) {
-                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("name"), role));
+            for (Integer role : roles) {
+                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("roleId"), role));
             }
         }
+
         if (status != null) {
-            for (Boolean s : status) {
-                statusFilter = statusFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isEnabled"), s));
-            }
+            statusFilter = statusFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isEnabled"), status));
+        }
+
+        if (search != null) {
+            searchFilter = searchFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("username"), "%" + search + "%"));
         }
         return userRepository
-                .findAll(rolesFilter.and(statusFilter), pageable)
+                .findAll(rolesFilter.and(statusFilter).and(searchFilter), pageable)
                 .map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public UserDto getUser(String username) {
-        return modelMapper.map(userRepository.findByUsername(username), UserDto.class);
+    public UserDto getUser(Integer id) {
+        var user = userRepository.findById(Long.valueOf(id)).orElseThrow();
+        return modelMapper.map(user, UserDto.class);
     }
 
     public UserDto createUser(SignupDto signupDto) {
@@ -73,11 +79,22 @@ public class UserService {
         return modelMapper.map(user, UserDto.class);
     }
 
-    public UserDto updateUser(Integer id, Boolean status, String role) {
-        var user = userRepository.findById(Long.valueOf(id)).orElseThrow();
-        user.setIsEnabled(status);
-        user.setRole(roleRepository.findRoleByName(role));
-        userRepository.save(user);
-        return modelMapper.map(user, UserDto.class);
+    public Boolean updateUsers(List<Integer> ids, Boolean status, Integer role) {
+        ids.stream().forEach(id -> {
+            var user = userRepository.findById(Long.valueOf(id)).orElseThrow();
+            if (status != null) {
+                user.setIsEnabled(status);
+            }
+            if (role != null) {
+                var roleObj = roleRepository.findById(Long.valueOf(role));
+                user.setRole(roleObj.get());
+            }
+            userRepository.save(user);
+        });
+        return true;
+    }
+
+    public List<Role> getRoles() {
+        return roleRepository.findAll();
     }
 }

@@ -1,10 +1,12 @@
 package com.hrms.usermanagement.controller;
 
+import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,32 +24,23 @@ public class UserController {
     private UserService userService;
 
     @QueryMapping
-    public UserDto user(@Argument String username) {
-        return userService.getUser(username);
+    public UserDto user(@Argument Integer id) {
+        return userService.getUser(id);
     }
 
     @QueryMapping
-    public Page<UserDto> users(@Argument int pageNo, @Argument int pageSize) {
-        var sortedByCreatedAtDesc = PageRequest.of(
-                pageNo,
-                pageSize,
-                Sort.by("createdAt").descending()
-        );
-        return userService.getAll(sortedByCreatedAtDesc);
-    }
-
-    @QueryMapping
-    public UserDtoConnection filteredUsers(@Argument List<String> roles,
-                                           @Argument List<Boolean> status,
+    public UserDtoConnection users(@Nullable @Argument String search,
+                                           @Argument List<Integer> roles,
+                                           @Argument Boolean status,
                                            @Argument int pageNo,
                                            @Argument int pageSize)
     {
         var sortedByCreatedAtDesc = PageRequest.of(
-                pageNo,
+                pageNo - 1,
                 pageSize,
                 Sort.by("createdAt").descending()
         );
-        var users = userService.getAllByFilter(roles, status, sortedByCreatedAtDesc);
+        var users = userService.getAllByFilter(search, roles, status, sortedByCreatedAtDesc);
         var pagination = new Pagination(pageNo, pageSize, users.getTotalElements(), users.getTotalPages());
         return new UserDtoConnection(users, pagination, users.getTotalElements());
     }
@@ -58,11 +51,16 @@ public class UserController {
     }
 
     @MutationMapping
-    public UserDto updateUser(@Argument Integer id,
+    public Boolean updateUsers(@Argument List<Integer> ids,
                               @Argument Boolean status,
-                              @Argument String role)
+                              @Argument Integer role)
     {
-        return userService.updateUser(id, status, role);
+        return userService.updateUsers(ids, status, role);
+    }
+
+    @QueryMapping
+    public List<Role> roles() {
+        return userService.getRoles();
     }
 
 }

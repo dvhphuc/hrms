@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.dto;
 
+import com.hrms.employeemanagement.models.Role;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +16,7 @@ public class UserDto {
     private String username;
 
     private Date createdAt;
-    private int role;
+    private Role role;
 
     public String getName() {
         return name;
@@ -37,7 +38,7 @@ public class UserDto {
         this.username = username;
     }
 
-    public void setRole(int role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

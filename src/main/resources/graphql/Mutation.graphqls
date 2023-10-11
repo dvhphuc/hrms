@@ -1,8 +1,10 @@
-# Define a mutation to create a new employee
+scalar Upload
+
 type Mutation {
     createProfile(input: EmployeeInput!): Employee
     inactiveEmployee(id: Int!): Boolean
     updateEmployee(input: EmployeeInput!): Employee
+    uploadFile(file: Upload!): String
     createUser(signupDto: SignupDto!): UserDto!
     updateUser(id: Int!, status: Boolean, role: Int): UserDto!
 }

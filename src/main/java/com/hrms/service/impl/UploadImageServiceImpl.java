@@ -1,10 +1,9 @@
-package com.hrms.employeemanagement.services.impl;
+package com.hrms.service.impl;
 
-import com.hrms.employeemanagement.exception.EmergencyContactNotFoundException;
 import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.services.EmployeeService;
-import com.hrms.employeemanagement.services.UploadImageService;
+import com.hrms.service.UploadImageService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
 
 @Service
 @Transactional

@@ -1,6 +1,6 @@
 package com.hrms.employeemanagement.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hrms.employeecompetency.models.PositionLevel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

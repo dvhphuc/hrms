@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.models;
+package com.hrms.employeecompetency.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,16 +11,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SkillSet {
+public class CompetencyGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "skill_set_id")
+    @Column(name = "competency_group_id")
     private int ID;
-    @Column(name = "skill_set_name")
-    private String skillSetName;
-
-    @ManyToOne
-    @JoinColumn(name = "competency_id")
-    private Competency competency;
-
+    @Column(name = "competency_group_name")
+    private String competencyGroupName;
 }

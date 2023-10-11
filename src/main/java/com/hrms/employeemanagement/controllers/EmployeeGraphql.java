@@ -1,5 +1,8 @@
 package com.hrms.employeemanagement.controllers;
 
+import com.hrms.employeecompetency.models.JobLevel;
+import com.hrms.employeecompetency.models.Position;
+import com.hrms.employeecompetency.models.PositionLevel;
 import com.hrms.employeemanagement.exception.*;
 import com.hrms.employeemanagement.input.EmergencyContactInput;
 import com.hrms.employeemanagement.input.EmployeeInput;
@@ -22,7 +25,6 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +35,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-public class GraphQLController {
+public class EmployeeGraphql {
     EmployeeService employeeService;
     PositionLevelService positionLevelService;
     DepartmentService departmentService;
@@ -45,9 +47,9 @@ public class GraphQLController {
     private String uploadDir;
 
     @Autowired
-    public GraphQLController(EmployeeService employeeService, PositionLevelService positionLevelService,
-                             DepartmentService departmentService, PositionService positionService,
-                             JobLevelService jobLevelService, EmergencyContactService emergencyContactService) {
+    public EmployeeGraphql(EmployeeService employeeService, PositionLevelService positionLevelService,
+                           DepartmentService departmentService, PositionService positionService,
+                           JobLevelService jobLevelService, EmergencyContactService emergencyContactService) {
         this.employeeService = employeeService;
         this.positionLevelService = positionLevelService;
         this.departmentService = departmentService;

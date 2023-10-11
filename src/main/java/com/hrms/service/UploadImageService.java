@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.services;
+package com.hrms.service;
 
 import com.hrms.employeemanagement.exception.EmergencyContactNotFoundException;
 import com.hrms.employeemanagement.exception.EmployeeNotFoundException;

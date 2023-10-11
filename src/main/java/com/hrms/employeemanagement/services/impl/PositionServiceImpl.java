@@ -1,6 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.employeemanagement.models.Position;
+import com.hrms.employeecompetency.models.Position;
 import com.hrms.employeemanagement.repositories.PositionRepository;
 import com.hrms.employeemanagement.services.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;

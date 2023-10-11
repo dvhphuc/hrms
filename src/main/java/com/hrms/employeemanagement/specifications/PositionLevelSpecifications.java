@@ -1,6 +1,6 @@
 package com.hrms.employeemanagement.specifications;
 
-import com.hrms.employeemanagement.models.PositionLevel;
+import com.hrms.employeecompetency.models.PositionLevel;
 import org.springframework.data.jpa.domain.Specification;
 
 public class PositionLevelSpecifications {

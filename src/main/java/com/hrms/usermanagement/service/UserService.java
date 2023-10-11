@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -33,7 +34,7 @@ public class UserService {
         modelMapper = new ModelMapper();
         modelMapper.typeMap(User.class, UserDto.class)
                 .addMappings(mapper -> {
-                    mapper.map(src -> src.getRole(), UserDto::setRole);
+                    mapper.map(src -> src.getRoles(), UserDto::setRoles);
                     mapper.map(src -> src.getEmployee().getFirstName(), UserDto::setName);
                     mapper.map(User::getIsEnabled, UserDto::setStatus);
                 });
@@ -49,7 +50,8 @@ public class UserService {
         Specification<User> searchFilter = Specification.where(null);
         if (roles != null) {
             for (Integer role : roles) {
-                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("roleId"), role));
+                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) ->
+                        criteriaBuilder.equal(root.get("roles").get("roleId"), role));
             }
         }
 
@@ -86,8 +88,8 @@ public class UserService {
                 user.setIsEnabled(status);
             }
             if (role != null) {
-                var roleObj = roleRepository.findById(Long.valueOf(role));
-                user.setRole(roleObj.get());
+                var roleObj = roleRepository.findById(Long.valueOf(role)).get();
+                user.addRole(roleObj);
             }
             userRepository.save(user);
         });

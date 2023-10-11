@@ -8,6 +8,8 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.Set;
 
 @Data
 public class UserDto {
@@ -16,7 +18,7 @@ public class UserDto {
     private String username;
 
     private Date createdAt;
-    private Role role;
+    private Set<Role> roles;
 
     public String getName() {
         return name;
@@ -38,8 +40,16 @@ public class UserDto {
         this.username = username;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public boolean getStatus() {
+        return status;
+    }
+
+    public List<Role> getRoles() {
+        return List.copyOf(roles);
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 
     public String getCreatedAt() {

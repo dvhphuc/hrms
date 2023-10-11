@@ -27,23 +27,13 @@ public class UserController {
     }
 
     @QueryMapping
-    public Page<UserDto> users(@Argument int pageNo, @Argument int pageSize) {
-        var sortedByCreatedAtDesc = PageRequest.of(
-                pageNo,
-                pageSize,
-                Sort.by("createdAt").descending()
-        );
-        return userService.getAll(sortedByCreatedAtDesc);
-    }
-
-    @QueryMapping
-    public UserDtoConnection filteredUsers(@Argument List<String> roles,
+    public UserDtoConnection users(@Argument List<Integer> roles,
                                            @Argument List<Boolean> status,
                                            @Argument int pageNo,
                                            @Argument int pageSize)
     {
         var sortedByCreatedAtDesc = PageRequest.of(
-                pageNo,
+                pageNo - 1,
                 pageSize,
                 Sort.by("createdAt").descending()
         );

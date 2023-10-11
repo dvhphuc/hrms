@@ -3,7 +3,7 @@ type UserDto {
     status: Boolean
     username: String
     createdAt: String
-    role: Role
+    role: Int
 }
 
 type UserDtoConnection {

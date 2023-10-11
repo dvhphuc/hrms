@@ -42,12 +42,12 @@ public class UserService {
         return userRepository.findAll(pageRequest).map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public Page<UserDto> getAllByFilter(List<String> roles, List<Boolean> status, Pageable pageable) {
+    public Page<UserDto> getAllByFilter(List<Integer> roles, List<Boolean> status, Pageable pageable) {
         Specification<User> rolesFilter = Specification.where(null);
         Specification<User> statusFilter = Specification.where(null);
         if (roles != null) {
-            for (String role : roles) {
-                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("name"), role));
+            for (Integer role : roles) {
+                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("roleId"), role));
             }
         }
         if (status != null) {

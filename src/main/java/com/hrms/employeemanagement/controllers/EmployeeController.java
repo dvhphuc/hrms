@@ -1,7 +1,10 @@
 package com.hrms.employeemanagement.controllers;
 
+import com.hrms.employeemanagement.exception.EmergencyContactNotFoundException;
+import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.employeemanagement.services.UploadImageService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,33 +19,24 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     EmployeeService employeeService;
+    UploadImageService uploadImageService;
     @Autowired
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, UploadImageService uploadImageService) {
         this.employeeService = employeeService;
+        this.uploadImageService = uploadImageService;
     }
 
     @PostMapping("/{id}/upload")
-    public ResponseEntity<String> uploadImage(
+    public ResponseEntity<String> uploadProfileImage(
             @PathVariable(value = "id") int id, @RequestParam("file") MultipartFile file){
         try {
-            String fileName = id + "_" + file.getOriginalFilename();
-            Path filePath = Paths.get(uploadDir, fileName);
-            if (!Files.exists(filePath.getParent())) Files.createDirectories(filePath.getParent());
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
-            employee.setProfilePicture(fileName);
-            employeeService.saveEmployee(employee);
+            uploadImageService.uploadProjectImage(id, file);
             return ResponseEntity.ok("File uploaded successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload the file.");
@@ -50,20 +44,10 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/image")
-    public ResponseEntity<byte[]> getImage(@PathVariable int id) {
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(id)).get(0);
-        String imagePath = employee.getProfilePicture();
-        Path filePath = Paths.get(uploadDir, imagePath);
-
+    public ResponseEntity<byte[]> getImage(@PathVariable(name = "id") int employeeId) {
         try {
-            byte[] imageBytes = Files.readAllBytes(filePath);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG); // Set appropriate content type
-            headers.setContentDispositionFormData("attachment", imagePath);
-
-            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-        } catch (IOException e) {
+            return uploadImageService.getProductImage(employeeId);
+        } catch (IOException | EmployeeNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }

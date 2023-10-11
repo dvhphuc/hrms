@@ -29,7 +29,7 @@ public class UserController {
 
     @QueryMapping
     public UserDtoConnection users(@Argument List<Integer> roles,
-                                           @Argument List<Boolean> status,
+                                           @Argument Boolean status,
                                            @Argument int pageNo,
                                            @Argument int pageSize)
     {

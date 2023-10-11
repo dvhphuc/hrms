@@ -43,7 +43,7 @@ public class UserService {
         return userRepository.findAll(pageRequest).map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public Page<UserDto> getAllByFilter(List<Integer> roles, List<Boolean> status, Pageable pageable) {
+    public Page<UserDto> getAllByFilter(List<Integer> roles, Boolean status, Pageable pageable) {
         Specification<User> rolesFilter = Specification.where(null);
         Specification<User> statusFilter = Specification.where(null);
         if (roles != null) {
@@ -51,11 +51,11 @@ public class UserService {
                 rolesFilter = rolesFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role").get("roleId"), role));
             }
         }
+
         if (status != null) {
-            for (Boolean s : status) {
-                statusFilter = statusFilter.or((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isEnabled"), s));
-            }
+            statusFilter = statusFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isEnabled"), status));
         }
+
         return userRepository
                 .findAll(rolesFilter.and(statusFilter), pageable)
                 .map(u -> modelMapper.map(u, UserDto.class));

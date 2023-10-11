@@ -1,5 +1,3 @@
-#scalar Upload
-
 type Mutation {
     createProfile(input: EmployeeInput!): Employee
     inactiveEmployee(id: Int!): Boolean

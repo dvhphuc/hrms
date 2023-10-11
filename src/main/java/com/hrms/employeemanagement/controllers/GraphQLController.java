@@ -22,6 +22,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,6 +41,9 @@ public class GraphQLController {
     JobLevelService jobLevelService;
     EmergencyContactService emergencyContactService;
 
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     public GraphQLController(EmployeeService employeeService, PositionLevelService positionLevelService,
                              DepartmentService departmentService, PositionService positionService,
@@ -51,9 +55,6 @@ public class GraphQLController {
         this.jobLevelService = jobLevelService;
         this.emergencyContactService = emergencyContactService;
     }
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
 
     @QueryMapping(name = "employees")
     public EmployeePaging findAllEmployees(@Argument int pageNo, @Argument int pageSize,
@@ -115,8 +116,7 @@ public class GraphQLController {
 
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInput input)
-            throws PositionNotFoundException, JobLevelNotFoundException,
-            PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
+            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
         Employee employee = new Employee();
         return setEmployeeInfo(input, employee);
     }
@@ -138,8 +138,7 @@ public class GraphQLController {
 
     @MutationMapping
     public Employee updateEmployee(@Argument EmployeeInput input)
-            throws EmployeeNotFoundException, PositionNotFoundException,
-            JobLevelNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException,
+            throws EmployeeNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException,
             EmergencyContactNotFoundException {
         Employee employee = employeeService
                 .findAll(EmployeeSpecifications.hasId(input.getId()))
@@ -179,6 +178,12 @@ public class GraphQLController {
                 .orElseThrow(() ->
                         new DepartmentNotFoundException("Department not found with id: " + input.getDepartmentId()));
         employee.setDepartment(department);
+        manageEmergencyContacts(input, employee);
+        employeeService.saveEmployee(employee);
+        return employee;
+    }
+
+    private void manageEmergencyContacts(EmployeeInput input, Employee employee) throws EmergencyContactNotFoundException {
         for (EmergencyContactInput emergencyContactInput : input.getEmergencyContacts()) {
             EmergencyContact emergencyContact;
             if (emergencyContactInput.getId() == null) {
@@ -198,7 +203,5 @@ public class GraphQLController {
             emergencyContact.setEmployee(employee);
             emergencyContactService.save(emergencyContact);
         }
-        employeeService.saveEmployee(employee);
-        return employee;
     }
 }

@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -33,10 +35,14 @@ public class User {
 
     @JsonProperty("role")
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "roleId")
-    @ManyToOne
-    @JoinColumn(name = "role_id")
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id")
+    )
     @Nullable
-    private Role role;
+    private Set<Role> roles;
 
     @Column(name = "created_at")
     private Date createdAt;
@@ -44,5 +50,19 @@ public class User {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.getUsers().add(this);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.getUsers().remove(this);
+    }
+
+    public List<Role> getRoles() {
+        return List.copyOf(roles);
+    }
 
 }

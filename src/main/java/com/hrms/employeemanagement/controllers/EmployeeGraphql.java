@@ -30,7 +30,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -118,7 +121,7 @@ public class EmployeeGraphql {
 
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInput input)
-            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
+            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException, ParseException {
         Employee employee = new Employee();
         return setEmployeeInfo(input, employee);
     }
@@ -141,7 +144,7 @@ public class EmployeeGraphql {
     @MutationMapping
     public Employee updateEmployee(@Argument EmployeeInput input)
             throws EmployeeNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException,
-            EmergencyContactNotFoundException {
+            EmergencyContactNotFoundException, ParseException {
         Employee employee = employeeService
                 .findAll(EmployeeSpecifications.hasId(input.getId()))
                 .stream()
@@ -152,12 +155,12 @@ public class EmployeeGraphql {
 
     @NotNull
     private Employee setEmployeeInfo(EmployeeInput input, Employee employee)
-            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
+            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException, ParseException {
         employee.setFirstName(input.getFirstName());
         employee.setLastName(input.getLastName());
-        employee.setEmail(input.getEmail());
         employee.setGender(input.getGender());
-        employee.setDateOfBirth(input.getDateOfBirth());
+        Date date = new SimpleDateFormat("yyyy/MM/đ").parse(input.getDateOfBirth());
+        employee.setDateOfBirth(date);
         employee.setPhoneNumber(input.getPhoneNumber());
         employee.setAddress(input.getAddress());
         employee.setCurrentContract(input.getCurrentContract());

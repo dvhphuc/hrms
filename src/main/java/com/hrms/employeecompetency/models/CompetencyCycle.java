@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
+
 @Entity
 @Getter
 @Setter
@@ -22,9 +24,17 @@ public class CompetencyCycle {
     @Column(name = "competency_cycle_name")
     private String competencyCycleName;
     @Column(name = "start_date")
-    private String startDate;
+    private Date startDate;
     @Column(name = "due_date")
-    private String dueDate;
+    private Date dueDate;
     @Column(name = "year")
     private String year;
+
+    public String getStartDate() {
+        return startDate.toString();
+    }
+
+    public String getDueDate() {
+        return dueDate.toString();
+    }
 }

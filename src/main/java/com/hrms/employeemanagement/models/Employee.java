@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -28,10 +29,8 @@ public class Employee extends RepresentationModel<Employee> {
 	private String gender;
 	@Column(name = "address")
 	private String address;
-	@Column(name = "email")
-	private String email;
 	@Column(name = "date_of_birth")
-	private String dateOfBirth;
+	private Date dateOfBirth;
 	@Column(name = "phone_number")
 	private String phoneNumber;
 	@Column(name = "current_contract")
@@ -65,5 +64,8 @@ public class Employee extends RepresentationModel<Employee> {
 	private User user;
 	private String getFullName() {
 		return this.firstName + " " + this.lastName;
+	}
+	private String getDateOfBirth() {
+		return this.dateOfBirth.toString();
 	}
 }

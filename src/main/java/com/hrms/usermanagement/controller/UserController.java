@@ -53,9 +53,9 @@ public class UserController {
     @MutationMapping
     public Boolean updateUsers(@Argument List<Integer> ids,
                               @Nullable @Argument Boolean status,
-                              @Nullable @Argument Integer role)
+                              @Nullable @Argument List<Integer> roles)
     {
-        return userService.updateUsers(ids, status, role);
+        return userService.updateUsers(ids, status, roles);
     }
 
     @QueryMapping

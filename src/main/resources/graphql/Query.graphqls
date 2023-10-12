@@ -13,4 +13,5 @@ type Query {
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
     users(search: String, roles: [ID], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
+    employeeOverview(id: Int!): Employee
 }

@@ -53,4 +53,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository
                 .findAll(EmployeeSpecifications.hasFilter(departmentIds, currentContracts, status, name), pageable);
     }
+
+    @Override
+    public Employee getEmployee(Integer id) {
+        return employeeRepository.findById(id).orElse(null);
+    }
 }

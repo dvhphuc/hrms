@@ -1,4 +1,5 @@
 type UserDto {
+    userId: ID
     name: String
     status: Boolean
     username: String

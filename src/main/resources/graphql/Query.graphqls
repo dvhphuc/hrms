@@ -15,4 +15,5 @@ type Query {
     users(search: String, roles: [ID], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
     currentHeadcounts: Float
     competencyCycles: [CompetencyCycle]
+    departmentInComplete: [DepartmentInCompleted]
 }

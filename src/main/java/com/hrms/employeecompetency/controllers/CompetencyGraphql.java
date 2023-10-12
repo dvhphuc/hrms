@@ -1,5 +1,6 @@
 package com.hrms.employeecompetency.controllers;
 
+import com.hrms.employeecompetency.input.DepartmentInComplete;
 import com.hrms.employeecompetency.models.CompetencyCycle;
 import com.hrms.employeecompetency.services.CompetencyCycleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,5 +23,10 @@ public class CompetencyGraphql {
     @QueryMapping(name = "competencyCycles")
     public List<CompetencyCycle> getCompetencyCycles() {
         return competencyCycleService.findAll(Specification.allOf());
+    }
+
+    @QueryMapping(name = "departmentInComplete")
+    public List<DepartmentInComplete> getAllDepartmentInComplete() {
+        return null;
     }
 }

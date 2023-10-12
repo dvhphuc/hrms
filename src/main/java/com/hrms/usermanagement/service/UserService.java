@@ -13,6 +13,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Set;
 
@@ -82,15 +83,22 @@ public class UserService {
         return modelMapper.map(user, UserDto.class);
     }
 
-    public Boolean updateUsers(List<Integer> ids, Boolean status, Integer role) {
+    public Boolean updateUsers(List<Integer> ids, Boolean status, List<Integer> roles) {
         ids.stream().forEach(id -> {
             var user = userRepository.findById(Long.valueOf(id)).orElseThrow();
             if (status != null) {
                 user.setIsEnabled(status);
             }
-            if (role != null) {
-                var roleObj = roleRepository.findById(Long.valueOf(role)).get();
-                user.addRole(roleObj);
+            if (roles != null) {
+                roles.forEach(roleId -> {
+                    var role = roleRepository.findById(roleId).orElseThrow();
+                    user.addRole(role);
+                });
+                roleRepository.findAll().forEach(role -> {
+                    if (!roles.contains(role.getRoleId())) {
+                        user.removeRole(role);
+                    }
+                });
             }
             userRepository.save(user);
         });

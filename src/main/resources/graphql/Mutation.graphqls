@@ -3,6 +3,6 @@ type Mutation {
     inactiveEmployee(id: Int!): Boolean
     updateEmployee(input: EmployeeInput!): Employee
     createUser(signupDto: SignupDto!): UserDto!
-    updateUsers(ids: [Int]!, status: Boolean, role: Int): Boolean!
+    updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
 }
 

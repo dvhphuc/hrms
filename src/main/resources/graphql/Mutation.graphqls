@@ -4,5 +4,6 @@ type Mutation {
     updateEmployee(input: EmployeeInput!): Employee
     createUser(signupDto: SignupDto!): UserDto!
     updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
+    updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
 }
 

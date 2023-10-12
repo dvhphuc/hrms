@@ -4,6 +4,7 @@ import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
 import jakarta.annotation.Nullable;
@@ -56,6 +57,15 @@ public class UserController {
                               @Nullable @Argument List<Integer> roles)
     {
         return userService.updateUsers(ids, status, roles);
+    }
+
+    @MutationMapping
+    public Boolean updateUsernamePassword(@Argument Integer userId,
+                                          @Argument String username,
+                                          @Argument String password)
+            throws UserNotFoundException
+    {
+        return userService.updateUsernamePassword(userId, username, password);
     }
 
     @QueryMapping

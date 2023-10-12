@@ -4,6 +4,7 @@ import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.repository.RoleRepository;
 import com.hrms.usermanagement.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -107,5 +108,19 @@ public class UserService {
 
     public List<Role> getRoles() {
         return roleRepository.findAll();
+    }
+
+    public Boolean updateUsernamePassword(Integer userId, String username, String password) throws UserNotFoundException {
+        var user = userRepository.findById(Long.valueOf(userId)).orElseThrow();
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        if (password == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return true;
     }
 }

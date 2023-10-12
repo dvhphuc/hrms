@@ -1,8 +1,8 @@
 package com.hrms.employeecompetency.models;
 
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.PositionLevel;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

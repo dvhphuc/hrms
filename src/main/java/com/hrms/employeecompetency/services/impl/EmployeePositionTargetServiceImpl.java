@@ -1,9 +1,9 @@
 package com.hrms.employeecompetency.services.impl;
 
 import com.hrms.employeecompetency.models.EmployeePositionTarget;
-import com.hrms.employeecompetency.models.PositionLevel;
 import com.hrms.employeecompetency.repositories.EmployeePositionTargetRepository;
 import com.hrms.employeecompetency.services.EmployeePositionTargetService;
+import com.hrms.employeemanagement.models.PositionLevel;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.PositionLevelRepository;
 import org.springframework.beans.factory.annotation.Autowired;

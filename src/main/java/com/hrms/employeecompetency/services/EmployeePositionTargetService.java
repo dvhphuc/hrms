@@ -1,6 +1,6 @@
 package com.hrms.employeecompetency.services;
 
-import com.hrms.employeecompetency.models.PositionLevel;
+import com.hrms.employeemanagement.models.PositionLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

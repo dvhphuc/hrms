@@ -1,7 +1,7 @@
 package com.hrms.employeecompetency.repositories;
 
 import com.hrms.employeecompetency.models.EmployeePositionTarget;
-import com.hrms.employeecompetency.models.PositionLevel;
+import com.hrms.employeemanagement.models.PositionLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -14,7 +14,7 @@ import java.util.Set;
 @Data
 public class UserDto {
 
-    private Integer userId;
+    private Long userId;
     private String name;
     private boolean status;
     private String username;

@@ -1,6 +1,5 @@
 type Mutation {
     createProfile(input: EmployeeInput!): Employee
-    inactiveEmployee(id: Int!): Boolean
     updateEmployee(input: EmployeeInput!): Employee
     createUser(signupDto: SignupDto!): UserDto!
     updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!

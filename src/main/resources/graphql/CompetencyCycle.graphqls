@@ -1,0 +1,7 @@
+type CompetencyCycle {
+    id: Int!
+    competencyCycleName: String
+    startDate: String
+    dueDate: String
+    year: String
+}

@@ -1,7 +1,7 @@
 package com.hrms.employeemanagement.services;
 
 
-import com.hrms.employeecompetency.models.Position;
+import com.hrms.employeemanagement.models.Position;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

@@ -1,8 +1,5 @@
 package com.hrms.employeemanagement.controllers;
 
-import com.hrms.employeecompetency.models.JobLevel;
-import com.hrms.employeecompetency.models.Position;
-import com.hrms.employeecompetency.models.PositionLevel;
 import com.hrms.employeemanagement.exception.*;
 import com.hrms.employeemanagement.input.EmergencyContactInput;
 import com.hrms.employeemanagement.input.EmployeeInput;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -42,8 +38,6 @@ public class EmployeeGraphql {
     EmployeeService employeeService;
     PositionLevelService positionLevelService;
     DepartmentService departmentService;
-    PositionService positionService;
-    JobLevelService jobLevelService;
     EmergencyContactService emergencyContactService;
 
     @Value("${file.upload-dir}")
@@ -51,13 +45,10 @@ public class EmployeeGraphql {
 
     @Autowired
     public EmployeeGraphql(EmployeeService employeeService, PositionLevelService positionLevelService,
-                           DepartmentService departmentService, PositionService positionService,
-                           JobLevelService jobLevelService, EmergencyContactService emergencyContactService) {
+                           DepartmentService departmentService, EmergencyContactService emergencyContactService) {
         this.employeeService = employeeService;
         this.positionLevelService = positionLevelService;
         this.departmentService = departmentService;
-        this.positionService = positionService;
-        this.jobLevelService = jobLevelService;
         this.emergencyContactService = emergencyContactService;
     }
 
@@ -103,20 +94,9 @@ public class EmployeeGraphql {
         String imageUrl = uploadDir + "/" + imagePath;
         return new EmployeeImageData(imageUrl, imageBase64);
     }
-
-    @QueryMapping(name = "departments")
-    public List<Department> findAllDepartments() {
-        return departmentService.findAll(Specification.allOf());
-    }
-
-    @QueryMapping(name = "positions")
-    public List<Position> findAllPositions() {
-        return positionService.findAll(Specification.allOf());
-    }
-
-    @QueryMapping(name = "jobLevels")
-    public List<JobLevel> findAllJobLevels() {
-        return jobLevelService.findAll(Specification.allOf());
+    @QueryMapping(name = "currentHeadcounts")
+    public Float getCurrentHeadcounts() {
+        return employeeService.getCurrentHeadcounts();
     }
 
     @MutationMapping
@@ -124,21 +104,6 @@ public class EmployeeGraphql {
             throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException, ParseException {
         Employee employee = new Employee();
         return setEmployeeInfo(input, employee);
-    }
-
-    @MutationMapping
-    public Boolean inactiveEmployee(@Argument int id) throws EmployeeNotFoundException {
-        Employee employee = employeeService
-                .findAll(EmployeeSpecifications.hasId(id))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
-        if (Boolean.TRUE.equals(employee.getUser().getIsEnabled())) {
-            employee.getUser().setIsEnabled(Boolean.FALSE);
-            employeeService.saveEmployee(employee);
-            return true;
-        }
-        return false;
     }
 
     @MutationMapping

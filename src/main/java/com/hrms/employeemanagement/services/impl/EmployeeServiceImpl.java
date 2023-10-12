@@ -55,7 +55,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee getEmployee(Integer id) {
-        return employeeRepository.findById(id).orElse(null);
+    public Float getCurrentHeadcounts() {
+        long employeeCount = employeeRepository.count(Specification.allOf());
+        List<Employee> newEmployees = (List<Employee>) employeeRepository.findNewEmployeeOfMonth();
+        long lastMonthEmployeeCount = employeeCount - newEmployees.size();
+        return ((float) (employeeCount - lastMonthEmployeeCount) / lastMonthEmployeeCount) * 100;
     }
 }

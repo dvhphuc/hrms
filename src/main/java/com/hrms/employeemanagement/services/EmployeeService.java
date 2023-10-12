@@ -15,5 +15,5 @@ public interface EmployeeService {
 	Employee saveEmployee(Employee employee);
 	Iterable<Employee> getNewEmployeeOfMonth();
 	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, Boolean status, String name, Pageable pageable);
-	Employee getEmployee(Integer id);
+	Float getCurrentHeadcounts();
 }

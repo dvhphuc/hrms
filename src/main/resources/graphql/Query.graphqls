@@ -8,7 +8,6 @@ type Query {
     NumberOfDepartments: Int
     positions: [Position]
     jobLevels: [JobLevel]
-    getEmployeeImage(id: Int!): EmployeeImageData
     roles: [Role]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto

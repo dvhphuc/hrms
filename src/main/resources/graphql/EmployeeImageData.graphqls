@@ -1,5 +1,0 @@
-type EmployeeImageData {
-    imageUrl: String
-    imageBase64: String
-}
-

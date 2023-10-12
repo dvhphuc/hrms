@@ -21,14 +21,8 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -81,20 +75,6 @@ public class EmployeeGraphql {
         return employeeService.getNewEmployeeOfMonth();
     }
 
-    @QueryMapping
-    public EmployeeImageData getEmployeeImage(@Argument int id) throws EmployeeNotFoundException, IOException {
-        Employee employee = employeeService
-                .findAll(EmployeeSpecifications.hasId(id))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
-        String imagePath = employee.getProfilePicture();
-        Path filePath = Paths.get(uploadDir, imagePath);
-        byte[] imageBytes = Files.readAllBytes(filePath);
-        String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-        String imageUrl = uploadDir + "/" + imagePath;
-        return new EmployeeImageData(imageUrl, imageBase64);
-    }
     @QueryMapping(name = "currentHeadcounts")
     public Float getCurrentHeadcounts() {
         return employeeService.getCurrentHeadcounts();

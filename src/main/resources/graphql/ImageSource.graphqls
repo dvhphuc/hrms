@@ -1,0 +1,5 @@
+type ImageSource {
+    id: Int!
+    imagePath: String
+}
+

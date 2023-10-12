@@ -53,7 +53,7 @@ public class UserService {
         Specification<User> searchFilter = Specification.where(null);
         if (roles != null) {
             for (Integer role : roles) {
-                rolesFilter = rolesFilter.and((root, query, criteriaBuilder) ->
+                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) ->
                         criteriaBuilder.equal(root.get("roles").get("roleId"), role));
             }
         }
@@ -65,9 +65,11 @@ public class UserService {
         if (search != null) {
             searchFilter = searchFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("username"), "%" + search + "%"));
         }
-        return userRepository
-                .findAll(rolesFilter.and(statusFilter).and(searchFilter), pageable)
-                .map(u -> modelMapper.map(u, UserDto.class));
+
+        var filteredUsers = userRepository
+                .findAll(Specification.where(rolesFilter).and(statusFilter).and(searchFilter))
+                .stream().distinct().map(u -> modelMapper.map(u, UserDto.class)).toList();
+        return new PageImpl<>(List.copyOf(filteredUsers), pageable, filteredUsers.size());
     }
 
     public UserDto getUser(Integer id) {

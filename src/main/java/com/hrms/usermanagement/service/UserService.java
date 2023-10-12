@@ -53,7 +53,7 @@ public class UserService {
         Specification<User> searchFilter = Specification.where(null);
         if (roles != null) {
             for (Integer role : roles) {
-                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) ->
+                rolesFilter = rolesFilter.and((root, query, criteriaBuilder) ->
                         criteriaBuilder.equal(root.get("roles").get("roleId"), role));
             }
         }

@@ -1,7 +1,7 @@
 type Mutation {
     createProfile(input: EmployeeInput!): Employee
     updateEmployee(input: EmployeeInput!): Employee
-    createUser(signupDto: SignupDto!): UserDto!
+    createUser(signupDto: SignupDto!): Boolean!
     updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
     updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
 }

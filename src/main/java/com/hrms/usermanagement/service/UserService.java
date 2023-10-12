@@ -4,6 +4,7 @@ import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.exception.UserExistException;
 import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.repository.RoleRepository;
 import com.hrms.usermanagement.repository.UserRepository;
@@ -15,6 +16,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -77,13 +80,17 @@ public class UserService {
         return modelMapper.map(user, UserDto.class);
     }
 
-    public UserDto createUser(SignupDto signupDto) {
+    public Boolean createUser(SignupDto signupDto) throws UserExistException {
+        if (userRepository.findByUsername(signupDto.getUsername()) != null) {
+            throw new UserExistException("User already exists");
+        }
         var user = new User();
         user.setUsername(signupDto.getUsername());
         user.setPassword(passwordEncoder.encode(signupDto.getPassword()));
         user.setIsEnabled(false);
+        user.setCreatedAt(Date.valueOf(LocalDate.now()));
         userRepository.save(user);
-        return modelMapper.map(user, UserDto.class);
+        return true;
     }
 
     public Boolean updateUsers(List<Integer> ids, Boolean status, List<Integer> roles) {

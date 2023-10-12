@@ -4,6 +4,7 @@ import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.exception.UserExistException;
 import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @MutationMapping
-    public UserDto createUser(@Argument SignupDto signupDto) {
+    public Boolean createUser(@Argument SignupDto signupDto) throws UserExistException {
         return userService.createUser(signupDto);
     }
 

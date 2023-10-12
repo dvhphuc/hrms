@@ -4,6 +4,7 @@ import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.repository.RoleRepository;
 import com.hrms.usermanagement.repository.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Set;
 
@@ -51,7 +53,7 @@ public class UserService {
         Specification<User> searchFilter = Specification.where(null);
         if (roles != null) {
             for (Integer role : roles) {
-                rolesFilter = rolesFilter.or((root, query, criteriaBuilder) ->
+                rolesFilter = rolesFilter.and((root, query, criteriaBuilder) ->
                         criteriaBuilder.equal(root.get("roles").get("roleId"), role));
             }
         }
@@ -82,15 +84,22 @@ public class UserService {
         return modelMapper.map(user, UserDto.class);
     }
 
-    public Boolean updateUsers(List<Integer> ids, Boolean status, Integer role) {
+    public Boolean updateUsers(List<Integer> ids, Boolean status, List<Integer> roles) {
         ids.stream().forEach(id -> {
             var user = userRepository.findById(Long.valueOf(id)).orElseThrow();
             if (status != null) {
                 user.setIsEnabled(status);
             }
-            if (role != null) {
-                var roleObj = roleRepository.findById(Long.valueOf(role)).get();
-                user.addRole(roleObj);
+            if (roles != null) {
+                roles.forEach(roleId -> {
+                    var role = roleRepository.findById(roleId).orElseThrow();
+                    user.addRole(role);
+                });
+                roleRepository.findAll().forEach(role -> {
+                    if (!roles.contains(role.getRoleId())) {
+                        user.removeRole(role);
+                    }
+                });
             }
             userRepository.save(user);
         });
@@ -99,5 +108,19 @@ public class UserService {
 
     public List<Role> getRoles() {
         return roleRepository.findAll();
+    }
+
+    public Boolean updateUsernamePassword(Integer userId, String username, String password) throws UserNotFoundException {
+        var user = userRepository.findById(Long.valueOf(userId)).orElseThrow();
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+        if (password == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return true;
     }
 }

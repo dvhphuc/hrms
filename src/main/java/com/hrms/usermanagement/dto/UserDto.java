@@ -1,6 +1,7 @@
 package com.hrms.usermanagement.dto;
 
 import com.hrms.employeemanagement.models.Role;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +17,12 @@ public class UserDto {
 
     private Long userId;
     private String name;
+    @Nullable
     private boolean status;
     private String username;
 
     private Date createdAt;
+    @Nullable
     private Set<Role> roles;
 
     public String getName() {

@@ -1,5 +1,4 @@
 type DepartmentInCompleted {
-    id: ID!
     department: Department
     percentage: Float
 }

@@ -12,6 +12,10 @@ public class EmployeeSpecifications {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id);
     }
 
+    public static Specification<Employee> hasDepartmentId(int id) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("department").get("id"), id);
+    }
+
     public static Specification<Employee> hasFilter(List<Integer> departmentIds, List<Integer> currentContracts,
                                                     Boolean status, String name) {
         Specification<Employee> idsFilter = Specification.where(null);

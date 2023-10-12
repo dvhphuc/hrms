@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.models;
+package com.hrms.imagemanagement.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

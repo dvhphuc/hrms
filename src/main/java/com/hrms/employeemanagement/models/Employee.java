@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import com.hrms.imagemanagement.models.ImageSource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

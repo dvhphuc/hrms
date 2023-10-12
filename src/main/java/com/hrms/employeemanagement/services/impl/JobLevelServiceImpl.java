@@ -1,6 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.employeecompetency.models.JobLevel;
+import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.JobLevelService;
 import org.springframework.beans.factory.annotation.Autowired;

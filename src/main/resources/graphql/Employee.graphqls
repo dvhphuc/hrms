@@ -3,7 +3,7 @@ type Employee {
     id: Int!
     firstName: String
     lastName: String
-    email: String
+    address:String
     gender: String
     dateOfBirth: String
     phoneNumber: String

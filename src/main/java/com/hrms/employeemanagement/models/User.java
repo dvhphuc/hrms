@@ -16,7 +16,6 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(of = {"username", "enabled", "role"})
 @Table(name = "Users")
 public class User {
     @Id

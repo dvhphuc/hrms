@@ -20,7 +20,6 @@ public class CompetencyCycle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competency_cycle_id")
     private int id;
-
     @Column(name = "competency_cycle_name")
     private String competencyCycleName;
     @Column(name = "start_date")
@@ -29,12 +28,4 @@ public class CompetencyCycle {
     private Date dueDate;
     @Column(name = "year")
     private String year;
-
-    public String getStartDate() {
-        return startDate.toString();
-    }
-
-    public String getDueDate() {
-        return dueDate.toString();
-    }
 }

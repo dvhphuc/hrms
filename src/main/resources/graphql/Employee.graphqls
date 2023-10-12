@@ -6,7 +6,6 @@ type Employee {
     email: String
     gender: String
     dateOfBirth: String
-    address: String
     phoneNumber: String
     currentContract: Int
     profileBio: String
@@ -33,7 +32,6 @@ input EmployeeInput {
     id: Int
     firstName: String!
     lastName: String!
-    email: String!
     gender: String!
     dateOfBirth: String!
     phoneNumber: String!

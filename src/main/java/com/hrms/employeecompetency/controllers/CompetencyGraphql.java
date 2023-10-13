@@ -60,6 +60,7 @@ public class CompetencyGraphql {
         return getPercentageOfEmployees(competencyCycleId, employees);
     }
 
+    //Get percentage of input employees who has not completed evaluation
     private Float getPercentageOfEmployees(Integer competencyCycleId, List<Employee> employees) {
         int employeeHasCompleted = 0;
         for (Employee employee: employees) {

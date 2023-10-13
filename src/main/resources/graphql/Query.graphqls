@@ -14,6 +14,7 @@ type Query {
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
     currentHeadcounts: Float
     competencyCycles: [CompetencyCycle]
+    employeeOverview(id: Int!): EmployeeOverviewDto
     departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
     companyInComplete(competencyCycleId: Int!): Float
 }

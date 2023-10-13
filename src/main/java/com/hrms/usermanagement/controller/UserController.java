@@ -42,6 +42,7 @@ public class UserController {
                 pageSize,
                 Sort.by("createdAt").descending()
         );
+        if (roles.isEmpty()) roles = List.of(1, 2, 3);
         var users = userService.getAllByFilter(search, roles, status, sortedByCreatedAtDesc);
         var pagination = new Pagination(pageNo, pageSize, users.getTotalElements(), users.getTotalPages());
         return new UserDtoConnection(users, pagination, users.getTotalElements());

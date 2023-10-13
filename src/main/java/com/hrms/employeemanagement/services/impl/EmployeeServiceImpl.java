@@ -61,4 +61,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         long lastMonthEmployeeCount = employeeCount - newEmployees.size();
         return ((float) (employeeCount - lastMonthEmployeeCount) / lastMonthEmployeeCount) * 100;
     }
+
+    @Override
+    public Employee findById(Integer id) {
+        return employeeRepository.findById(id).orElse(null);
+    }
 }

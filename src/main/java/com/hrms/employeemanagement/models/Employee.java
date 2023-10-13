@@ -61,10 +61,10 @@ public class Employee extends RepresentationModel<Employee> {
 	private List<EmployeeProject> employeeProjects;
 	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
 	private User user;
-	private String getFullName() {
+	public String getFullName() {
 		return this.firstName + " " + this.lastName;
 	}
-	private String getDateOfBirth() {
+	public String getDateOfBirth() {
 		return this.dateOfBirth.toString();
 	}
 }

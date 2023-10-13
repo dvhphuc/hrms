@@ -45,23 +45,27 @@ public class ImageSourceServiceImpl implements ImageSourceService {
         String fileName = employeeId + "_" + file.getOriginalFilename();
         Path filePath = Paths.get(uploadDir, fileName);
         String imagePath = imageApi + employeeId + "/image";
+        ImageSource imgSrc = imageSourceRepository.findAll(ImageSourceSpecifications.hasImagePath(imagePath))
+                .stream()
+                .findFirst()
+                .orElse(null);
+        if(imgSrc != null) {
+            Path filePathExist = Paths.get(uploadDir, imgSrc.getImageName());
+            Files.delete(filePathExist);
+            imageSourceRepository.delete(imgSrc);
+        }
         if (!Files.exists(filePath.getParent())) Files.createDirectories(filePath.getParent());
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         ImageSource imageSource = new ImageSource();
         imageSource.setImageName(fileName);
         imageSource.setImagePath(imagePath);
-        imageSourceRepository.save(imageSource);
+        ImageSource newImageSource = imageSourceRepository.save(imageSource);
         Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
                         new EmployeeNotFoundException("Employee not found with id: " + employeeId));
-        ImageSource imgSrc = imageSourceRepository.findAll(ImageSourceSpecifications.hasImagePath(imagePath))
-                .stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new ImageSourceNotFoundException("Image not found with path: " + imagePath));
-        employee.setImageSource(imgSrc);
+        employee.setImageSource(newImageSource);
         employeeService.saveEmployee(employee);
     }
 

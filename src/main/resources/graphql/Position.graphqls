@@ -2,4 +2,5 @@ type Position {
     id: Int!
     positionName: String
     hasLevel: Boolean
+    hasDepartment: Boolean
 }

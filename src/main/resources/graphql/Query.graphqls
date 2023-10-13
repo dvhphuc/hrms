@@ -11,7 +11,7 @@ type Query {
     roles: [Role]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
-    users(search: String, roles: [ID], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
+    users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
     currentHeadcounts: Float
     competencyCycles: [CompetencyCycle]
     departmentInComplete: [DepartmentInCompleted]

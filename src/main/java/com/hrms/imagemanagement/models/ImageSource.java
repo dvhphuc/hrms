@@ -17,6 +17,6 @@ public class ImageSource {
     @Column(name = "image_source_id", nullable = false)
     private Integer id;
 
-    @Column(name = "image_path")
+    @Column(name = "image_path", unique = true)
     private String imagePath;
 }

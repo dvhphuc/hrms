@@ -1,9 +1,13 @@
 package com.hrms.employeecompetency.controllers;
 
 import com.hrms.employeecompetency.input.DepartmentInComplete;
+import com.hrms.employeecompetency.models.Competency;
 import com.hrms.employeecompetency.models.CompetencyCycle;
+import com.hrms.employeecompetency.models.ProficiencyLevel;
 import com.hrms.employeecompetency.services.CompetencyCycleService;
+import com.hrms.employeecompetency.services.CompetencyService;
 import com.hrms.employeecompetency.services.EvaluationOverallService;
+import com.hrms.employeecompetency.services.ProficiencyLevelService;
 import com.hrms.employeecompetency.specifications.EvaluationOverallSpecifications;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
@@ -27,13 +31,18 @@ public class CompetencyGraphql {
     DepartmentService departmentService;
     EmployeeService employeeService;
     EvaluationOverallService evaluationOverallService;
+    CompetencyService competencyService;
+    ProficiencyLevelService proficiencyLevelService;
     @Autowired
     public CompetencyGraphql(CompetencyCycleService competencyCycleService, DepartmentService departmentService,
-                             EmployeeService employeeService, EvaluationOverallService evaluationOverallService) {
+                             EmployeeService employeeService, EvaluationOverallService evaluationOverallService,
+                             CompetencyService competencyService, ProficiencyLevelService proficiencyLevelService) {
         this.competencyCycleService = competencyCycleService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
         this.evaluationOverallService = evaluationOverallService;
+        this.competencyService = competencyService;
+        this.proficiencyLevelService = proficiencyLevelService;
     }
 
     @QueryMapping(name = "competencyCycles")
@@ -72,5 +81,15 @@ public class CompetencyGraphql {
         }
         int employeeHasNotCompleted = employees.size() - employeeHasCompleted;
         return (float) employeeHasNotCompleted / employees.size() * 100;
+    }
+
+    @QueryMapping(name = "competencies")
+    public List<Competency> getCompetencies() {
+        return competencyService.findAll(Specification.allOf());
+    }
+
+    @QueryMapping(name = "proficiencyLevels")
+    public List<ProficiencyLevel> getProficiencyLevels() {
+        return proficiencyLevelService.findAll(Specification.allOf());
     }
 }

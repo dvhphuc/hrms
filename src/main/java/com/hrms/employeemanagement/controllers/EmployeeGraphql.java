@@ -128,8 +128,7 @@ public class EmployeeGraphql {
                 findAll(DepartmentSpecifications.hasId(input.getDepartmentId()))
                 .stream()
                 .findFirst()
-                .orElseThrow(() ->
-                        new DepartmentNotFoundException("Department not found with id: " + input.getDepartmentId()));
+                .orElse(null);
         employee.setDepartment(department);
         manageEmergencyContacts(input, employee);
         employeeService.saveEmployee(employee);

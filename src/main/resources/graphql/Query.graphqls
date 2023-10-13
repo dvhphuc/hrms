@@ -9,6 +9,8 @@ type Query {
     positions: [Position]
     jobLevels: [JobLevel]
     roles: [Role]
+    competencies: [Competency]
+    proficiencyLevels: [ProficiencyLevel]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection

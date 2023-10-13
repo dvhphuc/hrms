@@ -1,6 +1,7 @@
 package com.hrms.usermanagement.security;
 
 import com.hrms.usermanagement.repository.UserRepository;
+import com.hrms.usermanagement.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +20,9 @@ public class HRMSUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserRoleRepository userRoleRepository;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user = userRepository.findByUsername(username);
@@ -27,10 +31,10 @@ public class HRMSUserDetailsService implements UserDetailsService {
         }
         var userName = user.getUsername();
         var password = user.getPassword();
-        var roles = user.getRoles();
+        var roles = userRoleRepository.findAllByUserUserId(user.getUserId());
         List<GrantedAuthority> authorities = new ArrayList<>();
         roles.stream().forEach(role -> {
-                    authorities.add(new SimpleGrantedAuthority(role.getName().toUpperCase()));
+                    authorities.add(new SimpleGrantedAuthority(role.getRole().getName().toUpperCase()));
                 });
         return new org.springframework.security.core.userdetails.User(userName, password, authorities);
     }

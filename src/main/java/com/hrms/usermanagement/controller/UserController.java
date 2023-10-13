@@ -54,8 +54,8 @@ public class UserController {
 
     @MutationMapping
     public Boolean updateUsers(@Argument List<Integer> ids,
-                              @Nullable @Argument Boolean status,
-                              @Nullable @Argument List<Integer> roles)
+                               @Argument Boolean status,
+                               @Argument List<Integer> roles)
     {
         return userService.updateUsers(ids, status, roles);
     }

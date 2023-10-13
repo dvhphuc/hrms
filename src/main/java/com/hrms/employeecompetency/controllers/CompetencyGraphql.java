@@ -12,6 +12,7 @@ import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,21 +42,34 @@ public class CompetencyGraphql {
     }
 
     @QueryMapping(name = "departmentInComplete")
-    public List<DepartmentInComplete> getAllDepartmentInComplete() {
+    public List<DepartmentInComplete> getAllDepartmentInComplete(@Argument Integer competencyCycleId) {
         List<DepartmentInComplete> departmentInCompletes = new ArrayList<>();
         List<Department> departments = departmentService.findAll(Specification.allOf());
         for (Department department : departments) {
-            int employeeHasCompleted = 0;
             List<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasDepartmentId(department.getId()));
-            for (Employee employee : employees) {
-                employeeHasCompleted += evaluationOverallService
-                        .findAll(EvaluationOverallSpecifications.hasEmployeeIdAndStatusCompleted(employee.getId())).size();
-            }
-            int employeeHasNotCompleted = employees.size() - employeeHasCompleted;
-            float percentage = (float) employeeHasNotCompleted / employees.size() * 100;
+            float percentage = getPercentageOfEmployees(competencyCycleId, employees);
             DepartmentInComplete departmentInComplete = new DepartmentInComplete(department, percentage);
             departmentInCompletes.add(departmentInComplete);
         }
         return departmentInCompletes;
+    }
+
+    @QueryMapping(name = "companyInComplete")
+    public Float getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
+        List<Employee> employees = employeeService.findAll(Specification.allOf());
+        return getPercentageOfEmployees(competencyCycleId, employees);
+    }
+
+    private Float getPercentageOfEmployees(Integer competencyCycleId, List<Employee> employees) {
+        int employeeHasCompleted = 0;
+        for (Employee employee: employees) {
+            if (!evaluationOverallService
+                    .findAll(
+                            EvaluationOverallSpecifications
+                                    .hasEmployeeIdAndStatusCompleted(employee.getId(), competencyCycleId)
+                    ).isEmpty()) employeeHasCompleted += 1;
+        }
+        int employeeHasNotCompleted = employees.size() - employeeHasCompleted;
+        return (float) employeeHasNotCompleted / employees.size() * 100;
     }
 }

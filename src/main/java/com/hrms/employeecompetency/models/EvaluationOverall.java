@@ -21,4 +21,7 @@ public class EvaluationOverall {
     @JoinColumn(name = "employee_id")
     private Employee employee;
     private String status;
+    @ManyToOne
+    @JoinColumn(name = "competency_cycle_id")
+    private CompetencyCycle competencyCycle;
 }

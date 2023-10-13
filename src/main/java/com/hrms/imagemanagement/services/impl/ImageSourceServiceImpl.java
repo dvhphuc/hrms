@@ -11,6 +11,8 @@ import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.imagemanagement.specifications.ImageSourceSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +29,7 @@ public class ImageSourceServiceImpl implements ImageSourceService {
     @Value("${file.upload-dir}")
     private String uploadDir;
     @Value("${static.folder}")
-    private String staticFolder;
+    private String imageApi;
     @Autowired
     EmployeeService employeeService;
     @Autowired
@@ -42,22 +44,36 @@ public class ImageSourceServiceImpl implements ImageSourceService {
     public void uploadProfileImage(int employeeId, MultipartFile file) throws IOException, EmployeeNotFoundException, ImageSourceNotFoundException {
         String fileName = employeeId + "_" + file.getOriginalFilename();
         Path filePath = Paths.get(uploadDir, fileName);
+        String imagePath = imageApi + employeeId + "/image";
         if (!Files.exists(filePath.getParent())) Files.createDirectories(filePath.getParent());
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         ImageSource imageSource = new ImageSource();
-        imageSource.setImagePath(staticFolder + fileName);
+        imageSource.setImageName(fileName);
+        imageSource.setImagePath(imagePath);
         imageSourceRepository.save(imageSource);
         Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
                         new EmployeeNotFoundException("Employee not found with id: " + employeeId));
-        ImageSource imgSrc = imageSourceRepository.findAll(ImageSourceSpecifications.hasImagePath(staticFolder + fileName))
+        ImageSource imgSrc = imageSourceRepository.findAll(ImageSourceSpecifications.hasImagePath(imagePath))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
-                        new ImageSourceNotFoundException("Image not found with path: " + staticFolder + fileName));
+                        new ImageSourceNotFoundException("Image not found with path: " + imagePath));
         employee.setImageSource(imgSrc);
         employeeService.saveEmployee(employee);
+    }
+
+    public Resource getProfileImageByEmployeeId(int employeeId) throws EmployeeNotFoundException {
+        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
+
+        String imageName = employee.getImageSource().getImageName();
+        Path imageFilePath = Paths.get(uploadDir, imageName);
+        return new FileSystemResource(imageFilePath.toFile());
     }
 }

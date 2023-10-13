@@ -73,7 +73,7 @@ public class UserService {
         }
 
         var filteredUsers = userRepository
-                .findAll(Specification.where(statusFilter).and(searchFilter), pageable)
+                .findAll(Specification.where(statusFilter).and(searchFilter))
                 .stream().distinct()
                 .map(u -> {
                     var userDto = modelMapper.map(u, UserDto.class);
@@ -83,7 +83,7 @@ public class UserService {
                 })
                 .filter( userDto -> roles
                         .stream()
-                        .allMatch(roleId -> userDto.getRoles().stream().anyMatch(role -> role.getRoleId().equals(roleId)))
+                        .anyMatch(roleId -> userDto.getRoles().stream().anyMatch(role -> role.getRoleId().equals(roleId)))
                 ).toList();
 
         return new PageImpl<>(List.copyOf(filteredUsers), pageable, filteredUsers.size());

@@ -21,14 +21,8 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Base64;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -50,6 +44,7 @@ public class EmployeeGraphql {
         this.positionLevelService = positionLevelService;
         this.departmentService = departmentService;
         this.emergencyContactService = emergencyContactService;
+
     }
 
     @QueryMapping(name = "employees")
@@ -80,20 +75,6 @@ public class EmployeeGraphql {
         return employeeService.getNewEmployeeOfMonth();
     }
 
-    @QueryMapping
-    public EmployeeImageData getEmployeeImage(@Argument int id) throws EmployeeNotFoundException, IOException {
-        Employee employee = employeeService
-                .findAll(EmployeeSpecifications.hasId(id))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
-        String imagePath = employee.getProfilePicture();
-        Path filePath = Paths.get(uploadDir, imagePath);
-        byte[] imageBytes = Files.readAllBytes(filePath);
-        String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
-        String imageUrl = uploadDir + "/" + imagePath;
-        return new EmployeeImageData(imageUrl, imageBase64);
-    }
     @QueryMapping(name = "currentHeadcounts")
     public Float getCurrentHeadcounts() {
         return employeeService.getCurrentHeadcounts();
@@ -101,7 +82,7 @@ public class EmployeeGraphql {
 
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInput input)
-            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException, ParseException {
+            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
         Employee employee = new Employee();
         return setEmployeeInfo(input, employee);
     }
@@ -109,7 +90,7 @@ public class EmployeeGraphql {
     @MutationMapping
     public Employee updateEmployee(@Argument EmployeeInput input)
             throws EmployeeNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException,
-            EmergencyContactNotFoundException, ParseException {
+            EmergencyContactNotFoundException {
         Employee employee = employeeService
                 .findAll(EmployeeSpecifications.hasId(input.getId()))
                 .stream()
@@ -120,11 +101,13 @@ public class EmployeeGraphql {
 
     @NotNull
     private Employee setEmployeeInfo(EmployeeInput input, Employee employee)
-            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException, ParseException {
+            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
         employee.setFirstName(input.getFirstName());
         employee.setLastName(input.getLastName());
         employee.setGender(input.getGender());
-        Date date = new SimpleDateFormat("yyyy/MM/đ").parse(input.getDateOfBirth());
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+        Instant instant = Instant.from(formatter.parse(input.getDateOfBirth()));
+        Date date = Date.from(instant);
         employee.setDateOfBirth(date);
         employee.setPhoneNumber(input.getPhoneNumber());
         employee.setAddress(input.getAddress());

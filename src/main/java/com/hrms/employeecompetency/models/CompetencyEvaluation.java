@@ -40,6 +40,4 @@ public class CompetencyEvaluation {
     private int finalScore;
     @Column(name = "final_comment")
     private String finalComment;
-    @Column(name = "status")
-    private String status;
 }

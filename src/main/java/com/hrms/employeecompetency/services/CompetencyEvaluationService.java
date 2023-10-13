@@ -12,4 +12,5 @@ public interface CompetencyEvaluationService {
     List<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec);
     List<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec, Sort sort);
     Page<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec, Pageable pageable);
+
 }

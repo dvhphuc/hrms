@@ -19,6 +19,8 @@ public class Position {
     private int id;
     @Column(name = "position_name")
     private String positionName;
-    @Column(name = "has_Level")
+    @Column(name = "has_level")
     private Boolean hasLevel;
+    @Column(name = "has_department")
+    private Boolean hasDepartment;
 }

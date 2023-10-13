@@ -8,7 +8,6 @@ type Query {
     NumberOfDepartments: Int
     positions: [Position]
     jobLevels: [JobLevel]
-    getEmployeeImage(id: Int!): EmployeeImageData
     roles: [Role]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
@@ -16,4 +15,6 @@ type Query {
     currentHeadcounts: Float
     competencyCycles: [CompetencyCycle]
     employeeOverview(id: Int!): EmployeeOverviewDto
+    departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
+    companyInComplete(competencyCycleId: Int!): Float
 }

@@ -1,0 +1,4 @@
+type DepartmentInCompleted {
+    department: Department
+    percentage: Float
+}

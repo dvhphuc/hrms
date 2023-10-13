@@ -21,4 +21,9 @@ public class EmployeeDashboardController {
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
         return employeeMapperService.employeeOverview(employeeService.findById(id));
     }
+
+    @QueryMapping
+    public CareerPathSummaryDto careerPathSummary(@Argument Integer id) {
+        return employeeMapperService.careerPathSummary(employeeService.findById(id));
+    }
 }

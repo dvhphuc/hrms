@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public interface CompetencyService {
-    List<EmployeeRating> findAllByCompetencyCycleId(Integer competencyCycleId);
     List<Competency> findAll(Specification<Competency> spec);
     List<Competency> findAll(Specification<Competency> spec, Sort sort);
     Page<Competency> findAll(Specification<Competency> spec, Pageable pageable);

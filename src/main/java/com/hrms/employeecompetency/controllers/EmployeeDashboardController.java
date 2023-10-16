@@ -3,6 +3,7 @@ package com.hrms.employeecompetency.controllers;
 import com.hrms.employeecompetency.dto.EmployeeOverviewDto;
 import com.hrms.employeecompetency.dto.EmployeeRating;
 import com.hrms.employeecompetency.mapper.EmployeeMapperService;
+import com.hrms.employeecompetency.services.CompetencyEvaluationService;
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.employeecompetency.services.CompetencyService;
 import com.hrms.performancemanagement.service.PerformanceService;
@@ -28,6 +29,9 @@ public class EmployeeDashboardController {
     @Autowired
     EmployeeMapperService employeeMapperService;
 
+    @Autowired
+    CompetencyEvaluationService competencyEvaluationService;
+
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
         return employeeMapperService.employeeOverview(employeeService.findById(id));
@@ -45,7 +49,7 @@ public class EmployeeDashboardController {
 
     @QueryMapping
     public List<EmployeeRating> topEmployeeCompetencies(@Argument Integer competencyCycleId) {
-        return competencyService.findAllByCompetencyCycleId(competencyCycleId);
+        return competencyEvaluationService.findAllByCompetencyCycleId(competencyCycleId);
     }
 
 

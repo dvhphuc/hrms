@@ -4,3 +4,13 @@ type Competency {
     description: String
     competencyGroup: CompetencyGroup
 }
+
+type RadarChart{
+    labels: [String]
+    datasets: [RadarDataset]
+}
+
+type RadarDataset{
+    lineName: String
+    datasets: [Float]
+}

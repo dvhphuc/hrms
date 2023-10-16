@@ -1,13 +1,11 @@
 package com.hrms.employeemanagement.controllers;
 
 import com.hrms.employeemanagement.exception.*;
-import com.hrms.employeemanagement.input.EmergencyContactInput;
-import com.hrms.employeemanagement.input.EmployeeInput;
+import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.employeemanagement.paging.EmployeePaging;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.*;
-import com.hrms.employeemanagement.services.impl.EmployeeImageData;
 import com.hrms.employeemanagement.specifications.*;
 import com.unboundid.util.NotNull;
 import jakarta.annotation.Nullable;

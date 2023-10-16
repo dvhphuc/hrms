@@ -22,4 +22,5 @@ type Query {
     topEmployeePerformance(performanceCycleId: Int!): [EmployeePerformance]
     topEmployeeCompetencies(competencyCycleId: Int!): [EmployeeRating]
     avgCompetencyScore(positionId: Int!, competencyCycleId: Int!): [AvgCompetency]
+    competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
 }

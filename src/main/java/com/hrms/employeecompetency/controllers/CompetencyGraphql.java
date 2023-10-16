@@ -1,14 +1,19 @@
 package com.hrms.employeecompetency.controllers;
 
-import com.hrms.employeecompetency.input.AvgCompetency;
-import com.hrms.employeecompetency.input.DepartmentInComplete;
+import com.hrms.employeecompetency.dto.AvgCompetency;
+import com.hrms.employeecompetency.dto.DepartmentInComplete;
+import com.hrms.employeecompetency.dto.RadarChart;
+import com.hrms.employeecompetency.dto.RadarDataset;
+import com.hrms.employeecompetency.exceptions.CompetencyCycleNotFoundException;
 import com.hrms.employeecompetency.models.Competency;
 import com.hrms.employeecompetency.models.CompetencyCycle;
 import com.hrms.employeecompetency.models.CompetencyEvaluation;
 import com.hrms.employeecompetency.models.ProficiencyLevel;
 import com.hrms.employeecompetency.services.*;
+import com.hrms.employeecompetency.specifications.CompetencyCycleSpecifications;
 import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
 import com.hrms.employeecompetency.specifications.EvaluationOverallSpecifications;
+import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
@@ -148,5 +153,42 @@ public class CompetencyGraphql {
             }
         }
         return avgCompetencies;
+    }
+
+    @QueryMapping(name = "competencyRadarChart")
+    public RadarChart getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId, @Argument Integer departmentId) throws CompetencyCycleNotFoundException {
+        List<Competency> competencies = competencyService.findAll(Specification.allOf());
+        List<RadarDataset> listDataset = new ArrayList<>();
+        for (Integer competencyCycleId : competencyCyclesId) {
+            List<CompetencyEvaluation> competencyEvaluations = competencyEvaluationService
+                    .findAll(CompetencyEvaluationSpecifications.hasCompetencyCycleAndHasEmployeeInDepartment(competencyCycleId, departmentId));
+            List<Float> listAvgCompetencyScore = new ArrayList<>();
+            for (Competency competency : competencies) {
+                List<CompetencyEvaluation> competencyEvaluationsByCompetency = competencyEvaluations.stream()
+                        .filter(competencyEvaluation -> competencyEvaluation.getCompetency().getId().equals(competency.getId()))
+                        .toList();
+                float avgScore;
+                if (competencyEvaluationsByCompetency.isEmpty()) {
+                    avgScore = 0;
+                }
+                else {
+                    int totalScore = 0;
+                    for (CompetencyEvaluation competencyEvaluation : competencyEvaluationsByCompetency) {
+                        if(competencyEvaluation.getFinalScore() == null) continue;
+                        totalScore += competencyEvaluation.getFinalScore().getWeight();
+                    }
+                    avgScore = (float) totalScore / competencyEvaluationsByCompetency.size();
+                }
+                listAvgCompetencyScore.add(avgScore);
+            }
+            CompetencyCycle competencyCycle = competencyCycleService
+                    .findAll(CompetencyCycleSpecifications.hasId(competencyCycleId))
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new CompetencyCycleNotFoundException("Cycle not found with id: " + competencyCycleId));
+            listDataset.add(new RadarDataset(competencyCycle.getCompetencyCycleName(), listAvgCompetencyScore));
+        }
+        List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
+        return new RadarChart(labels, listDataset);
     }
 }

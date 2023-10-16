@@ -1,4 +1,4 @@
-package com.hrms.employeemanagement.input;
+package com.hrms.employeemanagement.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

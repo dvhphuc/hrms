@@ -2,7 +2,6 @@ package com.hrms.employeecompetency.controllers;
 
 import com.hrms.employeecompetency.dto.EmployeeOverviewDto;
 import com.hrms.employeecompetency.mapper.EmployeeMapperService;
-import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;

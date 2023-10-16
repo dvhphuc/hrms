@@ -16,11 +16,14 @@ public class EvaluationOverall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "evaluation_overall_id")
-    private int id;
+    private Integer id;
     @ManyToOne
     @JoinColumn(name = "employee_id")
     private Employee employee;
-    private String status;
+    @Column(name = "employee_status")
+    private String employeeStatus;
+    @Column(name = "evaluator_status")
+    private String evaluatorStatus;
     @ManyToOne
     @JoinColumn(name = "competency_cycle_id")
     private CompetencyCycle competencyCycle;

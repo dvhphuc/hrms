@@ -19,4 +19,5 @@ type Query {
     employeeOverview(id: Int!): EmployeeOverviewDto
     departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
     companyInComplete(competencyCycleId: Int!): Float
+    avgCompetencyScore(positionId: Int!, competencyCycleId: Int!): [AvgCompetency]
 }

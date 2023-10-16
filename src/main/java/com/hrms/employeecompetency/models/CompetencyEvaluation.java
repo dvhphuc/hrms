@@ -16,7 +16,7 @@ public class CompetencyEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competency_evaluation_id")
-    private int id;
+    private Integer id;
     @ManyToOne
     @JoinColumn(name = "competency_cycle_id")
     private CompetencyCycle competencyCycle;
@@ -36,8 +36,9 @@ public class CompetencyEvaluation {
     private ProficiencyLevel evaluatorProficiencyLevel;
     @Column(name = "evaluator_comment")
     private String evaluatorComment;
-    @Column(name = "final_score")
-    private int finalScore;
+    @ManyToOne
+    @JoinColumn(name = "final_proficiency_level_id", referencedColumnName = "proficiency_level_id")
+    private ProficiencyLevel finalScore;
     @Column(name = "final_comment")
     private String finalComment;
 }

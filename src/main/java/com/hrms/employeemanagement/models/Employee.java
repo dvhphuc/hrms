@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.models;
 
-import com.hrms.imagemanagement.models.ImageSource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,9 +44,6 @@ public class Employee extends RepresentationModel<Employee> {
 	private String linkedinLink;
 	@Column(name = "instagram_link")
 	private String instagramLink;
-	@ManyToOne
-	@JoinColumn(name = "image_source_id")
-	private ImageSource imageSource;
 	@ManyToOne
 	@JoinColumn(name = "department_id")
 	private Department department;

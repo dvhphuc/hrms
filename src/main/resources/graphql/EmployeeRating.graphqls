@@ -1,0 +1,4 @@
+type EmployeeRating {
+    employee: Employee
+    rating: Float
+}

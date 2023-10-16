@@ -17,4 +17,6 @@ type Query {
     employeeOverview(id: Int!): EmployeeOverviewDto
     departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
     companyInComplete(competencyCycleId: Int!): Float
+    topEmployeePerformance(performanceCycleId: Int!): [EmployeePerformance]
+    topEmployeeCompetencies(competencyCycleId: Int!): [EmployeeRating]
 }

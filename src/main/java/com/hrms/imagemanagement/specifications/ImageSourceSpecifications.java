@@ -7,4 +7,8 @@ public class ImageSourceSpecifications {
     public static Specification<ImageSource> hasImagePath(String imagePath) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("imagePath"), imagePath);
     }
+
+    public static Specification<ImageSource> hasEmployeeId(Integer id) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), id);
+    }
 }

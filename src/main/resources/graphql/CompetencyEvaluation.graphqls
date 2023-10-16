@@ -1,4 +1,11 @@
 type DepartmentInCompleted {
     department: Department
-    percentage: Float
+    employeePercentage: Float
+    evaluatorPercentage: Float
+}
+
+type AvgCompetency {
+    jobLevel: JobLevel
+    competency: Competency
+    average: Float
 }

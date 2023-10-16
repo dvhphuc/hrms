@@ -17,7 +17,7 @@ public class CompetencyTimeLine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competency_time_line_id")
-    private int id;
+    private Integer id;
     @Column(name = "competency_time_line_name")
     private String competencyTimeLineName;
     @Column(name = "start_date")

@@ -17,7 +17,7 @@ public class EmployeeSkill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employee_skill_id")
-    private int ID;
+    private int id;
 
     @ManyToOne
     @JoinColumn(name = "employee_id")

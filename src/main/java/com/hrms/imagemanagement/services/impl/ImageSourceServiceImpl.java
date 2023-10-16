@@ -59,24 +59,22 @@ public class ImageSourceServiceImpl implements ImageSourceService {
         ImageSource imageSource = new ImageSource();
         imageSource.setImageName(fileName);
         imageSource.setImagePath(imagePath);
-        ImageSource newImageSource = imageSourceRepository.save(imageSource);
         Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
                         new EmployeeNotFoundException("Employee not found with id: " + employeeId));
-        employee.setImageSource(newImageSource);
-        employeeService.saveEmployee(employee);
+        imageSource.setEmployee(employee);
+        imageSourceRepository.save(imageSource);
     }
 
-    public Resource getProfileImageByEmployeeId(int employeeId) throws EmployeeNotFoundException {
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
+    public Resource getProfileImageByEmployeeId(int employeeId) throws ImageSourceNotFoundException {
+        ImageSource imageSource = imageSourceRepository.findAll(ImageSourceSpecifications.hasEmployeeId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
-                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
-
-        String imageName = employee.getImageSource().getImageName();
+                        new ImageSourceNotFoundException("Image source not found with employee has id: " + employeeId));
+        String imageName = imageSource.getImageName();
         Path imageFilePath = Paths.get(uploadDir, imageName);
         return new FileSystemResource(imageFilePath.toFile());
     }

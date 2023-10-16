@@ -9,5 +9,5 @@ import java.io.IOException;
 
 public interface ImageSourceService {
     void uploadProfileImage(int id, MultipartFile file) throws IOException, EmployeeNotFoundException, ImageSourceNotFoundException;
-    public Resource getProfileImageByEmployeeId(int employeeId) throws EmployeeNotFoundException;
+    public Resource getProfileImageByEmployeeId(int employeeId) throws EmployeeNotFoundException, ImageSourceNotFoundException;
 }

@@ -16,12 +16,10 @@ public class SkillSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "skill_set_id")
-    private int ID;
+    private int id;
     @Column(name = "skill_set_name")
     private String skillSetName;
-
     @ManyToOne
     @JoinColumn(name = "competency_id")
     private Competency competency;
-
 }

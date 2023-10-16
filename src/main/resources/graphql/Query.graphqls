@@ -9,6 +9,8 @@ type Query {
     positions: [Position]
     jobLevels: [JobLevel]
     roles: [Role]
+    competencies: [Competency]
+    proficiencyLevels: [ProficiencyLevel]
     login(username: String!, password: String!): Token
     user(id: Int): UserDto
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
@@ -19,4 +21,5 @@ type Query {
     companyInComplete(competencyCycleId: Int!): Float
     topEmployeePerformance(performanceCycleId: Int!): [EmployeePerformance]
     topEmployeeCompetencies(competencyCycleId: Int!): [EmployeeRating]
+    avgCompetencyScore(positionId: Int!, competencyCycleId: Int!): [AvgCompetency]
 }

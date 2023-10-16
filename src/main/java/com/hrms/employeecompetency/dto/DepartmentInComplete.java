@@ -1,4 +1,4 @@
-package com.hrms.employeecompetency.input;
+package com.hrms.employeecompetency.dto;
 
 import com.hrms.employeemanagement.models.Department;
 import lombok.AllArgsConstructor;

@@ -10,4 +10,11 @@ public class CompetencyEvaluationSpecifications {
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId)
         );
     }
+
+    public static Specification<CompetencyEvaluation> hasCompetencyCycleAndHasEmployeeInDepartment(Integer competencyCycleId, Integer departmentId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId),
+                criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId)
+        );
+    }
 }

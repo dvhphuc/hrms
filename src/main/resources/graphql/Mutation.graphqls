@@ -4,5 +4,7 @@ type Mutation {
     createUser(signupDto: SignupDto!): Boolean!
     updateUsers(ids: [Int]!, status: Boolean, roles: [Int]): Boolean!
     updateUsernamePassword(userId: Int!, username: String!, password: String!): Boolean!
+    uploadFile(file: Upload!): Boolean!
 }
 
+scalar Upload

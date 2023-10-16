@@ -5,12 +5,10 @@ import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.exception.UserExistException;
-import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -65,7 +63,7 @@ public class UserController {
     public Boolean updateUsernamePassword(@Argument Integer userId,
                                           @Argument String username,
                                           @Argument String password)
-            throws UserNotFoundException
+            throws IllegalArgumentException
     {
         return userService.updateUsernamePassword(userId, username, password);
     }

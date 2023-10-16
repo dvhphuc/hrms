@@ -40,5 +40,7 @@ public class User {
     @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
     private Employee employee;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<UserRole> userRoles;
 
 }

@@ -72,12 +72,15 @@ public class UserService {
             searchFilter = searchFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("username"), "%" + search + "%"));
         }
 
+        Specification<User> rolesFilter = Specification.where(null);
+        rolesFilter = rolesFilter.and((root, query, criteriaBuilder) -> root.get("userRoles").get("role").get("roleId").in(roles));
+
         var filteredUsers = userRepository
                 .findAll(Specification.where(statusFilter).and(searchFilter))
                 .stream().distinct()
                 .map(u -> {
                     var userDto = modelMapper.map(u, UserDto.class);
-                    var rolesList = userRoleRepository.findAllByUserUserId(u.getUserId()).stream().map(r -> r.getRole()).toList();
+                    var rolesList = userRoleRepository.findAllByUserUserId(u.getUserId()).stream().map(r -> r.getRole()).sorted().toList();
                     userDto.setRoles(Set.copyOf(rolesList));
                     return userDto;
                 })
@@ -91,7 +94,7 @@ public class UserService {
 
     public UserDto getUser(Integer id) {
         var user = userRepository.findById(id.longValue()).orElseThrow();
-        var roles = userRoleRepository.findAllByUserUserId(id).stream().map(r -> r.getRole()).toList();
+        var roles = userRoleRepository.findAllByUserUserId(id).stream().map(UserRole::getRole).toList();
         UserDto userDto = modelMapper.map(user, UserDto.class);
         userDto.setRoles(Set.copyOf(roles));
         return userDto;
@@ -150,11 +153,8 @@ public class UserService {
         return roleRepository.findAll();
     }
 
-    public Boolean updateUsernamePassword(Integer userId, String username, String password) throws UserNotFoundException {
+    public Boolean updateUsernamePassword(Integer userId, String username, String password) throws IllegalArgumentException  {
         var user = userRepository.findById(Long.valueOf(userId)).orElseThrow();
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
-        }
         if (password == null) {
             throw new IllegalArgumentException("Password cannot be null");
         }

@@ -1,14 +1,12 @@
 package com.hrms.employeecompetency.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
-@Getter
+@Data
 @Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class RadarChart {

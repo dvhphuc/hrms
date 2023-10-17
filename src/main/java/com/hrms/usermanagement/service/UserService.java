@@ -125,9 +125,10 @@ public class UserService {
         deleteNotInRoles = deleteNotInRoles.and((root, query, criteriaBuilder) ->
                 root.get("user").get("userId").in(userIds)
         );
-        deleteNotInRoles = deleteNotInRoles.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.not(root.get("role").get("roleId").in(roleIds))
-        );
+        if (!roleIds.isEmpty()) {
+            deleteNotInRoles = deleteNotInRoles.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.not(root.get("role").get("roleId").in(roleIds)));
+        }
         userRoleRepository.delete(deleteNotInRoles);
 
         for (var userId : userIds) {

@@ -43,13 +43,13 @@ public class EmployeeDashboardController {
 //    }
 
     @QueryMapping
-    public List<EmployeePerformance> topEmployeePerformance(@Argument Integer performanceCycleId) {
-        return performanceService.findAllByPerformanceCycleId(performanceCycleId);
+    public List<EmployeePerformance> topEmployeePerformance(@Argument int performanceCycleId, @Argument int limit) {
+        return performanceService.findByPerformanceCycleId(performanceCycleId, limit);
     }
 
     @QueryMapping
-    public List<EmployeeRating> topEmployeeCompetencies(@Argument Integer competencyCycleId) {
-        return competencyEvaluationService.findAllByCompetencyCycleId(competencyCycleId);
+    public List<EmployeeRating> topEmployeeCompetencies(@Argument int competencyCycleId, @Argument int limit) {
+        return competencyEvaluationService.findByCompetencyCycleId(competencyCycleId, limit);
     }
 
 

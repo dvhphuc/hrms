@@ -19,8 +19,8 @@ type Query {
     employeeOverview(id: Int!): EmployeeOverviewDto
     departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
     companyInComplete(competencyCycleId: Int!): Float
-    topEmployeePerformance(performanceCycleId: Int!): [EmployeePerformance]
-    topEmployeeCompetencies(competencyCycleId: Int!): [EmployeeRating]
+    topEmployeePerformance(performanceCycleId: Int!, limit: Int = 10): [EmployeePerformance]
+    topEmployeeCompetencies(competencyCycleId: Int!, limit: Int = 10): [EmployeeRating]
     avgCompetencyScore(positionId: Int!, competencyCycleId: Int!): [AvgCompetency]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
 }

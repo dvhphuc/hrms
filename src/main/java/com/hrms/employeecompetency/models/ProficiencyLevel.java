@@ -18,7 +18,7 @@ public class ProficiencyLevel {
     private Integer id;
     @Column(name = "proficiency_level_name")
     private String ProficiencyLevelName;
-    @Column(name = "weight")
-    private int Weight;
+    @Column(name = "score")
+    private int score;
 }
 

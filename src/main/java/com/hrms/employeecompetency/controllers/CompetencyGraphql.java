@@ -144,7 +144,7 @@ public class CompetencyGraphql {
                 } else {
                     int totalScore = 0;
                     for (CompetencyEvaluation competencyEvaluation : evaluationsHasJobLevelAndCompetency) {
-                        totalScore += competencyEvaluation.getFinalScore().getWeight();
+                        totalScore += competencyEvaluation.getFinalScore().getScore();
                     }
                     avgScore = (float) totalScore / evaluationsHasJobLevelAndCompetency.size();
                 }
@@ -175,7 +175,7 @@ public class CompetencyGraphql {
                     int totalScore = 0;
                     for (CompetencyEvaluation competencyEvaluation : competencyEvaluationsByCompetency) {
                         if(competencyEvaluation.getFinalScore() == null) continue;
-                        totalScore += competencyEvaluation.getFinalScore().getWeight();
+                        totalScore += competencyEvaluation.getFinalScore().getScore();
                     }
                     avgScore = (float) totalScore / competencyEvaluationsByCompetency.size();
                 }

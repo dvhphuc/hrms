@@ -1,7 +1,8 @@
 type EmployeePotentialPerformance {
     employee: Employee
-    potential: Potential
-    performance: Performance
+    profileImgUri: String
+    potential: Int
+    performance: Int
 }
 
 enum Potential {

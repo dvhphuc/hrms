@@ -102,12 +102,22 @@ public class EmployeeDashboardController {
         for (Employee employee : employeeService.findAll(filterByDepartment)) {
             //Get latest performance cycle which this employee was evaluated
             var latestPerformanceCycleOfThisEmployee = performanceService.findLatestPerformanceCycleOfEmployee(employee.getId());
-            var performanceScore = performanceService.findByEmployeeIdAAndPerformanceCyclePerformanceCycleId(
-                    employee.getId(),
-                    latestPerformanceCycleOfThisEmployee.getPerformanceCycleId()
-            ).getFinalAssessment().intValue();
+            if (latestPerformanceCycleOfThisEmployee == null) {
+                continue;
+            }
+            var performanceScore = performanceService
+                    .findByEmployeeIdAndPerformanceCyclePerformanceCycleId(
+                            employee.getId(),
+                            latestPerformanceCycleOfThisEmployee.getPerformanceCycleId()
+                    )
+                    .getFinalAssessment().intValue();
             var potentialScore = 4;
-            result.add(new EmployeePotentialPerformance(employee, performanceScore, potentialScore));
+            result.add(new EmployeePotentialPerformance(
+                    employee,
+                    "https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-512.png",
+                    potentialScore,
+                    performanceScore
+            ));
         }
         return result;
     }

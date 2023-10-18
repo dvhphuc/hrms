@@ -12,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 public class EmployeePotentialPerformance {
     Employee employee;
+    String profileImgUri;
     int potential;
     int performance;
 }

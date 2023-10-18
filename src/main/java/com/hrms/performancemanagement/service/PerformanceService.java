@@ -12,6 +12,6 @@ import java.util.List;
 public interface PerformanceService {
     List<EmployeePerformance> findByPerformanceCycleId(Integer performanceId, Integer limit);
     Page<EmployeePerformance> findAll(Pageable pageable);
-    EmployeePerformance findByEmployeeIdAAndPerformanceCyclePerformanceCycleId(int employeeId, int performanceCycleId);
+    EmployeePerformance findByEmployeeIdAndPerformanceCyclePerformanceCycleId(int employeeId, int performanceCycleId);
     PerformanceCycle findLatestPerformanceCycleOfEmployee(int employeeId);
 }

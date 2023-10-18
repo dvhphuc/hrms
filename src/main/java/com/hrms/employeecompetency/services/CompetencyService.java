@@ -4,6 +4,7 @@ package com.hrms.employeecompetency.services;
 import com.hrms.employeecompetency.dto.EmployeeRating;
 
 import com.hrms.employeecompetency.models.Competency;
+import com.hrms.employeecompetency.models.CompetencyCycle;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

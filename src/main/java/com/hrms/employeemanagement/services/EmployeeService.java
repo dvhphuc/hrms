@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public interface EmployeeService {
+	List<Employee> findAll();
 	List<Employee> findAll(Specification<Employee> spec);
 	List<Employee> findAll(Specification<Employee> spec, Sort sort);
 	Page<Employee> findAll(Specification<Employee> spec, Pageable pageable);

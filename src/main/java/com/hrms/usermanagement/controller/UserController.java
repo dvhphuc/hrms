@@ -1,6 +1,7 @@
 package com.hrms.usermanagement.controller;
 
 import com.hrms.employeemanagement.models.Role;
+import com.hrms.employeemanagement.models.User;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
@@ -8,7 +9,9 @@ import com.hrms.usermanagement.exception.UserExistException;
 import com.hrms.usermanagement.graphql.UserDtoConnection;
 import com.hrms.usermanagement.service.UserService;
 import jakarta.annotation.Nullable;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -17,11 +20,29 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
     @Autowired
     private UserService userService;
+
+    private ModelMapper userMapper;
+
+    @Bean
+    void initMapper() {
+        userMapper = new ModelMapper();
+        userMapper.typeMap(User.class, UserDto.class).addMappings(
+                mapper -> {
+                    mapper.map(User::getUserId, UserDto::setUserId);
+                    mapper.map(User::getUsername, UserDto::setUsername);
+                    mapper.map(User::getIsEnabled, UserDto::setStatus);
+                    mapper.map(User::getCreatedAt, UserDto::setCreatedAt);
+                    mapper.map(User::getRoles, UserDto::setRoles);
+                }
+        );
+    }
+
 
     @QueryMapping
     public UserDto user(@Argument Integer id) {
@@ -43,9 +64,8 @@ public class UserController {
         if (roles.isEmpty()) roles = List.of(1, 2, 3);
         var users = userService.getAllByFilter(search, roles, status, sortedByCreatedAtDesc);
         var pagination = new Pagination(pageNo, pageSize, users.getTotalElements(), users.getTotalPages());
-        return new UserDtoConnection(users, pagination, users.getTotalElements());
+        return new UserDtoConnection(users.map(u -> userMapper.map(u, UserDto.class)), pagination, users.getTotalElements());
     }
-
     @MutationMapping
     public Boolean createUser(@Argument SignupDto signupDto) throws UserExistException {
         return userService.createUser(signupDto);

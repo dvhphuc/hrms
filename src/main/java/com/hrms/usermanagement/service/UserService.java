@@ -25,6 +25,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -53,6 +54,7 @@ public class UserService {
                     mapper.map(User::getUserId, UserDto::setUserId);
                     mapper.map(User::getUsername, UserDto::setUsername);
                     mapper.map(User::getIsEnabled, UserDto::setStatus);
+                    mapper.map(User::getCreatedAt, UserDto::setCreatedAt);
                 });
     }
 
@@ -60,9 +62,10 @@ public class UserService {
         return userRepository.findAll(pageRequest).map(u -> modelMapper.map(u, UserDto.class));
     }
 
-    public Page<UserDto> getAllByFilter(String search, List<Integer> roles, Boolean status, Pageable pageable) {
+    public Page<User> getAllByFilter(String search, List<Integer> roles, Boolean status, Pageable pageable) {
         Specification<User> statusFilter = Specification.where(null);
         Specification<User> searchFilter = Specification.where(null);
+        Specification<User> rolesFilter = Specification.where(null);
 
         if (status != null) {
             statusFilter = statusFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("isEnabled"), status));
@@ -72,24 +75,12 @@ public class UserService {
             searchFilter = searchFilter.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("username"), "%" + search + "%"));
         }
 
-        Specification<User> rolesFilter = Specification.where(null);
-        rolesFilter = rolesFilter.and((root, query, criteriaBuilder) -> root.get("userRoles").get("role").get("roleId").in(roles));
+        if (!roles.isEmpty()) {
+            rolesFilter = rolesFilter.and((root, query, criteriaBuilder) -> root.get("userRoles").get("role").get("roleId").in(roles));
+        }
 
-        var filteredUsers = userRepository
-                .findAll(Specification.where(statusFilter).and(searchFilter))
-                .stream().distinct()
-                .map(u -> {
-                    var userDto = modelMapper.map(u, UserDto.class);
-                    var rolesList = userRoleRepository.findAllByUserUserId(u.getUserId()).stream().map(r -> r.getRole()).sorted().toList();
-                    userDto.setRoles(Set.copyOf(rolesList));
-                    return userDto;
-                })
-                .filter( userDto -> roles
-                        .stream()
-                        .anyMatch(roleId -> userDto.getRoles().stream().anyMatch(role -> role.getRoleId().equals(roleId)))
-                ).toList();
-
-        return new PageImpl<>(List.copyOf(filteredUsers), pageable, filteredUsers.size());
+        return userRepository
+                .findAll(Specification.where(statusFilter).and(searchFilter).and(rolesFilter), pageable);
     }
 
     public UserDto getUser(Integer id) {
@@ -125,9 +116,10 @@ public class UserService {
         deleteNotInRoles = deleteNotInRoles.and((root, query, criteriaBuilder) ->
                 root.get("user").get("userId").in(userIds)
         );
-        deleteNotInRoles = deleteNotInRoles.and((root, query, criteriaBuilder) ->
-                criteriaBuilder.not(root.get("role").get("roleId").in(roleIds))
-        );
+        if (!roleIds.isEmpty()) {
+            deleteNotInRoles = deleteNotInRoles.and((root, query, criteriaBuilder) ->
+                    criteriaBuilder.not(root.get("role").get("roleId").in(roleIds)));
+        }
         userRoleRepository.delete(deleteNotInRoles);
 
         for (var userId : userIds) {

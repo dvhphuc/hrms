@@ -1,7 +1,9 @@
 package com.hrms.employeecompetency.services;
 
+import com.hrms.employeecompetency.dto.EmployeePotentialPerformance;
 import com.hrms.employeecompetency.dto.EmployeeRating;
 import com.hrms.employeecompetency.models.CompetencyEvaluation;
+import com.hrms.employeemanagement.models.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +15,8 @@ public interface CompetencyEvaluationService {
     List<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec);
     List<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec, Sort sort);
     Page<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec, Pageable pageable);
-    public List<EmployeeRating> findAllByCompetencyCycleId(Integer competencyCycleId);
+    List<CompetencyEvaluation> getAllInLatestCompetencyCycle();
+    List<EmployeeRating> findByCompetencyCycleId(int competencyCycleId, int limit);
+    List<EmployeePotentialPerformance> getAllEmployeesPotentialPerformance();
 
 }

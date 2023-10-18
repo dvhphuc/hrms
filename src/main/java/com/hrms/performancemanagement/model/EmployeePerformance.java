@@ -32,7 +32,7 @@ public class EmployeePerformance {
     @Column(name = "final_assessment")
     private Float finalAssessment;
 
-    @Column(name = "performance_cycle_id")
-    @JoinTable(name = "performance_cycle", joinColumns = @JoinColumn(name = "performance_cycle_id"))
-    private Integer performanceCycleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "performance_cycle_id")
+    private PerformanceCycle performanceCycle;
 }

@@ -1,0 +1,17 @@
+type EmployeePotentialPerformance {
+    employee: Employee
+    potential: Potential
+    performance: Performance
+}
+
+enum Potential {
+    HIGH
+    MEDIUM
+    LOW
+}
+
+enum Performance {
+    HIGH
+    MEDIUM
+    LOW
+}

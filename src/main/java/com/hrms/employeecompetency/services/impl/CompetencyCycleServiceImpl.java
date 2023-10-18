@@ -32,4 +32,9 @@ public class CompetencyCycleServiceImpl implements CompetencyCycleService {
     public Page<CompetencyCycle> findAll(Specification<CompetencyCycle> spec, Pageable pageable) {
         return competencyCycleRepository.findAll(spec, pageable);
     }
+
+    @Override
+    public CompetencyCycle getLatestCompetencyCycle() {
+        return competencyCycleRepository.findFirstByOrderByStartDateDesc();
+    }
 }

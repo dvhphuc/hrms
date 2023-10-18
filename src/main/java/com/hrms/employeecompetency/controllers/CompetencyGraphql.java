@@ -4,18 +4,19 @@ import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.exceptions.CompetencyCycleNotFoundException;
 import com.hrms.employeecompetency.models.*;
 import com.hrms.employeecompetency.services.*;
-import com.hrms.employeecompetency.specifications.CompetencyCycleSpecifications;
-import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
-import com.hrms.employeecompetency.specifications.CompetencyTimeLineSpecifications;
-import com.hrms.employeecompetency.specifications.EvaluationOverallSpecifications;
+import com.hrms.employeecompetency.specifications.*;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
+import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.DepartmentService;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.employeemanagement.services.JobLevelService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -40,13 +41,14 @@ public class CompetencyGraphql {
     CompetencyEvaluationService competencyEvaluationService;
     JobLevelService jobLevelService;
     CompetencyTimeLineService competencyTimeLineService;
+    SkillSetEvaluationService skillSetEvaluationService;
 
     @Autowired
     public CompetencyGraphql(CompetencyCycleService competencyCycleService, DepartmentService departmentService,
                              EmployeeService employeeService, EvaluationOverallService evaluationOverallService,
                              CompetencyService competencyService, ProficiencyLevelService proficiencyLevelService,
                              CompetencyEvaluationService competencyEvaluationService, JobLevelService jobLevelService,
-                             CompetencyTimeLineService competencyTimeLineService) {
+                             CompetencyTimeLineService competencyTimeLineService, SkillSetEvaluationService skillSetEvaluationService) {
         this.competencyCycleService = competencyCycleService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
@@ -56,6 +58,7 @@ public class CompetencyGraphql {
         this.competencyEvaluationService = competencyEvaluationService;
         this.jobLevelService = jobLevelService;
         this.competencyTimeLineService = competencyTimeLineService;
+        this.skillSetEvaluationService = skillSetEvaluationService;
     }
 
     @QueryMapping(name = "competencyCycles")
@@ -197,5 +200,25 @@ public class CompetencyGraphql {
         }
         List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
         return new RadarChart(labels, listDataset);
+    }
+
+    @QueryMapping(name = "topHighestSkillSet")
+    public TopHighestSkillSetPaging getTopHighestSkill(@Argument Integer competencyCycleId, @Argument int pageNo, @Argument int pageSize)
+    {
+        List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<SkillSetEvaluation> skillSetEvaluations =
+                skillSetEvaluationService
+                        .findAll(SkillSetEvaluationSpecifications.hasTop10ProficiencyLevelInCycle(competencyCycleId),pageable);
+        for (SkillSetEvaluation skillSetEvaluation : skillSetEvaluations) {
+            topHighestSkillSets.add(
+                    new TopHighestSkillSet(skillSetEvaluation.getEmployee(),
+                            skillSetEvaluation.getPositionSkillSet().getSkillSet(),
+                            skillSetEvaluation.getFinalProficiencyLevel()));
+        }
+        long totalCount = skillSetEvaluations.getTotalElements();
+        long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
+        Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
+        return new TopHighestSkillSetPaging(topHighestSkillSets, pagination, totalCount);
     }
 }

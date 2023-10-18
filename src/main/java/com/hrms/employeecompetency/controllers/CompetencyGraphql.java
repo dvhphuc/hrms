@@ -2,13 +2,11 @@ package com.hrms.employeecompetency.controllers;
 
 import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.exceptions.CompetencyCycleNotFoundException;
-import com.hrms.employeecompetency.models.Competency;
-import com.hrms.employeecompetency.models.CompetencyCycle;
-import com.hrms.employeecompetency.models.CompetencyEvaluation;
-import com.hrms.employeecompetency.models.ProficiencyLevel;
+import com.hrms.employeecompetency.models.*;
 import com.hrms.employeecompetency.services.*;
 import com.hrms.employeecompetency.specifications.CompetencyCycleSpecifications;
 import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
+import com.hrms.employeecompetency.specifications.CompetencyTimeLineSpecifications;
 import com.hrms.employeecompetency.specifications.EvaluationOverallSpecifications;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
@@ -39,12 +37,14 @@ public class CompetencyGraphql {
     ProficiencyLevelService proficiencyLevelService;
     CompetencyEvaluationService competencyEvaluationService;
     JobLevelService jobLevelService;
+    CompetencyTimeLineService competencyTimeLineService;
 
     @Autowired
     public CompetencyGraphql(CompetencyCycleService competencyCycleService, DepartmentService departmentService,
                              EmployeeService employeeService, EvaluationOverallService evaluationOverallService,
                              CompetencyService competencyService, ProficiencyLevelService proficiencyLevelService,
-                             CompetencyEvaluationService competencyEvaluationService, JobLevelService jobLevelService) {
+                             CompetencyEvaluationService competencyEvaluationService, JobLevelService jobLevelService,
+                             CompetencyTimeLineService competencyTimeLineService) {
         this.competencyCycleService = competencyCycleService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
@@ -53,11 +53,17 @@ public class CompetencyGraphql {
         this.proficiencyLevelService = proficiencyLevelService;
         this.competencyEvaluationService = competencyEvaluationService;
         this.jobLevelService = jobLevelService;
+        this.competencyTimeLineService = competencyTimeLineService;
     }
 
     @QueryMapping(name = "competencyCycles")
     public List<CompetencyCycle> getCompetencyCycles() {
         return competencyCycleService.findAll(Specification.allOf());
+    }
+
+    @QueryMapping(name = "competencyTimeLine")
+    public List<CompetencyTimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
+        return competencyTimeLineService.findAll(CompetencyTimeLineSpecifications.hasCompetencyCycle(competencyCycleId));
     }
 
     @QueryMapping(name = "departmentInComplete")

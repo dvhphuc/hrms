@@ -5,3 +5,11 @@ type CompetencyCycle {
     dueDate: String
     year: String
 }
+
+type CompetencyTimeLine {
+    id: Int!
+    competencyTimeLineName: String
+    startDate: String
+    dueDate: String
+    competencyCycle: CompetencyCycle
+}

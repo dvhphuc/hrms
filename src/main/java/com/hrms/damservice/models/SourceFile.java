@@ -15,7 +15,7 @@ import lombok.Setter;
 public class SourceFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "image_source_id", nullable = false)
+    @Column(name = "source_file_id", nullable = false)
     private Integer id;
 
     @ManyToOne

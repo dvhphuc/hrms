@@ -107,14 +107,14 @@ public class EmployeeGraphql {
 
     @MutationMapping
     public Employee createProfile(@Argument EmployeeInput input)
-            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
+            throws PositionLevelNotFoundException, EmergencyContactNotFoundException {
         Employee employee = new Employee();
         return setEmployeeInfo(input, employee);
     }
 
     @MutationMapping
     public Employee updateEmployee(@Argument EmployeeInput input)
-            throws EmployeeNotFoundException, PositionLevelNotFoundException, DepartmentNotFoundException,
+            throws EmployeeNotFoundException, PositionLevelNotFoundException,
             EmergencyContactNotFoundException {
         Employee employee = employeeService
                 .findAll(EmployeeSpecifications.hasId(input.getId()))

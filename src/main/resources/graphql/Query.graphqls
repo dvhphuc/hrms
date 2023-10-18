@@ -2,8 +2,8 @@
 type Query {
     employees(pageNo: Int!, pageSize: Int = 10, departmentIds: [Int], currentContracts: [Int],
         status: Boolean, name: String): EmployeePaging!
-    employee(id: Int!): Employee
-    employeeOfTheMonth: [Employee]
+    employee(id: Int!): EmployeeSource
+    employeeOfTheMonth: [EmployeeSource]
     departments: [Department]
     NumberOfDepartments: Int
     positions: [Position]
@@ -26,4 +26,5 @@ type Query {
     employeesPotentialPerformance(departmentId: Int): [EmployeePotentialPerformance]
     avgCompetencyScore(positionId: Int!, competencyCycleId: Int!): [AvgCompetency]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
+    topHighestSkillSet(competencyCycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
 }

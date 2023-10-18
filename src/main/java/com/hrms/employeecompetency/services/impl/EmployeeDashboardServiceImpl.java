@@ -50,7 +50,7 @@ public class EmployeeDashboardServiceImpl implements EmployeeDashboardService {
 
         Specification<CompetencyEvaluation> ceSpec = Specification.where(null);
         ceSpec = ceSpec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), employeeId));
-        var competencyLevel = competencyEvaluationRepository.findAll(ceSpec).stream().mapToInt(competencyEvaluation -> competencyEvaluation.getFinalScore().getScore()).sum();
+        var competencyLevel = competencyEvaluationRepository.findAll(ceSpec).stream().mapToInt(competencyEvaluation -> competencyEvaluation.getProficiencyLevel().getScore()).sum();
 
         return new GlanceDto(currentSkillGap, 0.4F, (float) competencyLevel);
 
@@ -59,7 +59,7 @@ public class EmployeeDashboardServiceImpl implements EmployeeDashboardService {
     @Override
     public RadarChart getOverallCompetencyScore(Integer employeeId) {
         var labels = competencyRepository.findAll().stream().map(Competency::getCompetencyName).toList();
-        var data = competencyEvaluationRepository.findAll().stream().map(competencyEvaluation -> competencyEvaluation.getFinalScore().getScore()*1.0).toList();
+        var data = competencyEvaluationRepository.findAll().stream().map(competencyEvaluation -> competencyEvaluation.getProficiencyLevel().getScore()*1.0).toList();
         //return new RadarChart(labels, List.of(new RadarDataset("line example", data)));
         return null;
     }

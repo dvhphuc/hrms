@@ -85,7 +85,7 @@ public class EmployeeDashboardController {
             Specification<CompetencyEvaluation> filterLatestCompetencyCycle = Specification.where((root, query, cb) -> cb.equal(root.get("competencyCycle").get("id"), competencyCycleService.getLatestCompetencyCycle().getId()));
             Specification<CompetencyEvaluation> filterEqualEmployee = Specification.where((root, query, cb) -> cb.equal(root.get("employee").get("id"), employee.getId()));
             var employeeEvaluation = competencyEvaluationService.findAll(filterLatestCompetencyCycle.and(filterEqualEmployee));
-            var score = employeeEvaluation.stream().reduce(0, (subtotal, element) -> subtotal + element.getFinalScore().getScore(), Integer::sum);
+            var score = employeeEvaluation.stream().reduce(0, (subtotal, element) -> subtotal + element.getProficiencyLevel().getScore(), Integer::sum);
             if (!employeeEvaluation.isEmpty())
                 employeeRatings.add(new EmployeeRating(employee, (float) (score/employeeEvaluation.size())));
         }

@@ -1,7 +1,7 @@
-package com.hrms.imagemanagement.controllers;
+package com.hrms.damservice.controllers;
 
 import com.hrms.employeemanagement.services.EmployeeService;
-import com.hrms.imagemanagement.services.ImageSourceService;
+import com.hrms.damservice.services.SourceFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -12,32 +12,31 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/employees")
-public class UploadImageController {
-
+@RequestMapping("/dam")
+public class DamController {
     EmployeeService employeeService;
-    ImageSourceService imageSourceService;
+    SourceFileService sourceFileService;
     @Autowired
-    public UploadImageController(EmployeeService employeeService, ImageSourceService imageSourceService) {
+    public DamController(EmployeeService employeeService, SourceFileService sourceFileService) {
         this.employeeService = employeeService;
-        this.imageSourceService = imageSourceService;
+        this.sourceFileService = sourceFileService;
     }
 
-    @PostMapping("/{id}/upload")
+    @PostMapping("/upload/{id}")
     public ResponseEntity<String> uploadProfileImage(
             @PathVariable(value = "id") int id, @RequestBody MultipartFile file){
         try {
-            imageSourceService.uploadProfileImage(id, file);
+            sourceFileService.uploadProfileImage(id, file);
             return ResponseEntity.ok("File uploaded successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload the file.");
         }
     }
 
-    @GetMapping("/{id}/image")
+    @GetMapping("/profile-image/{id}")
     public ResponseEntity<Resource> getProfileImage(@PathVariable(value = "id") int id){
         try {
-            Resource resource = imageSourceService.getProfileImageByEmployeeId(id);
+            Resource resource = sourceFileService.getProfileImageByEmployeeId(id);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=" + resource.getFilename())
                     .contentType(MediaType.IMAGE_JPEG)  // Adjust the media type as per your image type

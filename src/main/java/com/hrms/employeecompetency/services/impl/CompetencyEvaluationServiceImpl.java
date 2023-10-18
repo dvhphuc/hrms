@@ -9,7 +9,6 @@ import com.hrms.employeecompetency.repositories.EmployeePerformanceRepository;
 import com.hrms.employeecompetency.services.CompetencyEvaluationService;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,10 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @Transactional
 public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationService {
@@ -37,7 +38,6 @@ public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationServ
 
     @Autowired
     private CompetencyCycleRepository competencyCycleRepository;
-
     @Override
     public List<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec) {
         return competencyEvaluationRepository.findAll(spec);
@@ -62,7 +62,7 @@ public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationServ
         for (Employee e : employeeRepository.findAll()) {
             AtomicInteger rating = new AtomicInteger();
             var employeeScore = competencyEvaluations.stream().filter(ce -> ce.getEmployee().getId() == e.getId()).toList();
-            employeeScore.forEach(ce -> rating.updateAndGet(v -> v + ce.getFinalScore().getScore()));
+            employeeScore.forEach(ce -> rating.updateAndGet(v -> v + ce.getProficiencyLevel().getScore()));
             if (!employeeScore.isEmpty())
                 result.add(new EmployeeRating(e, (float) (rating.get()/employeeScore.size())));
             if (result.size() == limit)
@@ -85,3 +85,4 @@ public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationServ
     }
 
 }
+

@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.controllers;
 
+import com.hrms.damservice.models.SourceFile;
 import com.hrms.employeemanagement.exception.*;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
@@ -7,6 +8,9 @@ import com.hrms.employeemanagement.paging.EmployeePaging;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.*;
 import com.hrms.employeemanagement.specifications.*;
+import com.hrms.damservice.exception.SourceFileNotFoundException;
+import com.hrms.damservice.services.SourceFileService;
+import com.hrms.damservice.specifications.SourceFileSpecifications;
 import com.unboundid.util.NotNull;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +23,10 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,46 +37,67 @@ public class EmployeeGraphql {
     PositionLevelService positionLevelService;
     DepartmentService departmentService;
     EmergencyContactService emergencyContactService;
+    SourceFileService sourceFileService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     @Autowired
     public EmployeeGraphql(EmployeeService employeeService, PositionLevelService positionLevelService,
-                           DepartmentService departmentService, EmergencyContactService emergencyContactService) {
+                           DepartmentService departmentService, EmergencyContactService emergencyContactService,
+                           SourceFileService sourceFileService) {
         this.employeeService = employeeService;
         this.positionLevelService = positionLevelService;
         this.departmentService = departmentService;
         this.emergencyContactService = emergencyContactService;
-
+        this.sourceFileService = sourceFileService;
     }
 
     @QueryMapping(name = "employees")
     public EmployeePaging findAllEmployees(@Argument int pageNo, @Argument int pageSize,
                                            @Nullable @Argument List<Integer> departmentIds,
                                            @Nullable @Argument List<Integer> currentContracts,
-                                           @Nullable @Argument Boolean status, @Nullable @Argument String name) {
+                                           @Nullable @Argument Boolean status, @Nullable @Argument String name) throws SourceFileNotFoundException {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<Employee> employeeList =
                 employeeService.getAllByFilter(departmentIds, currentContracts, status, name, pageable);
+        List<EmployeeSource> employeeSources = new ArrayList<>();
+        for (Employee employee : employeeList.getContent()) {
+            SourceFile sourceFile = sourceFileService
+                    .findAll(SourceFileSpecifications.hasEmployeeId(employee.getId()))
+                    .stream().findFirst().orElseThrow(() -> new SourceFileNotFoundException("ImageSource not found with employeeId: " + employee.getId()));
+            employeeSources.add(new EmployeeSource(employee, sourceFile.getFilePath()));
+        }
         long totalCount = employeeList.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new EmployeePaging(employeeList.getContent(), pagination, totalCount);
+        return new EmployeePaging(employeeSources, pagination, totalCount);
     }
 
     @QueryMapping(name = "employee")
-    public Employee findEmployeeById(@Argument int id) throws EmployeeNotFoundException {
-        return employeeService
+    public EmployeeSource findEmployeeById(@Argument int id) throws EmployeeNotFoundException, SourceFileNotFoundException {
+        Employee employee = employeeService
                 .findAll(EmployeeSpecifications.hasId(id))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
+        SourceFile sourceFile = sourceFileService
+                .findAll(SourceFileSpecifications.hasEmployeeId(employee.getId()))
+                .stream().findFirst().orElseThrow(() -> new SourceFileNotFoundException("ImageSource not found with employeeId: " + employee.getId()));
+        return new EmployeeSource(employee, sourceFile.getFilePath());
     }
 
     @QueryMapping(name = "employeeOfTheMonth")
-    public Iterable<Employee> findNewEmployeeOfMonth() {
-        return employeeService.getNewEmployeeOfMonth();
+    public List<EmployeeSource> findNewEmployeeOfMonth() throws SourceFileNotFoundException {
+        List<EmployeeSource> employeeSources = new ArrayList<>();
+        List<Employee> employeeList = employeeService.getNewEmployeeOfMonth();
+        for (Employee employee : employeeList) {
+            SourceFile sourceFile = sourceFileService
+                    .findAll(SourceFileSpecifications.hasEmployeeId(employee.getId()))
+                    .stream().findFirst().orElseThrow(() -> new SourceFileNotFoundException("ImageSource not found with employeeId: " + employee.getId()));
+            employeeSources.add(new EmployeeSource(employee, sourceFile.getFilePath()));
+        }
+        return employeeSources;
     }
 
     @QueryMapping(name = "currentHeadcounts")
@@ -99,7 +126,7 @@ public class EmployeeGraphql {
 
     @NotNull
     private Employee setEmployeeInfo(EmployeeInput input, Employee employee)
-            throws PositionLevelNotFoundException, DepartmentNotFoundException, EmergencyContactNotFoundException {
+            throws PositionLevelNotFoundException, EmergencyContactNotFoundException {
         employee.setFirstName(input.getFirstName());
         employee.setLastName(input.getLastName());
         employee.setGender(input.getGender());

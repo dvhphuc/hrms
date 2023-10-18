@@ -48,7 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 
     @Override
-    public Iterable<Employee> getNewEmployeeOfMonth() {
+    public List<Employee> getNewEmployeeOfMonth() {
         return employeeRepository.findNewEmployeeOfMonth();
     }
 

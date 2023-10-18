@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,11 @@ import java.util.List;
 public class CompetencyTimeLineServiceImpl implements CompetencyTimeLineService{
     @Autowired
     private CompetencyTimeLineRepository competencyTimeLineRepository;
+
+    @Scheduled(cron = "0 0 0 * * *") // Run every day at midnight
+    public void updateIsDoneForOverdueItems() {
+        competencyTimeLineRepository.updateIsDoneForOverdueItems();
+    }
 
     @Override
     public List<CompetencyTimeLine> findAll(Specification<CompetencyTimeLine> spec) {

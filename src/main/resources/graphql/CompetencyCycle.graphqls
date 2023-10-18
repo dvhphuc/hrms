@@ -12,4 +12,5 @@ type CompetencyTimeLine {
     startDate: String
     dueDate: String
     competencyCycle: CompetencyCycle
+    isDone: Boolean
 }

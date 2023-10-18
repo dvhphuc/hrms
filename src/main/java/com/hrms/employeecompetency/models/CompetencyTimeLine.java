@@ -27,13 +27,7 @@ public class CompetencyTimeLine {
     @ManyToOne
     @JoinColumn(name = "competency_cycle_id")
     private CompetencyCycle competencyCycle;
-
-    public String getStartDate() {
-        return startDate.toString();
-    }
-
-    public String getDueDate() {
-        return dueDate.toString();
-    }
+    @Column(name = "is_done")
+    private Boolean isDone;
 
 }

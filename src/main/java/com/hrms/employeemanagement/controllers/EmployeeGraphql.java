@@ -101,7 +101,7 @@ public class EmployeeGraphql {
     }
 
     @QueryMapping(name = "currentHeadcounts")
-    public Float getCurrentHeadcounts() {
+    public CurrentHeadcount getCurrentHeadcounts() {
         return employeeService.getCurrentHeadcounts();
     }
 

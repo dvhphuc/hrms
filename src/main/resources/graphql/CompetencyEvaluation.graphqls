@@ -9,3 +9,8 @@ type AvgCompetency {
     competency: Competency
     average: Float
 }
+
+type CompanyEvaPercent {
+    label: String
+    data: Float
+}

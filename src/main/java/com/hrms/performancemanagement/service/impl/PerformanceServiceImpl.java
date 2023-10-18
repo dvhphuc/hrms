@@ -44,7 +44,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public EmployeePerformance findByEmployeeIdAAndPerformanceCyclePerformanceCycleId(int employeeId, int performanceCycleId) {
+    public EmployeePerformance findByEmployeeIdAndPerformanceCyclePerformanceCycleId(int employeeId, int performanceCycleId) {
         Specification<EmployeePerformance> filterByEmployee = Specification.where(((root, query, builder) ->
                 builder.equal(root.get("employee").get("id"), employeeId)));
         Specification<EmployeePerformance> filterByPerformanceCycle = Specification.where(((root, query, builder) ->
@@ -55,7 +55,11 @@ public class PerformanceServiceImpl implements PerformanceService {
 
     @Override
     public PerformanceCycle findLatestPerformanceCycleOfEmployee(int employeeId) {
-        return employeePerformanceRepository.findAll(Specification.where(((root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("employee").get("id"), employeeId)))).get(0).getPerformanceCycle();
+        Specification<EmployeePerformance> filterByEmployee = Specification.where(((root, query, builder) ->
+                builder.equal(root.get("employee").get("id"), employeeId)));
+        if (employeePerformanceRepository.findAll(filterByEmployee).size() == 0) {
+            return null;
+        }
+        return employeePerformanceRepository.findAll(filterByEmployee).get(0).getPerformanceCycle();
     }
 }

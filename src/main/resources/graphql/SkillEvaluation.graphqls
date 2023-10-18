@@ -1,0 +1,10 @@
+type TopSkillSetProficiency{
+    employee: Employee
+    skillSet: SkillSet
+    proficiencyLevel: ProficiencyLevel
+}
+
+type TopSkillSetProficiencyPaging{
+    data: [TopSkillSetProficiency]!
+    pagination: Pagination!
+}

@@ -15,7 +15,7 @@ type Employee {
     instagramLink: String
     department: Department
     positionLevel: PositionLevel
-    imageSource: ImageSource
+    sourceFile: ImageSource
     emergencyContacts: [EmergencyContact]
     employeeSkills: [EmployeeSkill]
     employeeProjects: [EmployeeProject]
@@ -23,8 +23,7 @@ type Employee {
 }
 
 type EmployeePaging {
-    totalCount: Int!
-    data: [Employee]!
+    data: [EmployeeSource]!
     pagination: Pagination!
 }
 
@@ -46,4 +45,9 @@ input EmployeeInput {
     jobLevelId: Int
     departmentId: Int!
     emergencyContacts: [EmergencyContactInput!]!
+}
+
+type EmployeeSource{
+    employee: Employee
+    uri: String
 }

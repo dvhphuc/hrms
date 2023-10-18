@@ -27,18 +27,6 @@ public class CompetencyEvaluation {
     @JoinColumn(name = "competency_id")
     private Competency competency;
     @ManyToOne
-    @JoinColumn(name = "employee_proficiency_level_id", referencedColumnName = "proficiency_level_id")
-    private ProficiencyLevel employeeProficiencyLevel;
-    @Column(name = "employee_comment")
-    private String employeeComment;
-    @ManyToOne
-    @JoinColumn(name = "evaluator_proficiency_level_id", referencedColumnName = "proficiency_level_id")
-    private ProficiencyLevel evaluatorProficiencyLevel;
-    @Column(name = "evaluator_comment")
-    private String evaluatorComment;
-    @ManyToOne
-    @JoinColumn(name = "final_proficiency_level_id", referencedColumnName = "proficiency_level_id")
-    private ProficiencyLevel finalScore;
-    @Column(name = "final_comment")
-    private String finalComment;
+    @JoinColumn(name = "proficiency_level_id")
+    private ProficiencyLevel proficiencyLevel;
 }

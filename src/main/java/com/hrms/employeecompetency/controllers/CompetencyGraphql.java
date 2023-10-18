@@ -1,27 +1,26 @@
 package com.hrms.employeecompetency.controllers;
 
-import com.hrms.employeecompetency.dto.AvgCompetency;
-import com.hrms.employeecompetency.dto.DepartmentInComplete;
-import com.hrms.employeecompetency.dto.RadarChart;
-import com.hrms.employeecompetency.dto.RadarDataset;
+import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.exceptions.CompetencyCycleNotFoundException;
-import com.hrms.employeecompetency.models.Competency;
-import com.hrms.employeecompetency.models.CompetencyCycle;
-import com.hrms.employeecompetency.models.CompetencyEvaluation;
-import com.hrms.employeecompetency.models.ProficiencyLevel;
+import com.hrms.employeecompetency.models.*;
 import com.hrms.employeecompetency.services.*;
 import com.hrms.employeecompetency.specifications.CompetencyCycleSpecifications;
 import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
 import com.hrms.employeecompetency.specifications.EvaluationOverallSpecifications;
+import com.hrms.employeecompetency.specifications.SkillSetEvaluationSpecifications;
 import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
+import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.DepartmentService;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.employeemanagement.services.JobLevelService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -43,12 +42,14 @@ public class CompetencyGraphql {
     ProficiencyLevelService proficiencyLevelService;
     CompetencyEvaluationService competencyEvaluationService;
     JobLevelService jobLevelService;
+    SkillSetEvaluationService skillSetEvaluationService;
 
     @Autowired
     public CompetencyGraphql(CompetencyCycleService competencyCycleService, DepartmentService departmentService,
                              EmployeeService employeeService, EvaluationOverallService evaluationOverallService,
                              CompetencyService competencyService, ProficiencyLevelService proficiencyLevelService,
-                             CompetencyEvaluationService competencyEvaluationService, JobLevelService jobLevelService) {
+                             CompetencyEvaluationService competencyEvaluationService, JobLevelService jobLevelService,
+                             SkillSetEvaluationService skillSetEvaluationService) {
         this.competencyCycleService = competencyCycleService;
         this.departmentService = departmentService;
         this.employeeService = employeeService;
@@ -57,6 +58,7 @@ public class CompetencyGraphql {
         this.proficiencyLevelService = proficiencyLevelService;
         this.competencyEvaluationService = competencyEvaluationService;
         this.jobLevelService = jobLevelService;
+        this.skillSetEvaluationService = skillSetEvaluationService;
     }
 
     @QueryMapping(name = "competencyCycles")
@@ -144,7 +146,7 @@ public class CompetencyGraphql {
                 } else {
                     int totalScore = 0;
                     for (CompetencyEvaluation competencyEvaluation : evaluationsHasJobLevelAndCompetency) {
-                        totalScore += competencyEvaluation.getFinalScore().getWeight();
+                        totalScore += competencyEvaluation.getProficiencyLevel().getWeight();
                     }
                     avgScore = (float) totalScore / evaluationsHasJobLevelAndCompetency.size();
                 }
@@ -174,8 +176,8 @@ public class CompetencyGraphql {
                 else {
                     int totalScore = 0;
                     for (CompetencyEvaluation competencyEvaluation : competencyEvaluationsByCompetency) {
-                        if(competencyEvaluation.getFinalScore() == null) continue;
-                        totalScore += competencyEvaluation.getFinalScore().getWeight();
+                        if(competencyEvaluation.getProficiencyLevel() == null) continue;
+                        totalScore += competencyEvaluation.getProficiencyLevel().getWeight();
                     }
                     avgScore = (float) totalScore / competencyEvaluationsByCompetency.size();
                 }
@@ -190,5 +192,25 @@ public class CompetencyGraphql {
         }
         List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
         return new RadarChart(labels, listDataset);
+    }
+
+    @QueryMapping(name = "topHighestSkillSet")
+    public TopHighestSkillSetPaging getTopHighestSkill(@Argument Integer competencyCycleId, @Argument int pageNo, @Argument int pageSize)
+    {
+        List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<SkillSetEvaluation> skillSetEvaluations =
+                skillSetEvaluationService
+                        .findAll(SkillSetEvaluationSpecifications.hasTop10ProficiencyLevelInCycle(competencyCycleId),pageable);
+        for (SkillSetEvaluation skillSetEvaluation : skillSetEvaluations) {
+            topHighestSkillSets.add(
+                    new TopHighestSkillSet(skillSetEvaluation.getEmployee(),
+                            skillSetEvaluation.getPositionSkillSet().getSkillSet(),
+                            skillSetEvaluation.getFinalProficiencyLevel()));
+        }
+        long totalCount = skillSetEvaluations.getTotalElements();
+        long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
+        Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
+        return new TopHighestSkillSetPaging(topHighestSkillSets, pagination, totalCount);
     }
 }

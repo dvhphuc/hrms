@@ -50,7 +50,7 @@ public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationServ
         return  competencyEvaluations.parallelStream()
                 .map(competencyEvaluation -> {
                     Employee employee = employeeRepository.findById(competencyEvaluation.getEmployee().getId()).get();
-                    return new EmployeeRating(employee, (float) (competencyEvaluation.getFinalScore().getWeight()));
+                    return new EmployeeRating(employee, (float) (competencyEvaluation.getProficiencyLevel().getWeight()));
                 })
                 .collect(Collectors.toMap(
                         e -> e.getEmployee().getId(),

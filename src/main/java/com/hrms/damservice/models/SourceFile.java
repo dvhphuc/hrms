@@ -1,4 +1,4 @@
-package com.hrms.imagemanagement.models;
+package com.hrms.damservice.models;
 
 import com.hrms.employeemanagement.models.Employee;
 import jakarta.persistence.*;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ImageSource {
+public class SourceFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_source_id", nullable = false)
@@ -22,9 +22,17 @@ public class ImageSource {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @Column(name = "image_name")
-    private String imageName;
+    @Column(name = "file_name")
+    private String fileName;
 
-    @Column(name = "image_path")
-    private String imagePath;
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "file_type")
+    private String fileType;
+
+    @Column(name = "source_type")
+    private String sourceType;
+
+
 }

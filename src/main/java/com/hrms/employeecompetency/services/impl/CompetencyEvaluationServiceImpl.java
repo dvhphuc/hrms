@@ -3,10 +3,13 @@ package com.hrms.employeecompetency.services.impl;
 import com.hrms.employeecompetency.dto.EmployeePotentialPerformance;
 import com.hrms.employeecompetency.dto.EmployeeRating;
 import com.hrms.employeecompetency.models.CompetencyEvaluation;
+import com.hrms.employeecompetency.repositories.CompetencyCycleRepository;
 import com.hrms.employeecompetency.repositories.CompetencyEvaluationRepository;
+import com.hrms.employeecompetency.repositories.EmployeePerformanceRepository;
 import com.hrms.employeecompetency.services.CompetencyEvaluationService;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @Service
 @Transactional
 public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationService {
@@ -26,7 +30,14 @@ public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationServ
     private CompetencyEvaluationRepository competencyEvaluationRepository;
 
     @Autowired
+    private EmployeePerformanceRepository employeePerformanceRepository;
+
+    @Autowired
     EmployeeRepository employeeRepository;
+
+    @Autowired
+    private CompetencyCycleRepository competencyCycleRepository;
+
     @Override
     public List<CompetencyEvaluation> findAll(Specification<CompetencyEvaluation> spec) {
         return competencyEvaluationRepository.findAll(spec);
@@ -62,14 +73,14 @@ public class CompetencyEvaluationServiceImpl implements CompetencyEvaluationServ
     }
 
     @Override
-    public List<EmployeePotentialPerformance> getAllEmployeesPotentialPerformance() {
-        return null;
+    public List<CompetencyEvaluation> getAllInLatestCompetencyCycle() {
+        var latestCompetencyCycle = competencyCycleRepository.findFirstByOrderByStartDateDesc();
+        Specification<CompetencyEvaluation> spec = Specification.where(((root, query, builder) ->
+                builder.equal(root.get("competencyCycle"), latestCompetencyCycle)));
+        return competencyEvaluationRepository.findAll(spec);
     }
-
-    public <T> Specification<T> build(List<String> fields) {
-        for (String field : fields) {
-            Specification.where((root, query, cb) -> cb.equal(root.get(field), field));
-        }
+    @Override
+    public List<EmployeePotentialPerformance> getAllEmployeesPotentialPerformance() {
         return null;
     }
 

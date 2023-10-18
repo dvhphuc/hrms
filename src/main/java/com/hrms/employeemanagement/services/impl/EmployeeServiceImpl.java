@@ -22,6 +22,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepository employeeRepository;
 
     @Override
+    public List<Employee> findAll() {
+        return employeeRepository.findAll();
+    }
+
+    @Override
     public List<Employee> findAll(Specification<Employee> spec) {
         return employeeRepository.findAll(spec);
     }

@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
+import com.hrms.employeemanagement.dto.CurrentHeadcount;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
@@ -60,11 +61,13 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Float getCurrentHeadcounts() {
-        long employeeCount = employeeRepository.count(Specification.allOf());
-        List<Employee> newEmployees = (List<Employee>) employeeRepository.findNewEmployeeOfMonth();
-        long lastMonthEmployeeCount = employeeCount - newEmployees.size();
-        return ((float) (employeeCount - lastMonthEmployeeCount) / lastMonthEmployeeCount) * 100;
+    public CurrentHeadcount getCurrentHeadcounts() {
+        int employeeCount = Math.toIntExact(employeeRepository.count(Specification.allOf()));
+        List<Employee> newEmployees = employeeRepository.findNewEmployeeOfMonth();
+        int lastMonthEmployeeCount = employeeCount - newEmployees.size();
+        float percentage = ((float) (employeeCount - lastMonthEmployeeCount) / lastMonthEmployeeCount) * 100;
+        boolean isIncreased = percentage > 0;
+        return new CurrentHeadcount(employeeCount, percentage, isIncreased);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.services;
 
+import com.hrms.employeemanagement.dto.CurrentHeadcount;
 import com.hrms.employeemanagement.models.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,6 @@ public interface EmployeeService {
 	Employee saveEmployee(Employee employee);
 	List<Employee> getNewEmployeeOfMonth();
 	Page<Employee> getAllByFilter(List<Integer> ids, List<Integer> currentContacts, Boolean status, String name, Pageable pageable);
-	Float getCurrentHeadcounts();
+	CurrentHeadcount getCurrentHeadcounts();
 	Employee findById(Integer id);
 }

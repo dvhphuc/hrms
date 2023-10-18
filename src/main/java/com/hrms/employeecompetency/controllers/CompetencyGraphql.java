@@ -1,9 +1,6 @@
 package com.hrms.employeecompetency.controllers;
 
-import com.hrms.employeecompetency.dto.AvgCompetency;
-import com.hrms.employeecompetency.dto.DepartmentInComplete;
-import com.hrms.employeecompetency.dto.RadarChart;
-import com.hrms.employeecompetency.dto.RadarDataset;
+import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.exceptions.CompetencyCycleNotFoundException;
 import com.hrms.employeecompetency.models.Competency;
 import com.hrms.employeecompetency.models.CompetencyCycle;
@@ -13,7 +10,6 @@ import com.hrms.employeecompetency.services.*;
 import com.hrms.employeecompetency.specifications.CompetencyCycleSpecifications;
 import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
 import com.hrms.employeecompetency.specifications.EvaluationOverallSpecifications;
-import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Department;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
@@ -65,13 +61,13 @@ public class CompetencyGraphql {
     }
 
     @QueryMapping(name = "departmentInComplete")
-    public List<DepartmentInComplete> getAllDepartmentInComplete(@Argument Integer compeCycleId) {
+    public List<DepartmentInComplete> getAllDepartmentInComplete(@Argument Integer competencyCycleId) {
         List<DepartmentInComplete> departmentInCompletes = new ArrayList<>();
         List<Department> departments = departmentService.findAll(Specification.allOf());
         for (Department department : departments) {
             List<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasDepartmentId(department.getId()));
-            float empPercent = getPercentageOfEmployees(compeCycleId, employees);
-            float evaPercent = getPercentageOfEvaluator(compeCycleId, employees);
+            float empPercent = getPercentageOfEmployees(competencyCycleId, employees);
+            float evaPercent = getPercentageOfEvaluator(competencyCycleId, employees);
             DepartmentInComplete departmentInComplete = new DepartmentInComplete(department, empPercent, evaPercent);
             departmentInCompletes.add(departmentInComplete);
         }
@@ -79,9 +75,12 @@ public class CompetencyGraphql {
     }
 
     @QueryMapping(name = "companyInComplete")
-    public Float getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
+    public List<CompanyEvaPercent> getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
+        List<CompanyEvaPercent> companyEvaPercents = new ArrayList<>();
         List<Employee> employees = employeeService.findAll(Specification.allOf());
-        return getPercentageOfEmployees(competencyCycleId, employees);
+        companyEvaPercents.add(new CompanyEvaPercent("InCompleted", getPercentageOfEvaluator(competencyCycleId, employees)));
+        companyEvaPercents.add(new CompanyEvaPercent("Completed", 100 - getPercentageOfEmployees(competencyCycleId, employees)));
+        return companyEvaPercents;
     }
 
     //Get percentage of input employees who has not completed evaluation

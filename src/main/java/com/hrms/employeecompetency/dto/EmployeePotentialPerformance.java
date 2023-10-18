@@ -12,6 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 public class EmployeePotentialPerformance {
     Employee employee;
-    Potential potential;
-    Float performance;
+    int potential;
+    int performance;
 }

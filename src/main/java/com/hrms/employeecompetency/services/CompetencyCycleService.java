@@ -12,4 +12,6 @@ public interface CompetencyCycleService {
     List<CompetencyCycle> findAll(Specification<CompetencyCycle> spec);
     List<CompetencyCycle> findAll(Specification<CompetencyCycle> spec, Sort sort);
     Page<CompetencyCycle> findAll(Specification<CompetencyCycle> spec, Pageable pageable);
+
+    CompetencyCycle getLatestCompetencyCycle();
 }

@@ -49,5 +49,5 @@ input EmployeeInput {
 
 type EmployeeSource{
     employee: Employee
-    uri: String
+    profileImagePath: String
 }

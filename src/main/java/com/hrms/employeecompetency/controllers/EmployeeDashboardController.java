@@ -63,14 +63,14 @@ public class EmployeeDashboardController {
 
     static Map mapPerfomanceRange;
 
-    static {
-        mapPerfomanceRange = new HashMap<String, Function<Integer, Boolean>>();
-        mapPerfomanceRange.put("early", score -> score < 50);
-        mapPerfomanceRange.put("unsatis", score -> score >= 50 && score < 60);
-        mapPerfomanceRange.put("pme", score -> score >= 60 && score < 70);
-        mapPerfomanceRange.put("meetExpectation", score -> score >= 70 && score < 80);
-        mapPerfomanceRange.put("exceedExpectation", score -> score >= 80 && score < 90);
-    }
+//    static {
+//        mapPerfomanceRange = new HashMap<String, Function<Integer, Boolean>>();
+//        mapPerfomanceRange.put("early", score -> score < 50);
+//        mapPerfomanceRange.put("unsatis", score -> score >= 50 && score < 60);
+//        mapPerfomanceRange.put("pme", score -> score >= 60 && score < 70);
+//        mapPerfomanceRange.put("meetExpectation", score -> score >= 70 && score < 80);
+//        mapPerfomanceRange.put("exceedExpectation", score -> score >= 80 && score < 90);
+//    }
 
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {

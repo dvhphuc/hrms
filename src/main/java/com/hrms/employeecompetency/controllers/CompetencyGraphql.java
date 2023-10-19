@@ -23,8 +23,6 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -203,7 +201,7 @@ public class CompetencyGraphql {
     }
 
     @QueryMapping(name = "topHighestSkillSet")
-    public TopHighestSkillSetPaging getTopHighestSkill(@Argument Integer competencyCycleId, @Argument int pageNo, @Argument int pageSize)
+    public TopSkillSetPaging getTopHighestSkill(@Argument Integer competencyCycleId, @Argument int pageNo, @Argument int pageSize)
     {
         List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
@@ -219,6 +217,6 @@ public class CompetencyGraphql {
         long totalCount = skillSetEvaluations.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new TopHighestSkillSetPaging(topHighestSkillSets, pagination, totalCount);
+        return new TopSkillSetPaging(topHighestSkillSets, pagination, totalCount);
     }
 }

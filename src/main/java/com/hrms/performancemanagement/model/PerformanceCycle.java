@@ -27,4 +27,7 @@ public class PerformanceCycle {
 
     @Column(name = "performance_cycle_end_date")
     private Date performanceCycleEndDate;
+
+    @Column(name = "is_done")
+    private Boolean isDone;
 }

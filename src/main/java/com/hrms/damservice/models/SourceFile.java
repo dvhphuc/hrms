@@ -1,6 +1,5 @@
 package com.hrms.damservice.models;
 
-import com.hrms.employeemanagement.models.Employee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,10 +17,6 @@ public class SourceFile {
     @Column(name = "source_file_id", nullable = false)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-
     @Column(name = "file_name")
     private String fileName;
 
@@ -30,9 +25,4 @@ public class SourceFile {
 
     @Column(name = "file_type")
     private String fileType;
-
-    @Column(name = "source_type")
-    private String sourceType;
-
-
 }

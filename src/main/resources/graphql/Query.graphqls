@@ -2,8 +2,8 @@
 type Query {
     employees(pageNo: Int!, pageSize: Int = 10, departmentIds: [Int], currentContracts: [Int],
         status: Boolean, name: String): EmployeePaging!
-    employee(id: Int!): EmployeeSource
-    employeeOfTheMonth: [EmployeeSource]
+    employee(id: Int!): Employee
+    employeeOfTheMonth: [Employee]
     departments: [Department]
     NumberOfDepartments: Int
     positions: [Position]

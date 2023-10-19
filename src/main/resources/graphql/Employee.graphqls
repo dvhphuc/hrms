@@ -20,10 +20,11 @@ type Employee {
     employeeSkills: [EmployeeSkill]
     employeeProjects: [EmployeeProject]
     user: User
+    damId: Int
 }
 
 type EmployeePaging {
-    data: [EmployeeSource]!
+    data: [Employee]!
     pagination: Pagination!
 }
 
@@ -45,11 +46,6 @@ input EmployeeInput {
     jobLevelId: Int
     departmentId: Int!
     emergencyContacts: [EmergencyContactInput!]!
-}
-
-type EmployeeSource{
-    employee: Employee
-    profileImagePath: String
 }
 
 type CurrentHeadcount {

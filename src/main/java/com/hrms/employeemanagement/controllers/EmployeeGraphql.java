@@ -57,47 +57,28 @@ public class EmployeeGraphql {
     public EmployeePaging findAllEmployees(@Argument int pageNo, @Argument int pageSize,
                                            @Nullable @Argument List<Integer> departmentIds,
                                            @Nullable @Argument List<Integer> currentContracts,
-                                           @Nullable @Argument Boolean status, @Nullable @Argument String name) throws SourceFileNotFoundException {
+                                           @Nullable @Argument Boolean status, @Nullable @Argument String name) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<Employee> employeeList =
                 employeeService.getAllByFilter(departmentIds, currentContracts, status, name, pageable);
-        List<EmployeeSource> employeeSources = new ArrayList<>();
-        for (Employee employee : employeeList.getContent()) {
-            SourceFile sourceFile = sourceFileService
-                    .findAll(SourceFileSpecifications.hasEmployeeId(employee.getId()))
-                    .stream().findFirst().orElseThrow(() -> new SourceFileNotFoundException("ImageSource not found with employeeId: " + employee.getId()));
-            employeeSources.add(new EmployeeSource(employee, sourceFile.getFilePath()));
-        }
         long totalCount = employeeList.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new EmployeePaging(employeeSources, pagination, totalCount);
+        return new EmployeePaging(employeeList.getContent(), pagination, totalCount);
     }
 
     @QueryMapping(name = "employee")
-    public EmployeeSource findEmployeeById(@Argument int id) throws EmployeeNotFoundException, SourceFileNotFoundException {
-        Employee employee = employeeService
+    public Employee findEmployeeById(@Argument int id) throws EmployeeNotFoundException {
+        return employeeService
                 .findAll(EmployeeSpecifications.hasId(id))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
-        SourceFile sourceFile = sourceFileService
-                .findAll(SourceFileSpecifications.hasEmployeeId(employee.getId()))
-                .stream().findFirst().orElseThrow(() -> new SourceFileNotFoundException("ImageSource not found with employeeId: " + employee.getId()));
-        return new EmployeeSource(employee, sourceFile.getFilePath());
     }
 
     @QueryMapping(name = "employeeOfTheMonth")
-    public List<EmployeeSource> findNewEmployeeOfMonth() throws SourceFileNotFoundException {
-        List<EmployeeSource> employeeSources = new ArrayList<>();
-        List<Employee> employeeList = employeeService.getNewEmployeeOfMonth();
-        for (Employee employee : employeeList) {
-            SourceFile sourceFile = sourceFileService
-                    .findAll(SourceFileSpecifications.hasEmployeeId(employee.getId()))
-                    .stream().findFirst().orElseThrow(() -> new SourceFileNotFoundException("ImageSource not found with employeeId: " + employee.getId()));
-            employeeSources.add(new EmployeeSource(employee, sourceFile.getFilePath()));
-        }
-        return employeeSources;
+    public List<Employee> findNewEmployeeOfMonth() {
+        return employeeService.getNewEmployeeOfMonth();
     }
 
     @QueryMapping(name = "currentHeadcounts")

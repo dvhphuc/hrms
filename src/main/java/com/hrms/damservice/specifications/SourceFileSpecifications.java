@@ -8,7 +8,7 @@ public class SourceFileSpecifications {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("filePath"), imagePath);
     }
 
-    public static Specification<SourceFile> hasEmployeeId(Integer id) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), id);
+    public static Specification<SourceFile> hasId(int id) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id);
     }
 }

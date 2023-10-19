@@ -60,17 +60,22 @@ public class SourceFileServiceImpl implements SourceFileService {
         sourceFile.setFileName(fileName);
         sourceFile.setFilePath(imagePath);
         sourceFile.setFileType(file.getContentType());
+        SourceFile savedSourceFile = sourceFileRepository.save(sourceFile);
+        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId)).get(0);
+//                .stream()
+//                .findFirst()
+//                .orElseThrow(() ->
+//                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
+        employee.setDamId(savedSourceFile.getId());
+    }
+
+    public Resource getProfileImageByEmployeeId(int employeeId) throws SourceFileNotFoundException, EmployeeNotFoundException {
         Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
                         new EmployeeNotFoundException("Employee not found with id: " + employeeId));
-        sourceFile.setEmployee(employee);
-        sourceFileRepository.save(sourceFile);
-    }
-
-    public Resource getProfileImageByEmployeeId(int employeeId) throws SourceFileNotFoundException {
-        SourceFile sourceFile = sourceFileRepository.findAll(SourceFileSpecifications.hasEmployeeId(employeeId))
+        SourceFile sourceFile = sourceFileRepository.findAll(SourceFileSpecifications.hasId(employee.getDamId()))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->

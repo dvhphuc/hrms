@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class Employee extends RepresentationModel<Employee> {
 	@Id
 	@Column(name = "employee_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int id;
+	private Integer id;
 	@Column(name = "last_name")
 	private String lastName;
 	@Column(name = "first_name")
@@ -58,10 +59,7 @@ public class Employee extends RepresentationModel<Employee> {
 	private List<EmployeeProject> employeeProjects;
 	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
 	private User user;
-	public String getFullName() {
-		return this.firstName + " " + this.lastName;
-	}
-	public String getDateOfBirth() {
-		return this.dateOfBirth.toString();
-	}
+	@Nullable
+	@Column(name = "dam_id")
+	private Integer damId;
 }

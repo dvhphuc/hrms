@@ -62,4 +62,12 @@ public class Employee extends RepresentationModel<Employee> {
 	@Nullable
 	@Column(name = "dam_id")
 	private Integer damId;
+
+	public Position getPosition() {
+		return this.positionLevel.getPosition();
+	}
+
+	public JobLevel getJobLevel() {
+		return this.positionLevel.getJobLevel();
+	}
 }

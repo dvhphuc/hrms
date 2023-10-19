@@ -13,7 +13,7 @@ public class SkillSetEvaluationSpecifications {
         };
     }
 
-    public static Specification<SkillSetEvaluation> hasTop10EmployeeProficiencyLevelInCycle(Integer competencyCycleId, Integer employeeId) {
+    public static Specification<SkillSetEvaluation> hasTop10ProficiencyLevelOfEmployeeInCycle(Integer competencyCycleId, Integer employeeId) {
         return (root, query, builder) -> {
             query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
             query.where(builder.equal(root.get("competencyCycle").get("id"), competencyCycleId),

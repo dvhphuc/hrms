@@ -30,4 +30,5 @@ type Query {
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
     topHighestSkillSet(competencyCycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topHighestSkillSetEmployee(competencyCycleId: Int!, employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
+    topHighestSkillSetTargetEmployee(competencyCycleId: Int!, employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
 }

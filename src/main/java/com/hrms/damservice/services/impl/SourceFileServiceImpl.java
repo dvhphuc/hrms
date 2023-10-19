@@ -61,11 +61,11 @@ public class SourceFileServiceImpl implements SourceFileService {
         sourceFile.setFilePath(imagePath);
         sourceFile.setFileType(file.getContentType());
         SourceFile savedSourceFile = sourceFileRepository.save(sourceFile);
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId)).get(0);
-//                .stream()
-//                .findFirst()
-//                .orElseThrow(() ->
-//                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
+        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
+                .stream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
         employee.setDamId(savedSourceFile.getId());
     }
 

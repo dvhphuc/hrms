@@ -34,9 +34,9 @@ public class DamController {
     }
 
     @GetMapping("/profile-image/{id}")
-    public ResponseEntity<Resource> getProfileImage(@PathVariable(value = "id") int id){
+    public ResponseEntity<Resource> getProfileImage(@PathVariable(value = "id") int employeeId){
         try {
-            Resource resource = sourceFileService.getProfileImageByEmployeeId(id);
+            Resource resource = sourceFileService.getProfileImageByEmployeeId(employeeId);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=" + resource.getFilename())
                     .contentType(MediaType.IMAGE_JPEG)  // Adjust the media type as per your image type

@@ -1,4 +1,4 @@
-package com.hrms.performancemanagement.service;
+package com.hrms.performancemanagement.services;
 
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.performancemanagement.model.PerformanceCycle;
@@ -15,4 +15,7 @@ public interface PerformanceService {
     Page<EmployeePerformance> findAll(Pageable pageable);
     EmployeePerformance findByEmployeeIdAndPerformanceCyclePerformanceCycleId(int employeeId, int performanceCycleId);
     PerformanceCycle findLatestPerformanceCycleOfEmployee(int employeeId);
+    List<EmployeePerformance> findAll(Specification<EmployeePerformance> spec);
+    List<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Sort sort);
+    Page<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Pageable pageable);
 }

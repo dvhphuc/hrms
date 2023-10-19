@@ -1,8 +1,8 @@
 type EmployeePerformance {
     employeePerformanceId: Int!
     employee: Employee!
-    selfAssessment: Float!
-    supervisorAssessment: Float!
-    finalAssessment: Float!
+    selfAssessment: Int!
+    supervisorAssessment: Int!
+    finalAssessment: Int!
     performanceCycle: PerformanceCycle!
 }

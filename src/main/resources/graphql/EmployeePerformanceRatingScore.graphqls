@@ -1,0 +1,9 @@
+type EmployeePerformanceRatingScore {
+    label: String
+    score: Int
+}
+
+type EmployeePerformanceRatingScorePaging {
+    data: [EmployeePerformanceRatingScore]!
+    pagination: Pagination!
+}

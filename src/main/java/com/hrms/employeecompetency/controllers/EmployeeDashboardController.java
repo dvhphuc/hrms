@@ -4,38 +4,31 @@ import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.graphql.EmployeePerformancePagination;
 import com.hrms.employeecompetency.graphql.EmployeeRatingPagination;
 import com.hrms.employeecompetency.mapper.EmployeeMapperService;
-import com.hrms.employeecompetency.models.CompetencyEvaluation;
 import com.hrms.employeecompetency.services.CompetencyCycleService;
 import com.hrms.employeecompetency.services.CompetencyEvaluationService;
 import com.hrms.employeecompetency.services.EmployeeCareerPathService;
 import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.models.JobLevel;
-import com.hrms.employeemanagement.models.PositionLevel;
 import com.hrms.employeemanagement.paging.Pagination;
-import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.JobLevelService;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.employeecompetency.services.CompetencyService;
-import com.hrms.performancemanagement.service.PerformanceService;
+import com.hrms.performancemanagement.services.PerformanceService;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.unboundid.util.Nullable;
 import graphql.com.google.common.collect.ImmutableRangeMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 @Controller
 @Slf4j

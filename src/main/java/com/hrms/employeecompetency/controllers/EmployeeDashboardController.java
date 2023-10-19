@@ -21,6 +21,7 @@ import com.hrms.employeecompetency.services.CompetencyService;
 import com.hrms.performancemanagement.service.PerformanceService;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.unboundid.util.Nullable;
+import graphql.com.google.common.collect.ImmutableRangeMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -29,6 +30,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,16 +63,6 @@ public class EmployeeDashboardController {
     @Autowired
     EmployeeCareerPathService employeeCareerPathService;
 
-    static Map mapPerfomanceRange;
-
-    static {
-        mapPerfomanceRange = new HashMap<String, Function<Integer, Boolean>>();
-        mapPerfomanceRange.put("early", score -> score < 50);
-        mapPerfomanceRange.put("unsatis", score -> score >= 50 && score < 60);
-        mapPerfomanceRange.put("pme", score -> score >= 60 && score < 70);
-        mapPerfomanceRange.put("meetExpectation", score -> score >= 70 && score < 80);
-        mapPerfomanceRange.put("exceedExpectation", score -> score >= 80 && score < 90);
-    }
 
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
@@ -159,7 +151,12 @@ public class EmployeeDashboardController {
                     .filter(employee -> employee.getPosition().getId() == jobLevel.getId())
                     .toList();
         }
-        return result;
+        return List.of(
+          new PerformanceByJobLevel(new JobLevel(1, "Junior"), 12F, 20F, 20F, 30F, 10F, 8F),
+          new PerformanceByJobLevel(new JobLevel(2, "Professional"), 12F, 20F, 20F, 30F, 10F, 8F),
+          new PerformanceByJobLevel(new JobLevel(3, "Senior"), 12F, 20F, 20F, 30F, 10F, 8F),
+          new PerformanceByJobLevel(new JobLevel(4, "Expert"), 12F, 20F, 20F, 30F, 10F, 8F)
+        );
     }
 
     @QueryMapping

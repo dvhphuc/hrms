@@ -12,10 +12,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecificationExecutor<User> {
     User findByUsername(@Param("username") String username);
     Page<User> findAll(Specification<User> spec, Pageable pageable);
-
     @Modifying
     @Transactional
     @Query(value = "UPDATE User u SET u.isEnabled = :status WHERE u.userId = :userId")

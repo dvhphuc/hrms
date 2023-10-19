@@ -51,8 +51,8 @@ public class UserController {
 
     @QueryMapping
     public UserDtoConnection users(@Nullable @Argument String search,
-                                           @Argument List<Integer> roles,
-                                           @Argument Boolean status,
+                                   @Nullable @Argument List<Integer> roles,
+                                   @Nullable @Argument Boolean status,
                                            @Argument int pageNo,
                                            @Argument int pageSize)
     {

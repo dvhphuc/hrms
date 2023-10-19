@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Users")
+@Table(name = "users")
 public class User {
     @Id
     @Column(name = "user_id")
@@ -45,6 +45,6 @@ public class User {
     private Set<UserRole> userRoles;
 
     public Set<Role> getRoles() {
-        return userRoles.stream().map(userRole -> userRole.getRole()).collect(Collectors.toSet());
+        return userRoles.stream().map(UserRole::getRole).collect(Collectors.toSet());
     }
 }

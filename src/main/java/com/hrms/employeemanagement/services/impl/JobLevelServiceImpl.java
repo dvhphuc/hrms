@@ -18,6 +18,12 @@ import java.util.List;
 public class JobLevelServiceImpl implements JobLevelService {
     @Autowired
     JobLevelRepository jobLevelRepository;
+
+    @Override
+    public List<JobLevel> findAll() {
+        return jobLevelRepository.findAll();
+    }
+
     @Override
     public List<JobLevel> findAll(Specification<JobLevel> spec) {
         return jobLevelRepository.findAll(spec);

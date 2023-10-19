@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public interface JobLevelService {
+    List<JobLevel> findAll();
     List<JobLevel> findAll(Specification<JobLevel> spec);
     List<JobLevel> findAll(Specification<JobLevel> spec, Sort sort);
     Page<JobLevel> findAll(Specification<JobLevel> spec, Pageable pageable);

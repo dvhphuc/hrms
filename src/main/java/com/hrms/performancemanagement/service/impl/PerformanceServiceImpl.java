@@ -23,6 +23,15 @@ public class PerformanceServiceImpl implements PerformanceService {
     PerformanceCycleRepository performanceCycleRepository;
 
     @Override
+    public Integer countByRatingRangeAndPerformanceCycleId(Integer min, Integer max, Integer performanceCycleId) {
+        Specification<EmployeePerformance> spec = Specification.where(((root, query, builder) ->
+                builder.between(root.get("finalAssessment"), min, max)));
+        Specification<EmployeePerformance> filterByPerformanceCycle = Specification.where(((root, query, builder) ->
+                builder.equal(root.get("performanceCycle").get("performanceCycleId"), performanceCycleId)));
+        return employeePerformanceRepository.findAll(Specification.where(spec).and(filterByPerformanceCycle)).size();
+    }
+
+    @Override
     public List<EmployeePerformance> findByPerformanceCycleId(Integer performanceCycleId, Integer limit) { //Integer -> int
         // Latest performance cycle
         // Paging

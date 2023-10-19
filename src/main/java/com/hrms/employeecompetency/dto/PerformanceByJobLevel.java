@@ -1,7 +1,10 @@
 package com.hrms.employeecompetency.dto;
 
 import com.hrms.employeemanagement.models.JobLevel;
+import kotlinx.coroutines.Job;
 import lombok.*;
+
+import java.util.List;
 
 @Data
 @Getter
@@ -9,11 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PerformanceByJobLevel {
-    JobLevel jobLevel;
-    float early;
-    float unsatis;
-    float pme;
-    float meetExpectation;
-    float exceedExpectation;
-    float outstanding;
+    private List<JobLevel> labels;
+    private List<String> categories;
+    private List<List<Float>> datasets;
 }

@@ -86,4 +86,20 @@ public class PerformanceServiceImpl implements PerformanceService {
     public Page<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Pageable pageable) {
         return employeePerformanceRepository.findAll(spec, pageable);
     }
+
+    @Override
+    public List<EmployeePerformance> findAllByPositionIdAndPerformanceCycleId(Integer positionId, Integer performanceCycleId) {
+        Specification<EmployeePerformance> filterByPosition = Specification.where(((root, query, builder) ->
+                builder.equal(root.get("employee").get("positionLevel").get("position").get("id"), positionId)));
+        Specification<EmployeePerformance> filterByPerformanceCycle = Specification.where(((root, query, builder) ->
+                builder.equal(root.get("performanceCycle").get("performanceCycleId"), performanceCycleId)));
+        return employeePerformanceRepository.findAll(Specification.where(filterByPosition).and(filterByPerformanceCycle));
+    }
+
+    @Override
+    public List<EmployeePerformance> filterCategory(String category, List<EmployeePerformance> employeePerformances) {
+        return employeePerformances.stream().filter(
+                employeePerformance -> employeePerformance.getFinalAssessment() >= 1 && employeePerformance.getFinalAssessment() <= 5
+        ).toList();
+    }
 }

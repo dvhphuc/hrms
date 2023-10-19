@@ -23,17 +23,17 @@ import com.hrms.employeemanagement.services.EmployeeService;
 import com.unboundid.util.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 @Controller
 @Slf4j
@@ -60,6 +60,17 @@ public class EmployeeDashboardController {
 
     @Autowired
     EmployeeCareerPathService employeeCareerPathService;
+
+    static Map mapPerfomanceRange;
+
+    static {
+        mapPerfomanceRange = new HashMap<String, Function<Integer, Boolean>>();
+        mapPerfomanceRange.put("early", score -> score < 50);
+        mapPerfomanceRange.put("unsatis", score -> score >= 50 && score < 60);
+        mapPerfomanceRange.put("pme", score -> score >= 60 && score < 70);
+        mapPerfomanceRange.put("meetExpectation", score -> score >= 70 && score < 80);
+        mapPerfomanceRange.put("exceedExpectation", score -> score >= 80 && score < 90);
+    }
 
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
@@ -140,22 +151,13 @@ public class EmployeeDashboardController {
             @Argument Integer performanceCycleId,
             @Argument Integer positionId)
     {
-                var result = new ArrayList<PerformanceByJobLevel>();
-        Specification<Employee> filterByPosition = Specification.where((root, query, cb) -> cb.equal(root.get("positionLevel").get("position").get("id"), positionId));
-        var employees = employeeService.findAll(filterByPosition);
-        for (JobLevel jobLevel: jobLevelService.findAll()) {
-            var employeesWithJobLevel = employees.stream().filter(employee -> employee.getPositionLevel().getJobLevel().getId() == jobLevel.getId()).toList();
-            var totalEmployees = employeesWithJobLevel.size();
-            if (totalEmployees == 0)  {
-                continue;
-            }
-            float unsatis =  performanceService.countByRatingRangeAndPerformanceCycleId(0, 1, 1) / totalEmployees;
-            float pme =  performanceService.countByRatingRangeAndPerformanceCycleId(2, 2, 1) / totalEmployees;
-            float meetExpectation =  performanceService.countByRatingRangeAndPerformanceCycleId(2, 3, 1) / totalEmployees;
-            float exceedExpectation =  performanceService.countByRatingRangeAndPerformanceCycleId(3, 4, 1) / totalEmployees;
-            float outstanding =  performanceService.countByRatingRangeAndPerformanceCycleId(4, 5, 1) / totalEmployees;
-            float early = 1 - (unsatis + pme + meetExpectation + exceedExpectation + outstanding);
-            result.add(new PerformanceByJobLevel(jobLevel, early, unsatis, pme, meetExpectation, exceedExpectation, outstanding));
+        var result = new ArrayList<PerformanceByJobLevel>();
+        var employeesHasPosition = employeeService.findAll(EmployeeSpecifications.hasPositionId(positionId));
+        for (var jobLevel: jobLevelService.findAll()) {
+            var employeesHasJobLevel = employeesHasPosition
+                    .stream()
+                    .filter(employee -> employee.getPosition().getId() == jobLevel.getId())
+                    .toList();
         }
         return result;
     }

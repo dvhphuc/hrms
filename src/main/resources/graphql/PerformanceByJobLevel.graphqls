@@ -1,0 +1,9 @@
+type PerformanceByJobLevel {
+    jobLevel: JobLevel
+    early: Float
+    unsatis: Float
+    pme: Float
+    meetExpectation: Float
+    exceedExpectation: Float
+    outstanding: Float
+}

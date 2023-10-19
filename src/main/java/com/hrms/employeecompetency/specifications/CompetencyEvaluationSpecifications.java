@@ -17,4 +17,12 @@ public class CompetencyEvaluationSpecifications {
                 criteriaBuilder.equal(root.get("employee").get("department").get("id"), departmentId)
         );
     }
+
+    public static Specification<CompetencyEvaluation> hasEmployeeId(Integer employeeId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), employeeId);
+    }
+
+    public static Specification<CompetencyEvaluation> filterLatestCompetencyCycle(Integer competencyCycleId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId);
+    }
 }

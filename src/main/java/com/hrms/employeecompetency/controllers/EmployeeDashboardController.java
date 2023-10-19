@@ -1,16 +1,21 @@
 package com.hrms.employeecompetency.controllers;
 
-import com.hrms.employeecompetency.dto.EmployeeOverviewDto;
-import com.hrms.employeecompetency.dto.EmployeePotentialPerformance;
-import com.hrms.employeecompetency.dto.EmployeeRating;
+import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.graphql.EmployeePerformancePagination;
 import com.hrms.employeecompetency.graphql.EmployeeRatingPagination;
 import com.hrms.employeecompetency.mapper.EmployeeMapperService;
 import com.hrms.employeecompetency.models.CompetencyEvaluation;
 import com.hrms.employeecompetency.services.CompetencyCycleService;
 import com.hrms.employeecompetency.services.CompetencyEvaluationService;
+import com.hrms.employeecompetency.services.EmployeeCareerPathService;
+import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
 import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.JobLevel;
+import com.hrms.employeemanagement.models.PositionLevel;
 import com.hrms.employeemanagement.paging.Pagination;
+import com.hrms.employeemanagement.repositories.JobLevelRepository;
+import com.hrms.employeemanagement.services.JobLevelService;
+import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.employeecompetency.services.CompetencyService;
 import com.hrms.performancemanagement.service.PerformanceService;
@@ -49,7 +54,12 @@ public class EmployeeDashboardController {
     EmployeeMapperService employeeMapperService;
 
     @Autowired
+    JobLevelService jobLevelService;
+    @Autowired
     CompetencyEvaluationService competencyEvaluationService;
+
+    @Autowired
+    EmployeeCareerPathService employeeCareerPathService;
 
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
@@ -82,8 +92,8 @@ public class EmployeeDashboardController {
     public EmployeeRatingPagination employeesCompetency(@Argument Integer pageNo, @Argument Integer pageSize) {
         List<EmployeeRating> employeeRatings = new ArrayList<>();
         for (Employee employee : employeeService.findAll()) {
-            Specification<CompetencyEvaluation> filterLatestCompetencyCycle = Specification.where((root, query, cb) -> cb.equal(root.get("competencyCycle").get("id"), competencyCycleService.getLatestCompetencyCycle().getId()));
-            Specification<CompetencyEvaluation> filterEqualEmployee = Specification.where((root, query, cb) -> cb.equal(root.get("employee").get("id"), employee.getId()));
+            var filterLatestCompetencyCycle = CompetencyEvaluationSpecifications.filterLatestCompetencyCycle(competencyCycleService.getLatestCompetencyCycle().getId());
+            var filterEqualEmployee = CompetencyEvaluationSpecifications.hasEmployeeId(employee.getId());
             var employeeEvaluation = competencyEvaluationService.findAll(filterLatestCompetencyCycle.and(filterEqualEmployee));
             var score = employeeEvaluation.stream().reduce(0, (subtotal, element) -> subtotal + element.getProficiencyLevel().getScore(), Integer::sum);
             if (!employeeEvaluation.isEmpty())
@@ -98,8 +108,7 @@ public class EmployeeDashboardController {
     @QueryMapping
     public List<EmployeePotentialPerformance> employeesPotentialPerformance(@Argument int departmentId) {
         var result = new ArrayList<EmployeePotentialPerformance>();
-        Specification<Employee> filterByDepartment = Specification.where((root, query, cb) -> cb.equal(root.get("department").get("id"), departmentId));
-        for (Employee employee : employeeService.findAll(filterByDepartment)) {
+        for (Employee employee : employeeService.findAll(EmployeeSpecifications.hasDepartmentId(departmentId))) {
             //Get latest performance cycle which this employee was evaluated
             var latestPerformanceCycleOfThisEmployee = performanceService.findLatestPerformanceCycleOfEmployee(employee.getId());
             if (latestPerformanceCycleOfThisEmployee == null) {
@@ -111,7 +120,11 @@ public class EmployeeDashboardController {
                             latestPerformanceCycleOfThisEmployee.getPerformanceCycleId()
                     )
                     .getFinalAssessment().intValue();
-            var potentialScore = 4;
+
+            var potentialScore = performanceService.findByEmployeeIdAndPerformanceCyclePerformanceCycleId(
+                        employee.getId(),
+                        latestPerformanceCycleOfThisEmployee.getPerformanceCycleId()
+                    ).getPotentialScore().intValue();
             result.add(new EmployeePotentialPerformance(
                     employee,
                     "https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-512.png",
@@ -122,8 +135,44 @@ public class EmployeeDashboardController {
         return result;
     }
 
-    public void getAtGlance(@Argument Integer employeeId) {
+    @QueryMapping
+    public List<PerformanceByJobLevel> performanceByJobLevel(
+            @Argument Integer performanceCycleId,
+            @Argument Integer positionId)
+    {
+                var result = new ArrayList<PerformanceByJobLevel>();
+        Specification<Employee> filterByPosition = Specification.where((root, query, cb) -> cb.equal(root.get("positionLevel").get("position").get("id"), positionId));
+        var employees = employeeService.findAll(filterByPosition);
+        for (JobLevel jobLevel: jobLevelService.findAll()) {
+            var employeesWithJobLevel = employees.stream().filter(employee -> employee.getPositionLevel().getJobLevel().getId() == jobLevel.getId()).toList();
+            var totalEmployees = employeesWithJobLevel.size();
+            if (totalEmployees == 0)  {
+                continue;
+            }
+            float unsatis =  performanceService.countByRatingRangeAndPerformanceCycleId(0, 1, 1) / totalEmployees;
+            float pme =  performanceService.countByRatingRangeAndPerformanceCycleId(2, 2, 1) / totalEmployees;
+            float meetExpectation =  performanceService.countByRatingRangeAndPerformanceCycleId(2, 3, 1) / totalEmployees;
+            float exceedExpectation =  performanceService.countByRatingRangeAndPerformanceCycleId(3, 4, 1) / totalEmployees;
+            float outstanding =  performanceService.countByRatingRangeAndPerformanceCycleId(4, 5, 1) / totalEmployees;
+            float early = 1 - (unsatis + pme + meetExpectation + exceedExpectation + outstanding);
+            result.add(new PerformanceByJobLevel(jobLevel, early, unsatis, pme, meetExpectation, exceedExpectation, outstanding));
+        }
+        return result;
+    }
 
+    @QueryMapping
+    public CareerPathSummaryDto careerPathSummary(@Argument Integer employeeId) {
+        var chosenPostion = employeeCareerPathService.findAllByEmployeeId(employeeId).stream().map(
+                employeeCareerPath -> employeeCareerPath.getPositionLevel().getPosition()
+        ).toList();
+
+
+        ///chosenPostion.sort((o1, o2) -> o1.getLevel() - o2.getLevel());
+        return null;
+    }
+
+    public void getAtGlance(@Argument Integer employeeId) {
+        employeeService.findById(employeeId);
     }
 
     public void getOverallCompetencyScore(@Argument Integer employeeId) {

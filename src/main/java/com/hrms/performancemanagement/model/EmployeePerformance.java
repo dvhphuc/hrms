@@ -35,4 +35,7 @@ public class EmployeePerformance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_cycle_id")
     private PerformanceCycle performanceCycle;
+
+    @Column(name = "potential_score")
+    private Integer potentialScore;
 }

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public interface PerformanceService {
+    Integer countByRatingRangeAndPerformanceCycleId(Integer min, Integer max, Integer performanceCycleId);
     List<EmployeePerformance> findByPerformanceCycleId(Integer performanceId, Integer limit);
     Page<EmployeePerformance> findAll(Pageable pageable);
     EmployeePerformance findByEmployeeIdAndPerformanceCyclePerformanceCycleId(int employeeId, int performanceCycleId);

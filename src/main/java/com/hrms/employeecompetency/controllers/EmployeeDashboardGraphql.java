@@ -9,8 +9,14 @@ import com.hrms.employeecompetency.services.SkillSetEvaluationService;
 import com.hrms.employeecompetency.specifications.SkillSetEvaluationSpecifications;
 import com.hrms.employeecompetency.specifications.SkillSetTargetSpecifications;
 import com.hrms.employeemanagement.paging.Pagination;
+import com.hrms.performancemanagement.dto.EmployeePerformanceRatingScore;
+import com.hrms.performancemanagement.dto.EmployeePerformanceRatingScorePaging;
+import com.hrms.performancemanagement.model.EmployeePerformance;
+import com.hrms.performancemanagement.services.PerformanceService;
+import com.hrms.performancemanagement.specifications.PerformanceSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -26,11 +32,13 @@ import java.util.List;
 public class EmployeeDashboardGraphql {
     SkillSetEvaluationService skillSetEvaluationService;
     SkillSetTargetService skillSetTargetService;
+    PerformanceService performanceService;
     @Autowired
     public EmployeeDashboardGraphql(SkillSetEvaluationService skillSetEvaluationService,
-                                    SkillSetTargetService skillSetTargetService) {
+                                    SkillSetTargetService skillSetTargetService, PerformanceService performanceService) {
         this.skillSetEvaluationService = skillSetEvaluationService;
         this.skillSetTargetService = skillSetTargetService;
+        this.performanceService = performanceService;
     }
 
     @QueryMapping(name = "topHighestSkillSetEmployee")
@@ -93,5 +101,20 @@ public class EmployeeDashboardGraphql {
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
         return new TopSkillSetPaging(topHighestSkillSets, pagination, totalCount);
+    }
+
+    @QueryMapping(name = "employeePerformanceRatingScore")
+    public EmployeePerformanceRatingScorePaging getEmployeePerformanceRatingScore(@Argument Integer employeeId, @Argument int pageNo, @Argument int pageSize)
+    {
+        List<EmployeePerformanceRatingScore> data = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<EmployeePerformance> employeePerformances =performanceService.findAll(PerformanceSpecifications.hasEmployeeId(employeeId), pageable);
+        for (EmployeePerformance employeePerformance : employeePerformances) {
+            data.add(new EmployeePerformanceRatingScore(employeePerformance.getPerformanceCycle().getPerformanceCycleName(), employeePerformance.getFinalAssessment()));
+        }
+        long totalCount = employeePerformances.getTotalElements();
+        long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
+        Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
+        return new EmployeePerformanceRatingScorePaging(data, pagination);
     }
 }

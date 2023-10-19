@@ -1,10 +1,10 @@
-package com.hrms.performancemanagement.service.impl;
+package com.hrms.performancemanagement.services.impl;
 
-import com.hrms.employeecompetency.repositories.PerformanceCycleRepository;
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.employeecompetency.repositories.EmployeePerformanceRepository;
 import com.hrms.performancemanagement.model.PerformanceCycle;
-import com.hrms.performancemanagement.service.PerformanceService;
+import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
+import com.hrms.performancemanagement.services.PerformanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,5 +70,20 @@ public class PerformanceServiceImpl implements PerformanceService {
             return null;
         }
         return employeePerformanceRepository.findAll(filterByEmployee).get(0).getPerformanceCycle();
+    }
+
+    @Override
+    public List<EmployeePerformance> findAll(Specification<EmployeePerformance> spec) {
+        return employeePerformanceRepository.findAll(spec);
+    }
+
+    @Override
+    public List<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Sort sort) {
+        return employeePerformanceRepository.findAll(spec, sort);
+    }
+
+    @Override
+    public Page<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Pageable pageable) {
+        return employeePerformanceRepository.findAll(spec, pageable);
     }
 }

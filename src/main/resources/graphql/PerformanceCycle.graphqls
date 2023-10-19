@@ -3,4 +3,5 @@ type PerformanceCycle {
     performanceCycleName: String
     performanceCycleStartDate: String
     performanceCycleEndDate: String
+    isDone: Boolean
 }

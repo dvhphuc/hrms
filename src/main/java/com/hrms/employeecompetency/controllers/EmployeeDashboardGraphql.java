@@ -1,7 +1,7 @@
 package com.hrms.employeecompetency.controllers;
 
 import com.hrms.employeecompetency.dto.TopHighestSkillSet;
-import com.hrms.employeecompetency.dto.TopHighestSkillSetPaging;
+import com.hrms.employeecompetency.dto.TopSkillSetPaging;
 import com.hrms.employeecompetency.models.SkillSetTarget;
 import com.hrms.employeecompetency.models.SkillSetEvaluation;
 import com.hrms.employeecompetency.services.SkillSetTargetService;
@@ -34,8 +34,8 @@ public class EmployeeDashboardGraphql {
     }
 
     @QueryMapping(name = "topHighestSkillSetEmployee")
-    public TopHighestSkillSetPaging getTopHighestSkillSetEmployee(@Argument Integer competencyCycleId, @Argument Integer employeeId,
-                                                                  @Argument Integer pageNo, @Argument Integer pageSize) {
+    public TopSkillSetPaging getTopHighestSkillSetEmployee(@Argument Integer competencyCycleId, @Argument Integer employeeId,
+                                                           @Argument Integer pageNo, @Argument Integer pageSize) {
         List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<SkillSetEvaluation> skillSetEvaluations =
@@ -50,14 +50,34 @@ public class EmployeeDashboardGraphql {
         long totalCount = skillSetEvaluations.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new TopHighestSkillSetPaging(topHighestSkillSets, pagination, totalCount);
+        return new TopSkillSetPaging(topHighestSkillSets, pagination, totalCount);
+    }
+
+    @QueryMapping(name = "topKeenSkillSetEmployee")
+    public TopSkillSetPaging getTopKeenSkillSetEmployee(@Argument Integer competencyCycleId, @Argument Integer employeeId,
+                                                        @Argument Integer pageNo, @Argument Integer pageSize) {
+        List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<SkillSetEvaluation> skillSetEvaluations =
+                skillSetEvaluationService
+                        .findAll(SkillSetEvaluationSpecifications.hasTop10KeenProficiencyLevelOfEmployeeInCycle(competencyCycleId, employeeId),pageable);
+        for (SkillSetEvaluation skillSetEvaluation : skillSetEvaluations) {
+            topHighestSkillSets.add(
+                    new TopHighestSkillSet(skillSetEvaluation.getEmployee(),
+                            skillSetEvaluation.getPositionSkillSet().getSkillSet(),
+                            skillSetEvaluation.getFinalProficiencyLevel()));
+        }
+        long totalCount = skillSetEvaluations.getTotalElements();
+        long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
+        Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
+        return new TopSkillSetPaging(topHighestSkillSets, pagination, totalCount);
     }
 
     @QueryMapping(name = "topHighestSkillSetTargetEmployee")
-    public TopHighestSkillSetPaging getTopHighestSkillSetTargetEmployee(@Argument Integer competencyCycleId,
-                                                                        @Argument Integer employeeId,
-                                                                        @Argument Integer pageNo,
-                                                                        @Argument Integer pageSize) {
+    public TopSkillSetPaging getTopHighestSkillSetTargetEmployee(@Argument Integer competencyCycleId,
+                                                                 @Argument Integer employeeId,
+                                                                 @Argument Integer pageNo,
+                                                                 @Argument Integer pageSize) {
         List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         Page<SkillSetTarget> skillSetTargets =
@@ -72,6 +92,6 @@ public class EmployeeDashboardGraphql {
         long totalCount = skillSetTargets.getTotalElements();
         long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
         Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new TopHighestSkillSetPaging(topHighestSkillSets, pagination, totalCount);
+        return new TopSkillSetPaging(topHighestSkillSets, pagination, totalCount);
     }
 }

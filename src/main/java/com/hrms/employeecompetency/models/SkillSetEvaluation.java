@@ -3,6 +3,7 @@ package com.hrms.employeecompetency.models;
 
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.PositionSkillSet;
+import com.hrms.employeemanagement.models.SkillSet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +27,8 @@ public class SkillSetEvaluation {
     @JoinColumn(name = "employee_id")
     private Employee employee;
     @ManyToOne
-    @JoinColumn(name = "position_skill_set_id")
-    private PositionSkillSet positionSkillSet;
+    @JoinColumn(name = "skill_set_id")
+    private SkillSet skillSet;
     @ManyToOne
     @JoinColumn(name = "employee_proficiency_level_id", referencedColumnName = "proficiency_level_id")
     private ProficiencyLevel employeeProficiencyLevel;

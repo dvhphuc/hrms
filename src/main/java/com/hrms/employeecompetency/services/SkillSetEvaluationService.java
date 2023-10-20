@@ -1,5 +1,6 @@
 package com.hrms.employeecompetency.services;
 
+import com.hrms.employeecompetency.models.CompetencyCycle;
 import com.hrms.employeecompetency.models.SkillSetEvaluation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,6 @@ public interface SkillSetEvaluationService {
     List<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec);
     List<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec, Sort sort);
     Page<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec, Pageable pageable);
-
     List<SkillSetEvaluation> findAllByEmployeeId(Integer employeeId);
+    CompetencyCycle getLatestCycle(Integer employeeId);
 }

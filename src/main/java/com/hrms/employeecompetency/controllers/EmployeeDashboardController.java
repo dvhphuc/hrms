@@ -8,8 +8,15 @@ import com.hrms.employeecompetency.services.*;
 import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.SkillSet;
+import com.hrms.employeecompetency.services.CompetencyCycleService;
+import com.hrms.employeecompetency.services.CompetencyEvaluationService;
+import com.hrms.employeecompetency.services.EmployeeCareerPathService;
+import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpec;
+import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.JobLevelService;
+import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.global.Range;
 import com.hrms.performancemanagement.model.EmployeePerformance;
@@ -102,8 +109,8 @@ public class EmployeeDashboardController {
     public EmployeeRatingPagination employeesCompetency(@Argument Integer pageNo, @Argument Integer pageSize) {
         List<EmployeeRating> employeeRatings = new ArrayList<>();
         for (Employee employee : employeeService.findAll()) {
-            var filterLatestCompetencyCycle = CompetencyEvaluationSpecifications.filterLatestCompetencyCycle(competencyCycleService.getLatestCompetencyCycle().getId());
-            var filterEqualEmployee = CompetencyEvaluationSpecifications.hasEmployeeId(employee.getId());
+            var filterLatestCompetencyCycle = CompetencyEvaluationSpec.filterLatestCompetencyCycle(competencyCycleService.getLatestCompetencyCycle().getId());
+            var filterEqualEmployee = CompetencyEvaluationSpec.hasEmployeeId(employee.getId());
             var employeeEvaluation = competencyEvaluationService.findAll(filterLatestCompetencyCycle.and(filterEqualEmployee));
             var score = employeeEvaluation.stream().reduce(0, (subtotal, element) -> subtotal + element.getProficiencyLevel().getScore(), Integer::sum);
             if (!employeeEvaluation.isEmpty())
@@ -118,7 +125,7 @@ public class EmployeeDashboardController {
     @QueryMapping
     public List<EmployeePotentialPerformance> employeesPotentialPerformance(@Argument int departmentId) {
         var result = new ArrayList<EmployeePotentialPerformance>();
-        for (Employee employee : employeeService.findAll(EmployeeSpecifications.hasDepartmentId(departmentId))) {
+        for (Employee employee : employeeService.findAll(EmployeeSpec.getByDepartment(departmentId))) {
             //Get latest performance cycle which this employee was evaluated
             var latestPerformanceCycleOfThisEmployee = performanceService.findLatestPerformanceCycleOfEmployee(employee.getId());
             if (latestPerformanceCycleOfThisEmployee == null) {
@@ -150,6 +157,13 @@ public class EmployeeDashboardController {
             @Argument Integer performanceCycleId,
             @Argument Integer positionId)
     {
+        var result = new ArrayList<PerformanceByJobLevel>();
+        var employeesHasPosition = employeeService.findAll(EmployeeSpec.hasPositionId(positionId));
+        for (var jobLevel: jobLevelService.findAll()) {
+            var employeesHasJobLevel = employeesHasPosition
+                    .stream()
+                    .filter(employee -> employee.getPosition().getId() == jobLevel.getId())
+                    .toList();
         var datasets = new ArrayList<List<Float>>();
 
         List<EmployeePerformance> filteredEmployees = performanceService.findAllByPositionIdAndPerformanceCycleId(

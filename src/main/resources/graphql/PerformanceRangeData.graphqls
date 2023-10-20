@@ -1,0 +1,4 @@
+type PerformanceRangeData {
+    jobLevelIds: [Int]
+    data: [Float]
+}

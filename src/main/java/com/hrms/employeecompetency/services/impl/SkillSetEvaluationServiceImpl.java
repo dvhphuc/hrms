@@ -32,4 +32,10 @@ public class SkillSetEvaluationServiceImpl implements SkillSetEvaluationService 
     public Page<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec, Pageable pageable) {
         return skillSetEvaluationRepository.findAll(spec, pageable);
     }
+
+    @Override
+    public List<SkillSetEvaluation> findAllByEmployeeId(Integer employeeId) {
+        var skillSetOfEmployee = skillSetEvaluationRepository.findAllByEmployeeId(employeeId);
+        return skillSetOfEmployee;
+    }
 }

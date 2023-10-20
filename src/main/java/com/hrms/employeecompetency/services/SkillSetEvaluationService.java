@@ -12,4 +12,6 @@ public interface SkillSetEvaluationService {
     List<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec);
     List<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec, Sort sort);
     Page<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec, Pageable pageable);
+
+    List<SkillSetEvaluation> findAllByEmployeeId(Integer employeeId);
 }

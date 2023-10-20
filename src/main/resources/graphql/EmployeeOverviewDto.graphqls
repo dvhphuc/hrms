@@ -1,10 +1,7 @@
 type EmployeeOverviewDto {
-    employeeId: Int
-    firstName : String
-    lastName : String
-    positionLevel: PositionLevel
-    address : String
-    skills : [Skill]
-    interests : [Skill]
-    certification : String
+    employee: Employee
+    address: String
+    skills: [SkillSet]
+    interests: [SkillSet]
+    certification: [String]
 }

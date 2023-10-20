@@ -18,4 +18,8 @@ public interface PerformanceService {
     List<EmployeePerformance> findAll(Specification<EmployeePerformance> spec);
     List<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Sort sort);
     Page<EmployeePerformance> findAll(Specification<EmployeePerformance> spec, Pageable pageable);
+
+    List<EmployeePerformance> findAllByPositionIdAndPerformanceCycleId(Integer positionId, Integer performanceCycleId);
+
+    List<EmployeePerformance> filterCategory(String category, List<EmployeePerformance> employeePerformances);
 }

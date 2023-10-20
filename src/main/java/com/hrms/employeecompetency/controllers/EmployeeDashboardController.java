@@ -13,21 +13,25 @@ import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.JobLevelService;
 import com.hrms.employeemanagement.specifications.EmployeeSpec;
+import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
+import com.hrms.global.Range;
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.employeecompetency.services.CompetencyService;
-import com.hrms.performancemanagement.services.PerformanceService;
 import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.performancemanagement.services.PerformanceService;
 import com.unboundid.util.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @Slf4j
@@ -55,16 +59,18 @@ public class EmployeeDashboardController {
     @Autowired
     EmployeeCareerPathService employeeCareerPathService;
 
-    static Map mapPerfomanceRange;
+    HashMap<String, Range> performanceCategories;
 
-//    static {
-//        mapPerfomanceRange = new HashMap<String, Function<Integer, Boolean>>();
-//        mapPerfomanceRange.put("early", score -> score < 50);
-//        mapPerfomanceRange.put("unsatis", score -> score >= 50 && score < 60);
-//        mapPerfomanceRange.put("pme", score -> score >= 60 && score < 70);
-//        mapPerfomanceRange.put("meetExpectation", score -> score >= 70 && score < 80);
-//        mapPerfomanceRange.put("exceedExpectation", score -> score >= 80 && score < 90);
-//    }
+    @Bean
+    public void setupMap() {
+        performanceCategories = new HashMap<>();
+        performanceCategories.put("Unsatisfactory", new Range(0,1));
+        performanceCategories.put("Partially Meet Expectations", new Range(2,2));
+        performanceCategories.put("Meet Expectations", new Range(3,3));
+        performanceCategories.put("Partially Exceed Expectations", new Range(4,4));
+        performanceCategories.put("Outstanding", new Range(5,5));
+    }
+
 
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
@@ -73,7 +79,7 @@ public class EmployeeDashboardController {
 
 //    @QueryMapping
 //    public CareerPathSummaryDto careerPathSummary(@Argument Integer id) {
-//        return employeeMapperService.careerPathSummary(employeeService.findById(id));
+//        //return employeeMapperService.careerPathSummary(employeeService.findById(id));
 //    }
 
     @QueryMapping
@@ -141,7 +147,7 @@ public class EmployeeDashboardController {
     }
 
     @QueryMapping
-    public List<PerformanceByJobLevel> performanceByJobLevel(
+    public PerformanceByJobLevel performanceByJobLevel(
             @Argument Integer performanceCycleId,
             @Argument Integer positionId)
     {
@@ -152,12 +158,35 @@ public class EmployeeDashboardController {
                     .stream()
                     .filter(employee -> employee.getPosition().getId() == jobLevel.getId())
                     .toList();
+        var datasets = new ArrayList<List<Float>>();
+
+        List<EmployeePerformance> filteredEmployees = performanceService.findAllByPositionIdAndPerformanceCycleId(
+                positionId,
+                performanceCycleId
+        );
+
+        for (var category : performanceCategories.keySet().stream().toList()) {
+            var dataset = new ArrayList<Float>();
+            var filteredCategoryEmployees = filteredEmployees.stream().filter(
+                                employeePerformance -> performanceCategories.get(category).contains(employeePerformance.getFinalAssessment())).toList();
+
+            for (var jobLevel: jobLevelService.findAll())
+            {
+                var filteredCategoryJobLevelEmployees = filteredCategoryEmployees.stream().filter(employeePerformance -> employeePerformance.getEmployee().getPositionLevel().getJobLevel() == jobLevel).toList();
+                if (filteredCategoryEmployees.isEmpty()) {
+                    dataset.add(0f);
+                    continue;
+                }
+                float percentage = (filteredCategoryJobLevelEmployees.size() / filteredCategoryEmployees.size()) * 100;
+                dataset.add(percentage);
+            }
+            datasets.add(dataset);
         }
-        return List.of(
-          new PerformanceByJobLevel(new JobLevel(1, "Junior"), 12F, 20F, 20F, 30F, 10F, 8F),
-          new PerformanceByJobLevel(new JobLevel(2, "Professional"), 12F, 20F, 20F, 30F, 10F, 8F),
-          new PerformanceByJobLevel(new JobLevel(3, "Senior"), 12F, 20F, 20F, 30F, 10F, 8F),
-          new PerformanceByJobLevel(new JobLevel(4, "Expert"), 12F, 20F, 20F, 30F, 10F, 8F)
+
+        return new PerformanceByJobLevel(
+                jobLevelService.findAll().stream().toList(),
+                performanceCategories.keySet().stream().toList(),
+                datasets
         );
     }
 

@@ -79,12 +79,15 @@ public class UserService {
             rolesFilter = rolesFilter.and((root, query, criteriaBuilder) -> root.get("userRoles").get("role").get("roleId").in(roles));
         }
 
-        return userRepository
-                .findAll(Specification.where(statusFilter).and(searchFilter).and(rolesFilter), pageable);
+        Specification<User> finalFilter = Specification.where(statusFilter).and(searchFilter).and(rolesFilter);
+
+        var usersFiltered = userRepository.findAll(finalFilter)
+                .stream().distinct().collect(Collectors.toList());
+        return new PageImpl<>(usersFiltered, pageable, usersFiltered.size());
     }
 
     public UserDto getUser(Integer id) {
-        var user = userRepository.findById(id.longValue()).orElseThrow();
+        var user = userRepository.findById(id).orElseThrow();
         var roles = userRoleRepository.findAllByUserUserId(id).stream().map(UserRole::getRole).toList();
         UserDto userDto = modelMapper.map(user, UserDto.class);
         userDto.setRoles(Set.copyOf(roles));
@@ -101,12 +104,13 @@ public class UserService {
         user.setIsEnabled(false);
         user.setCreatedAt(Date.valueOf(LocalDate.now()));
 
-        var employee = new Employee();
-        employee.setUser(user);
-        user.setEmployee(employee);
+        User newUser = userRepository.save(user);
 
+        var employee = new Employee();
+        employee.setUser(newUser);
+        newUser.setEmployee(employee);
         employeeRepository.save(employee);
-        userRepository.save(user);
+        userRepository.save(newUser);
         return true;
     }
 
@@ -146,7 +150,7 @@ public class UserService {
     }
 
     public Boolean updateUsernamePassword(Integer userId, String username, String password) throws IllegalArgumentException  {
-        var user = userRepository.findById(Long.valueOf(userId)).orElseThrow();
+        var user = userRepository.findById(userId).orElseThrow();
         if (password == null) {
             throw new IllegalArgumentException("Password cannot be null");
         }

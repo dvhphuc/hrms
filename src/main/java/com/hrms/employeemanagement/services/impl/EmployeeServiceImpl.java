@@ -4,7 +4,7 @@ import com.hrms.employeemanagement.dto.CurrentHeadcount;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeService;
-import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
+import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,7 +57,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Page<Employee> getAllByFilter(List<Integer> departmentIds, List<Integer> currentContracts,
                                          Boolean status, String name, Pageable pageable) {
         return employeeRepository
-                .findAll(EmployeeSpecifications.hasFilter(departmentIds, currentContracts, status, name), pageable);
+                .findAll(EmployeeSpec.hasFilter(departmentIds, currentContracts, status, name), pageable);
     }
 
     @Override

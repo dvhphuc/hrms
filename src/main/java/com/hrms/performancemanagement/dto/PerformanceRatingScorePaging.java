@@ -4,5 +4,5 @@ import com.hrms.employeemanagement.paging.Pagination;
 
 import java.util.List;
 
-public record EmployeePerformanceRatingScorePaging (List<EmployeePerformanceRatingScore> data, Pagination pagination){
+public record PerformanceRatingScorePaging(List<EmployeePerformanceRatingScore> data, Pagination pagination){
 }

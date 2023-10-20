@@ -4,8 +4,8 @@ import com.hrms.employeecompetency.models.SkillSetEvaluation;
 import org.springframework.data.jpa.domain.Specification;
 
 
-public class SkillSetEvaluationSpecifications {
-    public static Specification<SkillSetEvaluation> hasTop10ProficiencyLevelInCycle(Integer cycleId) {
+public class SkillSetEvaluationSpec {
+    public static Specification<SkillSetEvaluation> getByCompetencyCycle(Integer cycleId) {
         return (root, query, builder) -> {
             query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
             query.where(builder.equal(root.get("competencyCycle").get("id"), cycleId));
@@ -13,7 +13,7 @@ public class SkillSetEvaluationSpecifications {
         };
     }
 
-    public static Specification<SkillSetEvaluation> hasTop10ProficiencyLevelOfEmployeeInCycle(Integer competencyCycleId, Integer employeeId) {
+    public static Specification<SkillSetEvaluation> getDescByCycleAndEmployee(Integer competencyCycleId, Integer employeeId) {
         return (root, query, builder) -> {
             query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
             query.where(builder.equal(root.get("competencyCycle").get("id"), competencyCycleId),
@@ -22,7 +22,7 @@ public class SkillSetEvaluationSpecifications {
         };
     }
 
-    public static Specification<SkillSetEvaluation> hasTop10KeenProficiencyLevelOfEmployeeInCycle(Integer competencyCycleId, Integer employeeId) {
+    public static Specification<SkillSetEvaluation> getAscByCycleAndEmployee(Integer competencyCycleId, Integer employeeId) {
         return (root, query, builder) -> {
             query.orderBy(builder.asc(root.get("finalProficiencyLevel")));
             query.where(builder.equal(root.get("competencyCycle").get("id"), competencyCycleId),

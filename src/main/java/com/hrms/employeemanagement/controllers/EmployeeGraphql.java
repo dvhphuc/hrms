@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.controllers;
 
-import com.hrms.damservice.models.SourceFile;
 import com.hrms.employeemanagement.exception.*;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
@@ -8,9 +7,7 @@ import com.hrms.employeemanagement.paging.EmployeePaging;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.*;
 import com.hrms.employeemanagement.specifications.*;
-import com.hrms.damservice.exception.SourceFileNotFoundException;
 import com.hrms.damservice.services.SourceFileService;
-import com.hrms.damservice.specifications.SourceFileSpecifications;
 import com.unboundid.util.NotNull;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,7 +66,7 @@ public class EmployeeGraphql {
     @QueryMapping(name = "employee")
     public Employee findEmployeeById(@Argument int id) throws EmployeeNotFoundException {
         return employeeService
-                .findAll(EmployeeSpecifications.hasId(id))
+                .findAll(EmployeeSpec.hasId(id))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + id));
@@ -98,7 +94,7 @@ public class EmployeeGraphql {
             throws EmployeeNotFoundException, PositionLevelNotFoundException,
             EmergencyContactNotFoundException {
         Employee employee = employeeService
-                .findAll(EmployeeSpecifications.hasId(input.getId()))
+                .findAll(EmployeeSpec.hasId(input.getId()))
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new EmployeeNotFoundException("Employee not found with id: " + input.getId()));

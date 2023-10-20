@@ -1,5 +1,6 @@
 package com.hrms.employeecompetency.services.impl;
 
+import com.hrms.employeecompetency.models.CompetencyCycle;
 import com.hrms.employeecompetency.models.SkillSetEvaluation;
 import com.hrms.employeecompetency.repositories.SkillSetEvaluationRepository;
 import com.hrms.employeecompetency.services.SkillSetEvaluationService;
@@ -18,6 +19,7 @@ import java.util.List;
 public class SkillSetEvaluationServiceImpl implements SkillSetEvaluationService {
     @Autowired
     private SkillSetEvaluationRepository skillSetEvaluationRepository;
+
     @Override
     public List<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec) {
         return skillSetEvaluationRepository.findAll(spec);
@@ -31,5 +33,10 @@ public class SkillSetEvaluationServiceImpl implements SkillSetEvaluationService 
     @Override
     public Page<SkillSetEvaluation> findAll(Specification<SkillSetEvaluation> spec, Pageable pageable) {
         return skillSetEvaluationRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public CompetencyCycle getLatestCycle(Integer employeeId) {
+        return skillSetEvaluationRepository.selectEvaluateCompetencyCycle(employeeId);
     }
 }

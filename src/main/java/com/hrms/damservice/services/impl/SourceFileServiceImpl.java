@@ -7,7 +7,7 @@ import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.damservice.exception.SourceFileNotFoundException;
 import com.hrms.damservice.repositories.SourceFileRepository;
 import com.hrms.damservice.services.SourceFileService;
-import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
+import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import com.hrms.damservice.specifications.SourceFileSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,7 +61,7 @@ public class SourceFileServiceImpl implements SourceFileService {
         sourceFile.setFilePath(imagePath);
         sourceFile.setFileType(file.getContentType());
         SourceFile savedSourceFile = sourceFileRepository.save(sourceFile);
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
+        Employee employee = employeeService.findAll(EmployeeSpec.hasId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
@@ -70,7 +70,7 @@ public class SourceFileServiceImpl implements SourceFileService {
     }
 
     public Resource getProfileImageByEmployeeId(int employeeId) throws SourceFileNotFoundException, EmployeeNotFoundException {
-        Employee employee = employeeService.findAll(EmployeeSpecifications.hasId(employeeId))
+        Employee employee = employeeService.findAll(EmployeeSpec.hasId(employeeId))
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->

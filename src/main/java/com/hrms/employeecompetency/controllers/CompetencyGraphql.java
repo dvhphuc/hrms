@@ -12,7 +12,7 @@ import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.DepartmentService;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.employeemanagement.services.JobLevelService;
-import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
+import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,6 +59,12 @@ public class CompetencyGraphql {
         this.skillSetEvaluationService = skillSetEvaluationService;
     }
 
+    public static <T> Pagination setupPaging(Page<T> page, Integer pageNo, Integer pageSize) {
+        long totalCount = page.getTotalElements();
+        long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
+        return new Pagination(pageNo, pageSize, totalCount, numberOfPages);
+    }
+
     @QueryMapping(name = "competencyCycles")
     public List<CompetencyCycle> getCompetencyCycles() {
         return competencyCycleService.findAll(Specification.allOf());
@@ -74,7 +80,7 @@ public class CompetencyGraphql {
         List<DepartmentInComplete> departmentInCompletes = new ArrayList<>();
         List<Department> departments = departmentService.findAll(Specification.allOf());
         for (Department department : departments) {
-            List<Employee> employees = employeeService.findAll(EmployeeSpecifications.hasDepartmentId(department.getId()));
+            List<Employee> employees = employeeService.findAll(EmployeeSpec.getByDepartment(department.getId()));
             float empPercent = getPercentageOfEmployees(competencyCycleId, employees);
             float evaPercent = getPercentageOfEvaluator(competencyCycleId, employees);
             DepartmentInComplete departmentInComplete = new DepartmentInComplete(department, empPercent, evaPercent);
@@ -98,12 +104,12 @@ public class CompetencyGraphql {
         for (Employee employee : employees) {
             if (!evaluationOverallService
                     .findAll(
-                            EvaluationOverallSpecifications
-                                    .hasEmployeeIdAndEmployeeStatusCompleted(employee.getId(), competencyCycleId)
+                            EvaluationOverallSpec
+                                    .getByEmployeeAndEmpStatusComplete(employee.getId(), competencyCycleId)
                     ).isEmpty()) employeeHasCompleted += 1;
         }
-        int employeeHasNotCompleted = employees.size() - employeeHasCompleted;
-        return (float) employeeHasNotCompleted / employees.size() * 100;
+        int employeeNotCompleted = employees.size() - employeeHasCompleted;
+        return (float) employeeNotCompleted / employees.size() * 100;
     }
 
     private Float getPercentageOfEvaluator(Integer competencyCycleId, List<Employee> employees) {
@@ -111,12 +117,12 @@ public class CompetencyGraphql {
         for (Employee employee : employees) {
             if (!evaluationOverallService
                     .findAll(
-                            EvaluationOverallSpecifications
-                                    .hasEmployeeIdAndEvaluatorStatusCompleted(employee.getId(), competencyCycleId)
+                            EvaluationOverallSpec
+                                    .getByEmployeeAndEvaStatusComplete(employee.getId(), competencyCycleId)
                     ).isEmpty()) employeeHasCompleted += 1;
         }
-        int employeeHasNotCompleted = employees.size() - employeeHasCompleted;
-        return (float) employeeHasNotCompleted / employees.size() * 100;
+        int employeeNotCompleted = employees.size() - employeeHasCompleted;
+        return (float) employeeNotCompleted / employees.size() * 100;
     }
 
     @QueryMapping(name = "competencies")
@@ -132,8 +138,8 @@ public class CompetencyGraphql {
     @QueryMapping(name = "avgCompetencyScore")
     public List<AvgCompetency> getAvgCompetencyScore(@Argument Integer positionId, @Argument Integer competencyCycleId) {
         List<AvgCompetency> avgCompetencies = new ArrayList<>();
-        List<CompetencyEvaluation> competencyEvaluationsByPositionAndCycle = competencyEvaluationService
-                .findAll(CompetencyEvaluationSpecifications.hasPositionAndCompetencyCycle(positionId, competencyCycleId));
+        List<CompetencyEvaluation> compEvaluates = competencyEvaluationService
+                .findAll(CompetencyEvaluationSpec.getByPositionAndCompCycle(positionId, competencyCycleId));
         List<JobLevel> jobLevels = jobLevelService.findAll(Specification.allOf());
         Collections.reverse(jobLevels);
         List<Competency> competencies = competencyService.findAll(Specification.allOf());
@@ -142,17 +148,16 @@ public class CompetencyGraphql {
                 float avgScore;
                 int finalI = i;
                 int finalJ = j;
-                List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = competencyEvaluationsByPositionAndCycle.stream()
-                        .filter(competencyEvaluation -> competencyEvaluation
-                                .getEmployee().getPositionLevel().getJobLevel().getId() == jobLevels.get(finalI).getId()
-                                && competencyEvaluation.getCompetency().getId().equals(competencies.get(finalJ).getId()))
+                List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = compEvaluates.stream()
+                        .filter(compEva -> compEva.getEmployee().getPositionLevel().getJobLevel().getId() == jobLevels.get(finalI).getId()
+                                && compEva.getCompetency().getId().equals(competencies.get(finalJ).getId()))
                         .toList();
                 if (evaluationsHasJobLevelAndCompetency.isEmpty()) {
                     avgScore = 0;
                 } else {
                     int totalScore = 0;
-                    for (CompetencyEvaluation competencyEvaluation : evaluationsHasJobLevelAndCompetency) {
-                        totalScore += competencyEvaluation.getProficiencyLevel().getScore();
+                    for (CompetencyEvaluation compEva : evaluationsHasJobLevelAndCompetency) {
+                        totalScore += compEva.getProficiencyLevel().getScore();
                     }
                     avgScore = (float) totalScore / evaluationsHasJobLevelAndCompetency.size();
                 }
@@ -164,59 +169,56 @@ public class CompetencyGraphql {
     }
 
     @QueryMapping(name = "competencyRadarChart")
-    public RadarChart getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId, @Argument Integer departmentId) throws CompetencyCycleNotFoundException {
+    public RadarChart getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId,
+                                              @Argument Integer departmentId) throws CompetencyCycleNotFoundException {
         List<Competency> competencies = competencyService.findAll(Specification.allOf());
         List<RadarDataset> listDataset = new ArrayList<>();
         for (Integer competencyCycleId : competencyCyclesId) {
-            List<CompetencyEvaluation> competencyEvaluations = competencyEvaluationService
-                    .findAll(CompetencyEvaluationSpecifications.hasCompetencyCycleAndHasEmployeeInDepartment(competencyCycleId, departmentId));
-            List<Float> listAvgCompetencyScore = new ArrayList<>();
+            List<CompetencyEvaluation> compEvaluates = competencyEvaluationService
+                    .findAll(CompetencyEvaluationSpec.getByCompCycleAndDepartment(competencyCycleId, departmentId));
+            List<Float> listAvgCompScore = new ArrayList<>();
             for (Competency competency : competencies) {
-                List<CompetencyEvaluation> competencyEvaluationsByCompetency = competencyEvaluations.stream()
-                        .filter(competencyEvaluation -> competencyEvaluation.getCompetency().getId().equals(competency.getId()))
+                List<CompetencyEvaluation> compEvaluatesByComp = compEvaluates.stream()
+                        .filter(compEva -> compEva.getCompetency().getId().equals(competency.getId()))
                         .toList();
                 float avgScore;
-                if (competencyEvaluationsByCompetency.isEmpty()) {
+                if (compEvaluatesByComp.isEmpty()) {
                     avgScore = 0;
                 }
                 else {
                     int totalScore = 0;
-                    for (CompetencyEvaluation competencyEvaluation : competencyEvaluationsByCompetency) {
-                        if(competencyEvaluation.getProficiencyLevel() == null) continue;
-                        totalScore += competencyEvaluation.getProficiencyLevel().getScore();
+                    for (CompetencyEvaluation compEva : compEvaluatesByComp) {
+                        if(compEva.getProficiencyLevel() == null) continue;
+                        totalScore += compEva.getProficiencyLevel().getScore();
                     }
-                    avgScore = (float) totalScore / competencyEvaluationsByCompetency.size();
+                    avgScore = (float) totalScore / compEvaluatesByComp.size();
                 }
-                listAvgCompetencyScore.add(avgScore);
+                listAvgCompScore.add(avgScore);
             }
-            CompetencyCycle competencyCycle = competencyCycleService
+            CompetencyCycle compCycle = competencyCycleService
                     .findAll(CompetencyCycleSpecifications.hasId(competencyCycleId))
                     .stream()
                     .findFirst()
                     .orElseThrow(() -> new CompetencyCycleNotFoundException("Cycle not found with id: " + competencyCycleId));
-            listDataset.add(new RadarDataset(competencyCycle.getCompetencyCycleName(), listAvgCompetencyScore));
+            listDataset.add(new RadarDataset(compCycle.getCompetencyCycleName(), listAvgCompScore));
         }
         List<String> labels = competencies.stream().map(Competency::getCompetencyName).toList();
         return new RadarChart(labels, listDataset);
     }
 
     @QueryMapping(name = "topHighestSkillSet")
-    public TopSkillSetPaging getTopHighestSkill(@Argument Integer competencyCycleId, @Argument int pageNo, @Argument int pageSize)
+    public TopSkillSetPaging getTopHighestSkill(@Argument Integer competencyCycleId,
+                                                @Argument int pageNo, @Argument int pageSize)
     {
-        List<TopHighestSkillSet> topHighestSkillSets = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Page<SkillSetEvaluation> skillSetEvaluations =
-                skillSetEvaluationService
-                        .findAll(SkillSetEvaluationSpecifications.hasTop10ProficiencyLevelInCycle(competencyCycleId),pageable);
-        for (SkillSetEvaluation skillSetEvaluation : skillSetEvaluations) {
-            topHighestSkillSets.add(
-                    new TopHighestSkillSet(skillSetEvaluation.getEmployee(),
-                            skillSetEvaluation.getPositionSkillSet().getSkillSet(),
-                            skillSetEvaluation.getFinalProficiencyLevel()));
-        }
-        long totalCount = skillSetEvaluations.getTotalElements();
-        long numberOfPages = (long) Math.ceil(((double) totalCount) / pageSize);
-        Pagination pagination = new Pagination(pageNo, pageSize, totalCount, numberOfPages);
-        return new TopSkillSetPaging(topHighestSkillSets, pagination, totalCount);
+        Page<SkillSetEvaluation> ssEvaluates = skillSetEvaluationService
+                        .findAll(SkillSetEvaluationSpec.getByCompetencyCycle(competencyCycleId),pageable);
+        List<TopHighestSkillSet> topHighestSkillSets = ssEvaluates.stream()
+                .map(ssEva -> new TopHighestSkillSet(ssEva.getEmployee(),
+                        ssEva.getSkillSet(),
+                        ssEva.getFinalProficiencyLevel()))
+                .toList();
+        Pagination pagination = setupPaging(ssEvaluates, pageNo, pageSize);
+        return new TopSkillSetPaging(topHighestSkillSets, pagination);
     }
 }

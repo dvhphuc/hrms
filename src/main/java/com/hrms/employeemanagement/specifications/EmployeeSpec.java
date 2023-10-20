@@ -1,18 +1,16 @@
 package com.hrms.employeemanagement.specifications;
 
 import com.hrms.employeemanagement.models.Employee;
-import jakarta.annotation.Nullable;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
-public class EmployeeSpecifications {
+public class EmployeeSpec {
     public static Specification<Employee> hasId(int id) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("id"), id);
     }
 
-    public static Specification<Employee> hasDepartmentId(int id) {
+    public static Specification<Employee> getByDepartment(int id) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("department").get("id"), id);
     }
     public static Specification<Employee> hasPositionId(int id) {

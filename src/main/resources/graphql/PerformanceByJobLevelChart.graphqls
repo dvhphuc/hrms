@@ -1,0 +1,3 @@
+type PerformanceByJobLevelChart {
+    labels: [String]
+}

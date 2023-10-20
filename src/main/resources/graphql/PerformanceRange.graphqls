@@ -1,0 +1,7 @@
+type PerformanceRange {
+    performanceRangeId: Int!
+    minValue: Int!
+    maxValue: Int!
+    order: Int!
+    text: String!
+}

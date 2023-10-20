@@ -36,6 +36,9 @@ public class SkillSetEvaluationServiceImpl implements SkillSetEvaluationService 
     }
 
     @Override
+    public List<SkillSetEvaluation> findAllByEmployeeId(Integer employeeId) {
+        var skillSetOfEmployee = skillSetEvaluationRepository.findAllByEmployeeId(employeeId);
+        return skillSetOfEmployee;
     public CompetencyCycle getLatestCycle(Integer employeeId) {
         return skillSetEvaluationRepository.selectEvaluateCompetencyCycle(employeeId);
     }

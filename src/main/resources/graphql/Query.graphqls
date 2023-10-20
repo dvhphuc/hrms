@@ -17,7 +17,7 @@ type Query {
     currentHeadcounts: CurrentHeadcount
     competencyCycles: [CompetencyCycle]
     competencyTimeLine(competencyCycleId: Int!): [CompetencyTimeLine]
-    employeeOverview(id: Int!): EmployeeOverviewDto
+    employeeOverview(employeeId: Int!): EmployeeOverviewDto
     departmentInComplete(competencyCycleId: Int!): [DepartmentInCompleted]
     companyInComplete(competencyCycleId: Int!): [CompanyEvaPercent]
     topEmployeePerformance(performanceCycleId: Int!, limit: Int): [EmployeePerformance]

@@ -1,7 +1,9 @@
 package com.hrms.employeecompetency.dto;
 
+import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.PositionLevel;
 import com.hrms.employeemanagement.models.Skill;
+import com.hrms.employeemanagement.models.SkillSet;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,12 +14,9 @@ import java.util.List;
 @Getter
 @Setter
 public class EmployeeOverviewDto {
-    Integer employeeId;
-    String firstName;
-    String lastName;
-    PositionLevel positionLevel;
+    Employee employee;
     String address;
-    List<Skill> skills;
-    List<Skill> interests;
-    String certification;
+    List<SkillSet> skills;
+    List<SkillSet> interests;
+    List<String> certification;
 }

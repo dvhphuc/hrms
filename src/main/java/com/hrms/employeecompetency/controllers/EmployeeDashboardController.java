@@ -4,6 +4,10 @@ import com.hrms.employeecompetency.dto.*;
 import com.hrms.employeecompetency.graphql.EmployeePerformancePagination;
 import com.hrms.employeecompetency.graphql.EmployeeRatingPagination;
 import com.hrms.employeecompetency.mapper.EmployeeMapperService;
+import com.hrms.employeecompetency.services.*;
+import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
+import com.hrms.employeemanagement.models.Employee;
+import com.hrms.employeemanagement.models.SkillSet;
 import com.hrms.employeecompetency.services.CompetencyCycleService;
 import com.hrms.employeecompetency.services.CompetencyEvaluationService;
 import com.hrms.employeecompetency.services.EmployeeCareerPathService;
@@ -16,13 +20,11 @@ import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
 import com.hrms.global.Range;
 import com.hrms.performancemanagement.model.EmployeePerformance;
-import com.hrms.employeecompetency.services.CompetencyService;
 import com.hrms.employeemanagement.services.EmployeeService;
 import com.hrms.performancemanagement.services.PerformanceService;
 import com.unboundid.util.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
@@ -59,22 +62,25 @@ public class EmployeeDashboardController {
     @Autowired
     EmployeeCareerPathService employeeCareerPathService;
 
+    @Autowired
+    PerformanceRangeService performanceRangeService;
+
+    @Autowired
+    SkillSetEvaluationService skillSetEvaluationService;
+
     HashMap<String, Range> performanceCategories;
 
-    @Bean
-    public void setupMap() {
-        performanceCategories = new HashMap<>();
-        performanceCategories.put("Unsatisfactory", new Range(0,1));
-        performanceCategories.put("Partially Meet Expectations", new Range(2,2));
-        performanceCategories.put("Meet Expectations", new Range(3,3));
-        performanceCategories.put("Partially Exceed Expectations", new Range(4,4));
-        performanceCategories.put("Outstanding", new Range(5,5));
-    }
-
-
     @QueryMapping
-    public EmployeeOverviewDto employeeOverview(@Argument Integer id) {
-        return employeeMapperService.employeeOverview(employeeService.findById(id));
+    public EmployeeOverviewDto employeeOverview(@Argument Integer employeeId) {
+        var skillSetOfEmployee = skillSetEvaluationService.findAllByEmployeeId(employeeId)
+                .stream().map(skillSetEvaluation -> skillSetEvaluation.getPositionSkillSet().getSkillSet())
+                .distinct().collect(Collectors.toList());
+        var employeeOverviewDto = new EmployeeOverviewDto();
+        employeeOverviewDto.setSkills(skillSetOfEmployee);
+        employeeOverviewDto.setEmployee(employeeService.findById(employeeId));
+        employeeOverviewDto.setInterests(skillSetOfEmployee);
+        employeeOverviewDto.setCertification(List.of("Bachelor of Science in Computer Science", "Master of Science in Computer Science"));
+        return employeeOverviewDto;
     }
 
 //    @QueryMapping
@@ -147,7 +153,7 @@ public class EmployeeDashboardController {
     }
 
     @QueryMapping
-    public PerformanceByJobLevel performanceByJobLevel(
+    public PerformanceByJobLevelChart performanceByJobLevel(
             @Argument Integer performanceCycleId,
             @Argument Integer positionId)
     {
@@ -164,30 +170,38 @@ public class EmployeeDashboardController {
                 positionId,
                 performanceCycleId
         );
+        log.info("Filtered employees: " + filteredEmployees.size());
 
-        for (var category : performanceCategories.keySet().stream().toList()) {
+        for (var performanceRange : performanceRangeService.getAllPerformanceRange()) {
             var dataset = new ArrayList<Float>();
-            var filteredCategoryEmployees = filteredEmployees.stream().filter(
-                                employeePerformance -> performanceCategories.get(category).contains(employeePerformance.getFinalAssessment())).toList();
-
-            for (var jobLevel: jobLevelService.findAll())
-            {
-                var filteredCategoryJobLevelEmployees = filteredCategoryEmployees.stream().filter(employeePerformance -> employeePerformance.getEmployee().getPositionLevel().getJobLevel() == jobLevel).toList();
-                if (filteredCategoryEmployees.isEmpty()) {
-                    dataset.add(0f);
-                    continue;
-                }
-                float percentage = (filteredCategoryJobLevelEmployees.size() / filteredCategoryEmployees.size()) * 100;
-                dataset.add(percentage);
+            var filteredRangeEmployees = filteredEmployees.stream().filter(employeePerformance
+                    -> employeePerformance.getFinalAssessment() >= performanceRange.getMinValue() &&
+                    employeePerformance.getFinalAssessment() <= performanceRange.getMaxValue()).toList();
+            log.info("----------------------------------------------Filtered category employees: " + filteredRangeEmployees.size());
+            if (filteredRangeEmployees.isEmpty()) {
+                datasets.add(dataset);
+                continue;
             }
+            jobLevelService.findAll().forEach(
+                    jobLevel -> {
+                        var filteredCategoryJobLevelEmployees = filteredRangeEmployees.stream()
+                                .filter(employeePerformance -> employeePerformance.getEmployee().getJobLevel() == jobLevel)
+                                .toList();
+                        log.info("++++ Filtered category job level employees: " + filteredCategoryJobLevelEmployees.size());
+                        float percentage = ((float) filteredCategoryJobLevelEmployees.size() / filteredRangeEmployees.size()) * 100;
+                        dataset.add(percentage);
+                    }
+            );
             datasets.add(dataset);
         }
 
-        return new PerformanceByJobLevel(
-                jobLevelService.findAll().stream().toList(),
-                performanceCategories.keySet().stream().toList(),
-                datasets
+        datasets.forEach(
+                dataset -> dataset.forEach(
+                        data -> log.info("Data: " + data)
+                )
         );
+
+        return null;
     }
 
     @QueryMapping

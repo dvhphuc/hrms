@@ -5,7 +5,7 @@ import com.hrms.employeecompetency.graphql.EmployeePerformancePagination;
 import com.hrms.employeecompetency.graphql.EmployeeRatingPagination;
 import com.hrms.employeecompetency.mapper.EmployeeMapperService;
 import com.hrms.employeecompetency.services.*;
-import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpecifications;
+import com.hrms.employeecompetency.specifications.CompetencyEvaluationSpec;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.SkillSet;
 import com.hrms.employeecompetency.services.CompetencyCycleService;
@@ -17,7 +17,7 @@ import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.paging.Pagination;
 import com.hrms.employeemanagement.services.JobLevelService;
 import com.hrms.employeemanagement.specifications.EmployeeSpec;
-import com.hrms.employeemanagement.specifications.EmployeeSpecifications;
+import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import com.hrms.global.Range;
 import com.hrms.performancemanagement.model.EmployeePerformance;
 import com.hrms.employeemanagement.services.EmployeeService;
@@ -73,7 +73,7 @@ public class EmployeeDashboardController {
     @QueryMapping
     public EmployeeOverviewDto employeeOverview(@Argument Integer employeeId) {
         var skillSetOfEmployee = skillSetEvaluationService.findAllByEmployeeId(employeeId)
-                .stream().map(skillSetEvaluation -> skillSetEvaluation.getPositionSkillSet().getSkillSet())
+                .stream().map(skillSetEvaluation -> skillSetEvaluation.getSkillSet())
                 .distinct().collect(Collectors.toList());
         var employeeOverviewDto = new EmployeeOverviewDto();
         employeeOverviewDto.setSkills(skillSetOfEmployee);
@@ -89,7 +89,7 @@ public class EmployeeDashboardController {
 //    }
 
     @QueryMapping
-    public List<EmployeePerformance> topEmployeePerformance(@Argument Integer performanceCycleId,@Nullable @Argument Integer limit) {
+    public List<EmployeePerformance> topEmployeePerformance(@Argument Integer performanceCycleId, @Nullable @Argument Integer limit) {
         return performanceService.findByPerformanceCycleId(performanceCycleId, limit);
     }
 
@@ -114,7 +114,7 @@ public class EmployeeDashboardController {
             var employeeEvaluation = competencyEvaluationService.findAll(filterLatestCompetencyCycle.and(filterEqualEmployee));
             var score = employeeEvaluation.stream().reduce(0, (subtotal, element) -> subtotal + element.getProficiencyLevel().getScore(), Integer::sum);
             if (!employeeEvaluation.isEmpty())
-                employeeRatings.add(new EmployeeRating(employee, (float) (score/employeeEvaluation.size())));
+                employeeRatings.add(new EmployeeRating(employee, (float) (score / employeeEvaluation.size())));
         }
 
         var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by(Sort.Direction.DESC, "rating"));
@@ -139,9 +139,9 @@ public class EmployeeDashboardController {
                     .getFinalAssessment().intValue();
 
             var potentialScore = performanceService.findByEmployeeIdAndPerformanceCyclePerformanceCycleId(
-                        employee.getId(),
-                        latestPerformanceCycleOfThisEmployee.getPerformanceCycleId()
-                    ).getPotentialScore().intValue();
+                    employee.getId(),
+                    latestPerformanceCycleOfThisEmployee.getPerformanceCycleId()
+            ).getPotentialScore().intValue();
             result.add(new EmployeePotentialPerformance(
                     employee,
                     "https://cdn1.iconfinder.com/data/icons/user-pictures/101/malecostume-512.png",
@@ -155,51 +155,50 @@ public class EmployeeDashboardController {
     @QueryMapping
     public PerformanceByJobLevelChart performanceByJobLevel(
             @Argument Integer performanceCycleId,
-            @Argument Integer positionId)
-    {
-        var result = new ArrayList<PerformanceByJobLevel>();
+            @Argument Integer positionId) {
         var employeesHasPosition = employeeService.findAll(EmployeeSpec.hasPositionId(positionId));
-        for (var jobLevel: jobLevelService.findAll()) {
+        for (var jobLevel : jobLevelService.findAll()) {
             var employeesHasJobLevel = employeesHasPosition
                     .stream()
                     .filter(employee -> employee.getPosition().getId() == jobLevel.getId())
                     .toList();
-        var datasets = new ArrayList<List<Float>>();
+            var datasets = new ArrayList<List<Float>>();
 
-        List<EmployeePerformance> filteredEmployees = performanceService.findAllByPositionIdAndPerformanceCycleId(
-                positionId,
-                performanceCycleId
-        );
-        log.info("Filtered employees: " + filteredEmployees.size());
-
-        for (var performanceRange : performanceRangeService.getAllPerformanceRange()) {
-            var dataset = new ArrayList<Float>();
-            var filteredRangeEmployees = filteredEmployees.stream().filter(employeePerformance
-                    -> employeePerformance.getFinalAssessment() >= performanceRange.getMinValue() &&
-                    employeePerformance.getFinalAssessment() <= performanceRange.getMaxValue()).toList();
-            log.info("----------------------------------------------Filtered category employees: " + filteredRangeEmployees.size());
-            if (filteredRangeEmployees.isEmpty()) {
-                datasets.add(dataset);
-                continue;
-            }
-            jobLevelService.findAll().forEach(
-                    jobLevel -> {
-                        var filteredCategoryJobLevelEmployees = filteredRangeEmployees.stream()
-                                .filter(employeePerformance -> employeePerformance.getEmployee().getJobLevel() == jobLevel)
-                                .toList();
-                        log.info("++++ Filtered category job level employees: " + filteredCategoryJobLevelEmployees.size());
-                        float percentage = ((float) filteredCategoryJobLevelEmployees.size() / filteredRangeEmployees.size()) * 100;
-                        dataset.add(percentage);
-                    }
+            List<EmployeePerformance> filteredEmployees = performanceService.findAllByPositionIdAndPerformanceCycleId(
+                    positionId,
+                    performanceCycleId
             );
-            datasets.add(dataset);
-        }
+            log.info("Filtered employees: " + filteredEmployees.size());
 
-        datasets.forEach(
-                dataset -> dataset.forEach(
-                        data -> log.info("Data: " + data)
-                )
-        );
+            for (var performanceRange : performanceRangeService.getAllPerformanceRange()) {
+                var dataset = new ArrayList<Float>();
+                var filteredRangeEmployees = filteredEmployees.stream().filter(employeePerformance
+                        -> employeePerformance.getFinalAssessment() >= performanceRange.getMinValue() &&
+                        employeePerformance.getFinalAssessment() <= performanceRange.getMaxValue()).toList();
+                log.info("----------------------------------------------Filtered category employees: " + filteredRangeEmployees.size());
+                if (filteredRangeEmployees.isEmpty()) {
+                    datasets.add(dataset);
+                    continue;
+                }
+                jobLevelService.findAll().forEach(
+                        jl -> {
+                            var filteredCategoryJobLevelEmployees = filteredRangeEmployees.stream()
+                                    .filter(employeePerformance -> employeePerformance.getEmployee().getJobLevel() == jl)
+                                    .toList();
+                            log.info("++++ Filtered category job level employees: " + filteredCategoryJobLevelEmployees.size());
+                            float percentage = ((float) filteredCategoryJobLevelEmployees.size() / filteredRangeEmployees.size()) * 100;
+                            dataset.add(percentage);
+                        }
+                );
+                datasets.add(dataset);
+            }
+
+            datasets.forEach(
+                    dataset -> dataset.forEach(
+                            data -> log.info("Data: " + data)
+                    )
+            );
+        }
 
         return null;
     }
@@ -215,6 +214,7 @@ public class EmployeeDashboardController {
         return null;
     }
 
+    @QueryMapping
     public void getAtGlance(@Argument Integer employeeId) {
         employeeService.findById(employeeId);
     }

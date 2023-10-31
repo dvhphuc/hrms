@@ -1,0 +1,18 @@
+type SkillMatrixTree {
+    data: SkillMatrixData
+    children: [SkillMatrixTree]
+}
+
+type SkillMatrixData {
+    name: String
+    targetSkillLevel: Float
+    skillLevelTotal: Float
+    skillLevelSelf: Float
+    skillLevelManager: Float
+    competencyLevel: Float
+}
+
+type SkillMatrixOverall{
+    managerName: String
+    status: String
+}

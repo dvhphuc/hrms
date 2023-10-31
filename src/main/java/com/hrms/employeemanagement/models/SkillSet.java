@@ -1,7 +1,6 @@
 package com.hrms.employeemanagement.models;
 
-import com.hrms.employeecompetency.models.Competency;
-import com.hrms.employeecompetency.models.ProficiencyLevel;
+import com.hrms.competencymanagement.models.Competency;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +19,7 @@ public class SkillSet {
     private int id;
     @Column(name = "skill_set_name")
     private String skillSetName;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "competency_id")
     private Competency competency;
 }

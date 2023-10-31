@@ -32,7 +32,7 @@ public class EmployeePerformance {
     @Column(name = "final_assessment")
     private Integer finalAssessment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_cycle_id")
     private PerformanceCycle performanceCycle;
 

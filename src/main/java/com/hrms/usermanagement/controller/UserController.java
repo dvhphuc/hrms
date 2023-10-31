@@ -2,7 +2,7 @@ package com.hrms.usermanagement.controller;
 
 import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;
-import com.hrms.employeemanagement.paging.Pagination;
+import com.hrms.global.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
 import com.hrms.usermanagement.exception.UserExistException;
@@ -20,7 +20,6 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 public class UserController {

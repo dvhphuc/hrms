@@ -18,8 +18,11 @@ public class Department {
     private int id;
     @Column(name = "department_name")
     private String departmentName;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sum_id")
     private Employee sum;
 
+    public Department(Integer id) {
+        this.id = id;
+    }
 }

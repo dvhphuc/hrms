@@ -1,6 +1,6 @@
 package com.hrms.performancemanagement.dto;
 
-import com.hrms.employeemanagement.paging.Pagination;
+import com.hrms.global.paging.Pagination;
 
 import java.util.List;
 

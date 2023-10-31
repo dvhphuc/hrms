@@ -37,11 +37,11 @@ public class User {
     @Column(name = "created_at")
     private Date createdAt;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "employee_id", referencedColumnName = "employee_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<UserRole> userRoles;
 
     public Set<Role> getRoles() {

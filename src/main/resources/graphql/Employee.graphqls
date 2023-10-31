@@ -4,7 +4,9 @@ type Employee {
     firstName: String
     lastName: String
     address:String
+    email: String
     gender: String
+    joinedDate: String
     dateOfBirth: String
     phoneNumber: String
     currentContract: Int
@@ -14,7 +16,8 @@ type Employee {
     linkedinLink: String
     instagramLink: String
     department: Department
-    positionLevel: PositionLevel
+    position: Position
+    jobLevel: JobLevel
     sourceFile: ImageSource
     emergencyContacts: [EmergencyContact]
     employeeSkills: [EmployeeSkill]
@@ -33,6 +36,8 @@ input EmployeeInput {
     firstName: String!
     lastName: String!
     gender: String!
+    email: String!
+    joinedDate: String!
     dateOfBirth: String!
     phoneNumber: String!
     address: String!
@@ -52,4 +57,9 @@ type CurrentHeadcount {
     totalEmployee: Int
     percentage: Float
     isIncreased: Boolean
+}
+
+type HeadcountChartData {
+    label: String
+    data: Int
 }

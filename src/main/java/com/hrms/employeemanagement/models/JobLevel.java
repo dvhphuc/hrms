@@ -18,4 +18,8 @@ public class JobLevel {
     private int id;
     @Column(name = "job_level_name")
     private String jobLevelName;
+
+    public JobLevel(Integer id) {
+        this.id = id;
+    }
 }

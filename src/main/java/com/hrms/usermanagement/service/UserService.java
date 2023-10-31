@@ -1,5 +1,6 @@
 package com.hrms.usermanagement.service;
 
+import com.hrms.employeemanagement.dto.EmployeeDTO;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.Role;
 import com.hrms.employeemanagement.models.User;

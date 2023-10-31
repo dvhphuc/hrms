@@ -1,6 +1,5 @@
 package com.hrms.employeemanagement.models;
 
-import com.hrms.employeecompetency.models.Competency;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +15,7 @@ public class PositionSkillSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "position_skill_set_id")
-    private int id;
+    private Integer id;
     @ManyToOne
     @JoinColumn(name = "skill_set_id")
     private SkillSet skillSet;

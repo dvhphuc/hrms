@@ -1,6 +1,6 @@
 package com.hrms.damservice.controllers;
 
-import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.damservice.services.SourceFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -14,11 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/dam")
 public class DamController {
-    EmployeeService employeeService;
+    EmployeeManagementService employeeManagementService;
     SourceFileService sourceFileService;
     @Autowired
-    public DamController(EmployeeService employeeService, SourceFileService sourceFileService) {
-        this.employeeService = employeeService;
+    public DamController(EmployeeManagementService employeeManagementService, SourceFileService sourceFileService) {
+        this.employeeManagementService = employeeManagementService;
         this.sourceFileService = sourceFileService;
     }
 

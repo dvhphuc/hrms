@@ -3,11 +3,10 @@ package com.hrms.damservice.services.impl;
 import com.hrms.damservice.models.SourceFile;
 import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.services.EmployeeService;
+import com.hrms.employeemanagement.services.EmployeeManagementService;
 import com.hrms.damservice.exception.SourceFileNotFoundException;
 import com.hrms.damservice.repositories.SourceFileRepository;
 import com.hrms.damservice.services.SourceFileService;
-import com.hrms.employeemanagement.specifications.EmployeeSpec;
 import com.hrms.damservice.specifications.SourceFileSpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +35,7 @@ public class SourceFileServiceImpl implements SourceFileService {
     @Value("${static.folder}")
     private String imageApi;
     @Autowired
-    EmployeeService employeeService;
+    EmployeeManagementService employeeManagementService;
     @Autowired
     SourceFileRepository sourceFileRepository;
 
@@ -61,20 +60,12 @@ public class SourceFileServiceImpl implements SourceFileService {
         sourceFile.setFilePath(imagePath);
         sourceFile.setFileType(file.getContentType());
         SourceFile savedSourceFile = sourceFileRepository.save(sourceFile);
-        Employee employee = employeeService.findAll(EmployeeSpec.hasId(employeeId))
-                .stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
+        Employee employee = employeeManagementService.findEmployee(employeeId);
         employee.setDamId(savedSourceFile.getId());
     }
 
     public Resource getProfileImageByEmployeeId(int employeeId) throws SourceFileNotFoundException, EmployeeNotFoundException {
-        Employee employee = employeeService.findAll(EmployeeSpec.hasId(employeeId))
-                .stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new EmployeeNotFoundException("Employee not found with id: " + employeeId));
+        Employee employee = employeeManagementService.findEmployee(employeeId);
         SourceFile sourceFile = sourceFileRepository.findAll(SourceFileSpecifications.hasId(employee.getDamId()))
                 .stream()
                 .findFirst()

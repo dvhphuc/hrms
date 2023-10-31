@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Date;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Employee extends RepresentationModel<Employee> {
+public class Employee {
 	@Id
 	@Column(name = "employee_id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +24,10 @@ public class Employee extends RepresentationModel<Employee> {
 	private String lastName;
 	@Column(name = "first_name")
 	private String firstName;
+	@Column(name = "email")
+	private String email;
+	@Column(name = "joined_date")
+	private Date joinedDate;
 	@Column(name = "gender")
 	private String gender;
 	@Column(name = "address")
@@ -45,29 +48,26 @@ public class Employee extends RepresentationModel<Employee> {
 	private String linkedinLink;
 	@Column(name = "instagram_link")
 	private String instagramLink;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "department_id")
 	private Department department;
-	@ManyToOne
-	@JoinColumn(name = "position_level_id")
-	private PositionLevel positionLevel;
-	@OneToMany(mappedBy = "employee")
-	private List<EmergencyContact> emergencyContacts;
-	@OneToMany(mappedBy = "employee")
-	private List<EmployeeSkill> employeeSkills;
-	@OneToMany(mappedBy = "employee")
-	private List<EmployeeProject> employeeProjects;
-	@OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "position_id")
+	private Position position;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "job_level_id")
+	private JobLevel jobLevel;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
 	private User user;
+	@Column(name = "status")
+	private Integer status;
+	@Column(name = "left_date")
+	private Date leftDate;
 	@Nullable
 	@Column(name = "dam_id")
 	private Integer damId;
-
-	public Position getPosition() {
-		return this.positionLevel.getPosition();
-	}
-
-	public JobLevel getJobLevel() {
-		return this.positionLevel.getJobLevel();
+	public String getFullName() {
+		return this.lastName + " " + this.firstName;
 	}
 }

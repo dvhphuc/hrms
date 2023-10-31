@@ -1,9 +1,8 @@
 # Define a query to fetch employees
 type Query {
-    employees(pageNo: Int!, pageSize: Int = 10, departmentIds: [Int], currentContracts: [Int],
-        status: Boolean, name: String): EmployeePaging!
+    employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
     employee(id: Int!): Employee
-    employeeOfTheMonth: [Employee]
+    newEmployees: [Employee]
     departments: [Department]
     NumberOfDepartments: Int
     positions: [Position]
@@ -15,6 +14,7 @@ type Query {
     user(id: Int): UserDto
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
     currentHeadcounts: CurrentHeadcount
+    headcountChart: [HeadcountChartData]
     competencyCycles: [CompetencyCycle]
     competencyTimeLine(competencyCycleId: Int!): [CompetencyTimeLine]
     employeeOverview(employeeId: Int!): EmployeeOverviewDto
@@ -26,11 +26,14 @@ type Query {
     employeesCompetency(pageNo: Int, pageSize: Int): EmployeeRatingPagination
     employeesPotentialPerformance(departmentId: Int): [EmployeePotentialPerformance]
     performanceByJobLevel(performanceCycleId: Int!, positionId: Int!) : PerformanceByJobLevel
-    avgCompetencyScore(positionId: Int!, competencyCycleId: Int!): [AvgCompetency]
+    avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [AvgCompetency]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
-    topHighestSkillSet(pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
-    topHighestSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
+    topHighestSkillSet(employeeId: Int, competencyCycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeePerformanceRatingScorePaging
+    employeeSkillMatrix(employeeId: Int!): [SkillMatrixTree]
+    skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
+    currentEvaluation(employeeId: Int!): CurrentEvaluation
+    historyEvaluation(employeeId: Int!): [HistoryEvaluation]
 }

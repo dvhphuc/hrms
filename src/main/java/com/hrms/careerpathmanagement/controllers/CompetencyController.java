@@ -6,6 +6,8 @@ import com.hrms.careerpathmanagement.repositories.CompetencyCycleRepository;
 import com.hrms.careerpathmanagement.repositories.CompetencyRepository;
 import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
 import com.hrms.careerpathmanagement.services.CompetencyService;
+import com.hrms.damservice.models.SourceFile;
+import com.hrms.damservice.services.SourceFileService;
 import com.hrms.global.paging.Pagination;
 import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
@@ -33,17 +35,22 @@ public class CompetencyController {
     CompetencyRepository competencyRepository;
     ProficiencyLevelRepository proficiencyLevelRepository;
 
+    SourceFileService sourceFileService;
+
     @Autowired
     public CompetencyController(EmployeeManagementService employeeManagementService,
                                 CompetencyService competencyService, DepartmentRepository departmentRepository,
                                 JobLevelRepository jobLevelRepository, CompetencyCycleRepository competencyCycleRepository,
-                                CompetencyRepository competencyRepository, ProficiencyLevelRepository proficiencyLevelRepository) {
+                                CompetencyRepository competencyRepository, ProficiencyLevelRepository proficiencyLevelRepository,
+                                SourceFileService sourceFileService) {
         this.employeeManagementService = employeeManagementService;
         this.competencyService = competencyService;
         this.departmentRepository = departmentRepository;
         this.jobLevelRepository = jobLevelRepository;
         this.competencyCycleRepository = competencyCycleRepository;
         this.competencyRepository = competencyRepository;
+        this.proficiencyLevelRepository = proficiencyLevelRepository;
+        this.sourceFileService = sourceFileService;
     }
 
     public static <T> Pagination setupPaging(Page<T> page, Integer pageNo, Integer pageSize) {
@@ -128,10 +135,20 @@ public class CompetencyController {
         return competencyService.getCurrentEvaluation(empId);
     }
 
+    @QueryMapping
+    public List<SourceFile> getQualifications(@Argument Integer employeeId, @Argument @Nullable String search, @Argument String sort)
+    {
+        return sourceFileService.getQualifications(employeeId, search, sort);
+    }
+
     @QueryMapping(name = "historyEvaluation")
     public List<HistoryEvaluation> getHistoryEvaluations(@Argument("employeeId" ) Integer empId) {
         return competencyService.getHistoryEvaluations(empId);
     }
 
+    @QueryMapping
+    public SkillSetSummarization skillSetSummarization(@Argument Integer employeeId, @Argument Integer cycleId) {
+        return competencyService.getSkillSummarization(employeeId, cycleId);
+    }
 
 }

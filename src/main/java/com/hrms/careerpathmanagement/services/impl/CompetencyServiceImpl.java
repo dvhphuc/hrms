@@ -123,7 +123,7 @@ public class CompetencyServiceImpl implements CompetencyService {
      if targetSkill is null, targetScore will be null
      @return SkillSummarization (DTO)
      */
-//    public SkillSetSummarization getSkillSummarization(Integer employeeId, Integer cycleId) {
+    public SkillSetSummarization getSkillSummarization(Integer employeeId, Integer cycleId) {
 //        //TODO: SQL GROUP BY SKILL SET AND GET AVG OF ALL SKILLS
 //        //1. Skill Set Average Score
 //        var skillSetAvgScore = getAverageSkillSet(employeeId, cycleId);
@@ -133,7 +133,8 @@ public class CompetencyServiceImpl implements CompetencyService {
 //        var skillSetBaselineScore = getBaselineScore(positionLevel.positionId(), positionLevel.jobLevelId());
 //
 //        return new SkillSetSummarization(skillSetAvgScore, skillSetBaselineScore);
-//    }
+        return null;
+    }
 
     private Specification<CompetencyEvaluation> empCycleAvgSpec(Integer employeeId, Integer cycleId) {
         return (root, query, builder) -> {

@@ -77,17 +77,9 @@ public class SourceFileServiceImpl implements SourceFileService {
     }
 
     @Override
-    public List<SourceFile> findAll(Specification<SourceFile> spec) {
-        return sourceFileRepository.findAll(spec);
-    }
-
-    @Override
-    public List<SourceFile> findAll(Specification<SourceFile> spec, Sort sort) {
-        return sourceFileRepository.findAll(spec, sort);
-    }
-
-    @Override
-    public Page<SourceFile> findAll(Specification<SourceFile> spec, Pageable pageable) {
-        return sourceFileRepository.findAll(spec, pageable);
+    public List<SourceFile> getQualifications(Integer employeeId, String search, String sort) {
+        Specification<SourceFile> empSpec = ((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employeeId"), employeeId));
+        Specification<SourceFile> searchSpec = ((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("fileName"), "%" + search + "%"));
+        return sourceFileRepository.findAll(empSpec.and(searchSpec), Sort.by(Sort.Direction.DESC, sort));
     }
 }

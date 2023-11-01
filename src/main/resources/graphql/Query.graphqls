@@ -37,10 +37,7 @@ type Query {
     currentEvaluation(employeeId: Int!): CurrentEvaluation
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
     getOverallCompetencyScore(employeeId: Int!): RadarChart
-
     getQualifications(employeeId: Int!): [SourceFile]
-
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
-
     getUsers: [UserDto]
 }

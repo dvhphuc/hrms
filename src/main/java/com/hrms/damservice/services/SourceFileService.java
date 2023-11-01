@@ -3,6 +3,7 @@ package com.hrms.damservice.services;
 import com.hrms.damservice.models.SourceFile;
 import com.hrms.employeemanagement.exception.EmployeeNotFoundException;
 import com.hrms.damservice.exception.SourceFileNotFoundException;
+import jakarta.annotation.Nullable;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +16,6 @@ import java.util.List;
 
 public interface SourceFileService {
     void uploadProfileImage(int id, MultipartFile file) throws IOException, EmployeeNotFoundException, SourceFileNotFoundException;
-    public Resource getProfileImageByEmployeeId(int employeeId) throws EmployeeNotFoundException, SourceFileNotFoundException;
-    List<SourceFile> findAll(Specification<SourceFile> spec);
-    List<SourceFile> findAll(Specification<SourceFile> spec, Sort sort);
-    Page<SourceFile> findAll(Specification<SourceFile> spec, Pageable pageable);
+    Resource getProfileImageByEmployeeId(int employeeId) throws EmployeeNotFoundException, SourceFileNotFoundException;
+    List<SourceFile> getQualifications(Integer employeeId, @Nullable String search, String sort);
 }

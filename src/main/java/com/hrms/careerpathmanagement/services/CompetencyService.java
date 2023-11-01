@@ -26,4 +26,7 @@ public interface CompetencyService {
     TopSkillSetPaging getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize);
     CurrentEvaluation getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluation> getHistoryEvaluations(Integer employeeId);
+
+    SkillSetSummarization getSkillSummarization(Integer employeeId, Integer cycleId);
+
 }

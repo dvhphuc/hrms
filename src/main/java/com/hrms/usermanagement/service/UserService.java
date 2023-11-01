@@ -1,15 +1,20 @@
 package com.hrms.usermanagement.service;
 
 import com.hrms.global.mapper.HrmsMapper;
+import com.hrms.global.paging.Pagination;
 import com.hrms.usermanagement.dto.SignupDto;
 import com.hrms.usermanagement.dto.UserDto;
+import com.hrms.usermanagement.dto.UserDtoPagination;
+import com.hrms.usermanagement.model.QUser;
 import com.hrms.usermanagement.model.Role;
 import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.model.UserRole;
 import com.hrms.usermanagement.repository.UserRepository;
 import com.hrms.usermanagement.repository.UserRoleRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.hrms.usermanagement.specification.UserSpecification;
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.PersistenceContext;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
@@ -28,8 +37,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class UserService {
+
     @PersistenceContext
-    private EntityManager entityManager;
+    EntityManager entityManager;
+
+    @jakarta.persistence.PersistenceContext
+    jakarta.persistence.EntityManager em;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,9 +50,14 @@ public class UserService {
     private UserRoleRepository userRoleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserSpecification userSpecification;
 
     @Autowired
     private HrmsMapper modelMapper;
+
+    public UserService() {
+    }
 
     private Boolean checkUserExist(String username) throws Exception {
         if (userRepository.existsByUsername(username)) {
@@ -48,22 +66,20 @@ public class UserService {
         return true;
     }
 
-    public Page<UserDto> searchUsers(String search, List<Integer> roleIds, Boolean status, Pageable pageable) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<User> query = builder.createQuery(User.class);
-        Root<User> root = query.from(User.class);
+    public UserDtoPagination searchUsers(@Nullable String search,
+                                         @Nullable List<Integer> roleIds,
+                                         @Nullable Boolean status,
+                                         Pageable pageable) {
+        Specification<User> spec = userSpecification.getUsersSpec(search, roleIds, status);
 
-        Specification<User> filters = Specification
-                .<User>where((status == null) ? null : (r, q, c) -> c.equal(r.get("isEnabled"), status))
-                .and((search == null) ? null : (r, q, c) -> c.like(r.get("username"), "%" + search + "%"))
-                .and((roleIds.isEmpty()) ? null : (r, q, c) -> r.get("userRoles").get("role").get("roleId").in(roleIds));
+        Page<User> users = userRepository.findAll(spec, pageable);
 
-        query = query.where(filters.toPredicate(root, query, builder))
-                .multiselect(root.get("userId"), root.get("username"), root.get("isEnabled"), root.get("createdAt"))
-                ;
+        Pagination pagination = new Pagination(pageable.getPageNumber() + 1, pageable.getPageSize(),
+                users.getTotalElements(),
+                users.getTotalPages()
+        );
 
-        var users = userRepository.findAll((com.querydsl.core.types.Predicate) filters.toPredicate(root, query, builder), pageable);
-        return users.map(user -> modelMapper.map(user, UserDto.class));
+        return new UserDtoPagination(users.map(u -> modelMapper.map(u, UserDto.class)), pagination, users.getTotalElements());
     }
 
     public List<Role> getRoles(Integer userId) {
@@ -71,9 +87,7 @@ public class UserService {
         return userRoleRepository.findAllByUserId(userId);
     }
 
-    //TODO: RETURN USER DTO NOT INCLUDING PASSWORD
     public UserDto getUser(Integer userId) throws Exception {
-        Specification<User> spec = ((root, query, builder) -> builder.equal(root.get("userId"),userId));
         return modelMapper.map(userRepository
                 .findById(userId)
                 .orElseThrow(() -> new Exception("User Not Exist")), UserDto.class);
@@ -126,26 +140,29 @@ public class UserService {
     }
 
     private void updateUsersStatus(List<Integer> userIds, boolean status) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
         CriteriaUpdate<User> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(User.class);
         CriteriaUpdate<User> update = criteriaUpdate.set("isEnabled", status);
 
         Root<User> root = update.from(User.class);
         update.where(root.get("userId").in(userIds));
 
-        entityManager.createQuery(update).executeUpdate();
+        em.createQuery(update).executeUpdate();
     }
 
-    private UserDto getUserDto(Integer userId) throws Exception {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<UserDto> query = cb.createQuery(UserDto.class);
-        Root<User> root = query.from(User.class);
+    //    private UserDto getUserDto(Integer userId) throws Exception {
+//        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+//        CriteriaQuery<UserDto> query = cb.createQuery(UserDto.class);
+//        Root<User> root = query.from(User.class);
+//
+//        query.multiselect(root.get("userId"), root.get("username"), root.get("isEnabled"), root.get("createdAt"));
+//        query.where(cb.equal(root.get("userId"), userId));
+//
+//        return entityManager.createQuery(query).getSingleResult();
+//    }
 
-        query.multiselect(root.get("userId"), root.get("username"), root.get("isEnabled"), root.get("createdAt"));
-        query.where(cb.equal(root.get("userId"), userId));
-
-        return entityManager.createQuery(query).getSingleResult();
-    }
+    //CODE TO DISCUSS WITH MR.DAO ABOUT SELECT SPECIFIC COLUMNS + PAGEABLE + SPECIFICATION --> NOT WORKING
+    // Solution: Custom?
     public List<UserDto> getUsers(Integer userId) throws Exception {
         Specification<User> spec = ((root, query, builder) -> builder.greaterThan(root.get("userId"), userId));
         return userRepository.findAll(spec).stream()

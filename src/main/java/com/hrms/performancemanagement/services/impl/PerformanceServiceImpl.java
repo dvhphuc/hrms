@@ -2,6 +2,7 @@ package com.hrms.performancemanagement.services.impl;
 
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
+import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.performancemanagement.dto.Dataset;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevelChart;
 import com.hrms.performancemanagement.model.EmployeePerformance;
@@ -9,8 +10,7 @@ import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepositor
 import com.hrms.performancemanagement.model.PerformanceCycle;
 import com.hrms.performancemanagement.repositories.PerformanceCycleRepository;
 import com.hrms.performancemanagement.services.PerformanceService;
-import jakarta.persistence.criteria.Predicate;
-import lombok.EqualsAndHashCode;
+import com.hrms.performancemanagement.specification.PerformanceSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,9 +36,14 @@ public class PerformanceServiceImpl implements PerformanceService {
     @Autowired
     PerformanceRangeRepository performanceRangeRepository;
 
+    @Autowired
+    EmployeeSpecification employeeSpecification;
+
+    @Autowired
+    PerformanceSpecification performanceSpecification;
+
     private Integer getLatestCycleId() {
-        Pageable pageable = PageRequest.of(0, 1, Sort.by("performanceCycleId").descending());
-        return performanceCycleRepository.findAll(pageable).getContent().get(0).getPerformanceCycleId();
+        return performanceCycleRepository.findFirstByOrderByPerformanceCycleIdDesc().getPerformanceCycleId();
     }
 
     @Override
@@ -47,36 +52,28 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public Page<EmployeePerformance> getPerformances(Integer empId, Pageable pageable) {
-        Specification<EmployeePerformance> spec = ((root, query, criteriaBuilder)
-                -> criteriaBuilder.equal(root.get("employee").get("id"), empId));
+    public Page<EmployeePerformance> getPerformanceEvaluations(Integer empId, Pageable pageable) {
+        Specification<EmployeePerformance> spec = employeeSpecification.hasEmployeeId(empId);
         return performanceEvaluationRepository.findAll(spec, pageable);
     }
 
-    public List<EmployeePerformance> getEvaluations(Integer departmentId) {
-        Specification<EmployeePerformance> departmentSpec = Specification.where(((root, query, builder) ->
-                builder.equal(root.get("employee").get("department").get("departmentId"), departmentId)));
-        Specification<EmployeePerformance> cycleSpec = Specification.where(((root, query, builder) ->
-                builder.equal(root.get("performanceCycle").get("performanceCycleId"), getLatestCycleId())));
+    public List<EmployeePerformance> getLatestEvaluation(Integer departmentId) {
+        Specification<EmployeePerformance> departmentSpec = employeeSpecification.hasDepartmentId(departmentId);
+        Specification<EmployeePerformance> cycleSpec = performanceSpecification.hasPerformanceCycleId(getLatestCycleId());
 
         return performanceEvaluationRepository.findAll(departmentSpec.and(cycleSpec));
     }
 
     public List<EmployeePerformance> getEvaluations(Integer positionId, Integer performanceCycleId) {
-        Specification<EmployeePerformance> positionFilter = Specification.where(((root, query, builder) ->
-                builder.equal(root.get("employee").get("position").get("positionId"), positionId)));
-
-        Specification<EmployeePerformance> cycleFilter = Specification.where(((root, query, builder) ->
-                builder.equal(root.get("performanceCycle").get("performanceCycleId"), performanceCycleId)));
+        Specification<EmployeePerformance> positionFilter = employeeSpecification.hasPositionId(positionId);
+        Specification<EmployeePerformance> cycleFilter = performanceSpecification.hasPerformanceCycleId(performanceCycleId);
 
         return performanceEvaluationRepository.findAll(positionFilter.and(cycleFilter));
     }
 
     public PerformanceByJobLevelChart getPerformanceByLevelChart(Integer positionId, Integer cycleId) {
-        Specification<EmployeePerformance> cycleSpec = Specification.where(((root, query, builder) ->
-                builder.equal(root.get("performanceCycle").get("performanceCycleId"), cycleId)));
-        Specification<EmployeePerformance> posSpec = Specification.where(((root, query, builder) ->
-                builder.equal(root.get("employee").get("position").get("positionId"), positionId)));
+        Specification<EmployeePerformance> cycleSpec = performanceSpecification.hasPerformanceCycleId(cycleId);
+        Specification<EmployeePerformance> posSpec = employeeSpecification.hasPositionId(positionId);
         var evaluations = performanceEvaluationRepository.findAll(cycleSpec.and(posSpec));
 
 

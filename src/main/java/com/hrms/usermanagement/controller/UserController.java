@@ -39,11 +39,8 @@ public class UserController {
                                    @Argument int pageNo,
                                    @Argument int pageSize)
     {
-        var sortedByCreatedAtDesc = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
-        if (roleIds.isEmpty()) roleIds = List.of(1, 2, 3);
-        var users = userService.searchUsers(search, roleIds, status, sortedByCreatedAtDesc);
-        var pagination = new Pagination(pageNo, pageSize, users.getTotalElements(), users.getTotalPages());
-        return new UserDtoPagination(users.map(u -> userMapper.map(u, UserDto.class)), pagination, users.getTotalElements());
+        var pageable = PageRequest.of(pageNo - 1, pageSize, Sort.by("createdAt").descending());
+        return userService.searchUsers(search, roleIds, status, pageable);
     }
 
     @MutationMapping

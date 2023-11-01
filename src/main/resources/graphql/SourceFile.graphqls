@@ -1,0 +1,12 @@
+type SourceFile {
+    id: Int!
+    fileName: String!
+    filePath: String!
+    fileType: FileType!
+}
+
+type FileType {
+    id: Int!
+    name: String
+    iconUrl: String
+}

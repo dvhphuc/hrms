@@ -1,8 +1,8 @@
 package com.hrms.usermanagement.service;
 
-import com.hrms.employeemanagement.models.User;
 import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.exception.WrongPasswordException;
+import com.hrms.usermanagement.model.User;
 import com.hrms.usermanagement.repository.UserRepository;
 import com.hrms.usermanagement.security.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -11,8 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -31,7 +29,7 @@ public class HRMSUserDetailsService implements UserDetailsService {
         }
         var userName = user.getUsername();
         var password = user.getPassword();
-        var roles = userRoleRepository.findAllByUserUserId(user.getUserId());
+        var roles = userRoleRepository.findAllByUser(user.getUserId());
         List<GrantedAuthority> authorities = new ArrayList<>();
         roles.stream().forEach(role -> {
                     authorities.add(new SimpleGrantedAuthority(role.getRole().getName().toUpperCase()));

@@ -3,29 +3,28 @@ package com.hrms.employeemanagement.services.impl;
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
 class EmployeeManagementServiceImplTest {
 
-    @Mock
+    @MockBean
     private EmployeeRepository employeeRepository;
 
+    @Autowired
     private EmployeeManagementService employeeManagementService;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        employeeManagementService = new EmployeeManagementServiceImpl(employeeRepository);
-    }
 
     @Test
     void testFindEmployee() {

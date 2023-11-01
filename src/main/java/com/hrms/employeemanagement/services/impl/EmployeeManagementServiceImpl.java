@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.hrms.competencymanagement.controllers.EvaluationManagement.setupPaging;
+import static com.hrms.careerpathmanagement.controllers.CompetencyController.setupPaging;
 
 @Service
 @Transactional

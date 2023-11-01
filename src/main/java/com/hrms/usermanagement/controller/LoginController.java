@@ -2,7 +2,7 @@ package com.hrms.usermanagement.controller;
 
 import com.hrms.usermanagement.exception.UserNotFoundException;
 import com.hrms.usermanagement.exception.WrongPasswordException;
-import com.hrms.usermanagement.graphql.Token;
+import com.hrms.usermanagement.dto.Token;
 import com.hrms.usermanagement.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;

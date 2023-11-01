@@ -10,15 +10,16 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @ComponentScans(
         @ComponentScan({"com.hrms.employeemanagement.*",
                 "com.hrms.usermanagement.*",
-                "com.hrms.competencymanagement.*",
+                "com.hrms.careerpathmanagement.*",
                 "com.hrms.damservice.*",
-                "com.hrms.upload",
                 "com.hrms.performancemanagement.*",
+                "com.hrms.global.*"
 
         }))
 @EntityScan({"com.hrms.usermanagement.model",
         "com.hrms.employeemanagement.models",
         "com.hrms.competencymanagement.models",
+        "com.hrms.careerpathmanagement.models",
         "com.hrms.damservice.models",
         "com.hrms.performancemanagement.model"
 })

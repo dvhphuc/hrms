@@ -11,7 +11,7 @@ type Query {
     competencies: [Competency]
     proficiencyLevels: [ProficiencyLevel]
     login(username: String!, password: String!): Token
-    user(id: Int): UserDto
+    user(userId: Int): UserDto
     users(search: String, roles: [ID] = [1,2,3], status: Boolean, pageNo: Int, pageSize: Int = 10): UserDtoConnection
     currentHeadcounts: CurrentHeadcount
     headcountChart: [HeadcountChartData]
@@ -36,4 +36,11 @@ type Query {
     skillMatrixOverall(employeeId: Int!): SkillMatrixOverall
     currentEvaluation(employeeId: Int!): CurrentEvaluation
     historyEvaluation(employeeId: Int!): [HistoryEvaluation]
+    getOverallCompetencyScore(employeeId: Int!): RadarChart
+
+    getQualifications(employeeId: Int!): [SourceFile]
+
+    skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
+
+    getUsers: [UserDto]
 }

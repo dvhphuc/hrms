@@ -1,10 +1,10 @@
 package com.hrms.usermanagement.dto;
 
-import lombok.*;
-
-import java.sql.Date;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class SignupDto {
     public String getUsername() {
         return username;

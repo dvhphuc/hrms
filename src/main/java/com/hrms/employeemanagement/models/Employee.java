@@ -1,5 +1,6 @@
 package com.hrms.employeemanagement.models;
 
+import com.hrms.usermanagement.model.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

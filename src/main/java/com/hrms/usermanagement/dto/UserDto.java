@@ -1,63 +1,24 @@
 package com.hrms.usermanagement.dto;
 
-import com.hrms.employeemanagement.models.Role;
-import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.hateoas.PagedModel;
-import org.springframework.hateoas.RepresentationModel;
 
 import java.sql.Date;
-import java.util.List;
-import java.util.Set;
 
 @Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserDto {
+    public UserDto(Integer userId, String userName) {
+        this.userId = userId;
+        this.userName = userName;
 
-    private Long userId;
-    private String name;
-    @Nullable
-    private boolean status;
-    private String username;
-
+    }
+    private Integer userId;
+    private String userName;
+    private Boolean status;
     private Date createdAt;
-    @Nullable
-    private Set<Role> roles;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public boolean getStatus() {
-        return status;
-    }
-
-    public List<Role> getRoles() {
-        return List.copyOf(roles);
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public String getCreatedAt() {
-        return createdAt.toString();
-    }
 }

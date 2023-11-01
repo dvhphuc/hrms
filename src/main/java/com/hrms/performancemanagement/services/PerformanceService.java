@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface PerformanceService {
     List<PerformanceCycle> getPerformanceCycles();
-    Page<EmployeePerformance> getPerformances(Integer empId, Pageable pageable);
+    Page<EmployeePerformance> getPerformanceEvaluations(Integer empId, Pageable pageable);
 }

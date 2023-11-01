@@ -30,7 +30,7 @@ public class PerformanceController {
     {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         performanceService.getPerformanceCycles();
-        Page<EmployeePerformance> empPerformances = performanceService.getPerformances(empId, pageable);
+        Page<EmployeePerformance> empPerformances = performanceService.getPerformanceEvaluations(empId, pageable);
         List<EmployeePerformanceRatingScore> data = empPerformances.stream()
                 .map(empPerformance ->
                         new EmployeePerformanceRatingScore(empPerformance.getPerformanceCycle().getPerformanceCycleName(),

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
         "com.hrms.damservice.models",
         "com.hrms.performancemanagement.model"
 })
+//Test git commit
 @SpringBootApplication
 @CrossOrigin
 public class HRMSApplication {

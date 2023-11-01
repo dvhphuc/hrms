@@ -112,7 +112,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
         var countAllEmployee = employeeRepository.count();
 
-        float diffPercent = ((float) (countPreviousEmployees) / countCurrentEmployees) * 100;
+        float diffPercent = ((float) (countCurrentEmployees - countPreviousEmployees) / countPreviousEmployees) * 100;
 
         return new Headcount(countAllEmployee, diffPercent, countPreviousEmployees <= countCurrentEmployees);
     }

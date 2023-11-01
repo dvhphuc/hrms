@@ -40,4 +40,6 @@ type Query {
     getQualifications(employeeId: Int!): [SourceFile]
     skillSetSummarization(employeeId: Int!, cycleId: Int!): SkillSetSummarization
     getUsers: [UserDto]
+    companyCompetencyDiffPercent: CompanyCompetencyDiffPercent
+    competencyChart: [CompetencyChart]
 }

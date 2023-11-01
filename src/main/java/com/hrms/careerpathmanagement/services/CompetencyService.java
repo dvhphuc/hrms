@@ -29,4 +29,8 @@ public interface CompetencyService {
 
     SkillSetSummarization getSkillSummarization(Integer employeeId, Integer cycleId);
 
+
+    CompanyCompetencyDiffPercent getCompanyCompetencyDiffPercent();
+
+    List<CompetencyChart> getCompetencyChart();
 }

@@ -151,4 +151,14 @@ public class CompetencyController {
         return competencyService.getSkillSummarization(employeeId, cycleId);
     }
 
+    @QueryMapping(name = "companyCompetencyDiffPercent")
+    public CompanyCompetencyDiffPercent getCompanyCompetencyDiffPercent() {
+        return competencyService.getCompanyCompetencyDiffPercent();
+    }
+
+    @QueryMapping(name = "competencyChart")
+    public List<CompetencyChart> getCompetencyChart() {
+        return competencyService.getCompetencyChart();
+    }
+
 }

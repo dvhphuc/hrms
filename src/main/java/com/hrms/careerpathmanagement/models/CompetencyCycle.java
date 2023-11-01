@@ -25,5 +25,5 @@ public class CompetencyCycle {
     @Column(name = "due_date")
     private Date dueDate;
     @Column(name = "year")
-    private String year;
+    private Integer year;
 }

@@ -14,3 +14,14 @@ type RadarDataset{
     lineName: String
     datasets: [Float]
 }
+
+type CompanyCompetencyDiffPercent{
+    avgCompetencyScore: Float
+    diffPercent: Float
+    isIncreased: Boolean
+}
+
+type CompetencyChart{
+    label: String
+    data: Float
+}

@@ -2,8 +2,9 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.global.paging.Pagination;
 import com.hrms.performancemanagement.dto.EmployeePerformanceRatingScore;
+import com.hrms.performancemanagement.dto.PerformanceByJobLevelChart;
 import com.hrms.performancemanagement.dto.PerformanceRatingScorePaging;
-import com.hrms.performancemanagement.model.EmployeePerformance;
+import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,7 @@ public class PerformanceController {
     {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         performanceService.getPerformanceCycles();
-        Page<EmployeePerformance> empPerformances = performanceService.getPerformances(empId, pageable);
+        Page<PerformanceEvaluation> empPerformances = performanceService.getPerformanceEvaluations(empId, pageable);
         List<EmployeePerformanceRatingScore> data = empPerformances.stream()
                 .map(empPerformance ->
                         new EmployeePerformanceRatingScore(empPerformance.getPerformanceCycle().getPerformanceCycleName(),
@@ -38,5 +39,11 @@ public class PerformanceController {
                 .toList();
         Pagination pagination = setupPaging(empPerformances, pageNo, pageSize);
         return new PerformanceRatingScorePaging(data, pagination);
+    }
+
+    @QueryMapping
+    public PerformanceByJobLevelChart performanceByJobLevel(@Argument Integer positionId,
+                                                            @Argument Integer cycleId) {
+        return performanceService.getPerformanceStatisticByJobLevel(positionId, cycleId);
     }
 }

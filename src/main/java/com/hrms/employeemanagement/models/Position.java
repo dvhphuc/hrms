@@ -23,7 +23,6 @@ public class Position {
     private Boolean hasLevel;
     @Column(name = "has_department")
     private Boolean hasDepartment;
-
     public Position(Integer id) {
         this.id = id;
     }

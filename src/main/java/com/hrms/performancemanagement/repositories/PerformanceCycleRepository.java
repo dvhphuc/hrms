@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface PerformanceCycleRepository extends JpaRepository<PerformanceCycle, Integer>, JpaSpecificationExecutor<PerformanceCycle> {
     List<PerformanceCycle> findAll(Sort sort);
+    PerformanceCycle findFirstByOrderByPerformanceCycleIdDesc();
 }

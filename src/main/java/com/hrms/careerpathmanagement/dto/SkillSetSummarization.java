@@ -2,6 +2,8 @@ package com.hrms.careerpathmanagement.dto;
 
 import lombok.*;
 
+import java.util.Optional;
+
 @Data
 @Setter
 @Getter
@@ -11,8 +13,8 @@ public class SkillSetSummarization {
     Float currentRating;
     Float targetRating;
 
-    public SkillSetSummarization(Double skillSetAvgScore, Double skillSetBaselineScore) {
-        this.currentRating = skillSetAvgScore.floatValue();
-        this.targetRating = skillSetBaselineScore.floatValue();
+    public SkillSetSummarization(Optional<Double> skillSetAvgScore, Optional<Double> skillSetBaselineScore) {
+        this.currentRating = skillSetAvgScore.isPresent() ? skillSetAvgScore.get().floatValue() : null;
+        this.targetRating = skillSetBaselineScore.isPresent() ? skillSetBaselineScore.get().floatValue() : null;
     }
 }

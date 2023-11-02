@@ -2,7 +2,7 @@ type UserDto {
     userId: Int
     name: String
     status: Boolean
-    username: String
+    userName: String
     createdAt: String
     roles: [Role]
 }

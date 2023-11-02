@@ -20,10 +20,7 @@ import jakarta.persistence.criteria.*;
 import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -40,8 +37,6 @@ public class CompetencyServiceImpl implements CompetencyService {
     EntityManager entityManager;
     @Autowired
     private CompetencyEvaluationRepository competencyEvaluationRepository;
-    @Autowired
-    private EmployeeRepository employeeRepository;
     @Autowired
     private CompetencyTimeLineRepository competencyTimeLineRepository;
     @Autowired
@@ -184,8 +179,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         return entityManager.createQuery(query).getSingleResult();
     }
 
-
-    //TODO: Schedule service
     @Override
     @Scheduled(cron = "0 0 0 * * *")
     public void updateIsDoneForOverdueItems() {
@@ -252,8 +245,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public List<CompanyEvaPercent> getCompanyIncompletePercent(Integer competencyCycleId) {
         List<CompanyEvaPercent> companyEvaPercents = new ArrayList<>();
-        List<Integer> empIdSet = employeeRepository
-                .findAll()
+        List<Integer> empIdSet = employeeManagementService.getAllEmployees()
                 .stream()
                 .map(Employee::getId)
                 .toList();
@@ -295,6 +287,8 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public List<AvgCompetency> getAvgCompetencies(Integer positionId, Integer competencyCycleId) {
+        employeeManagementService.getAllEmployees();
+        proficiencyLevelRepository.findAll();
         List<CompetencyEvaluation> compEvaluates = positionId != null
                 ? findByPositionAndCycle(positionId, competencyCycleId)
                 : findByCycle(competencyCycleId);
@@ -335,7 +329,110 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
+    public TopSkillSetPaging getTopHighestSkillSet(@Nullable Integer employeeId,
+                                                   @Nullable Integer competencyCycleId,
+                                                   int pageNo, int pageSize) {
+        CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        skillSetRepository.findAll();
+        proficiencyLevelRepository.findAll();
+
+        Specification<SkillSetEvaluation> spec = employeeId == null
+                ?
+                (root, query, builder) -> {
+                    query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
+                    query.where(builder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
+                    return query.getRestriction();
+                }
+                :
+                (root, query, builder) -> {
+                    query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
+                    query.where(builder.equal(root.get("competencyCycle").get("id"), evalLatestCycle.getId()),
+                            builder.equal(root.get("employee").get("id"), employeeId));
+                    return query.getRestriction();
+                };
+
+        Page<TopHighestSkillSet> ssEvaluates = skillSetEvaluationRepository
+                .findAll(spec, pageable)
+                .map(item -> new TopHighestSkillSet(item.getEmployee(),
+                        item.getSkillSet(),
+                        item.getFinalProficiencyLevel()));
+        Pagination pagination = setupPaging(ssEvaluates, pageNo, pageSize);
+        return new TopSkillSetPaging(ssEvaluates.getContent(), pagination);
+    }
+
+    @Override
+    public TopSkillSetPaging getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
+        CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TopHighestSkillSet> criteriaQuery = criteriaBuilder.createQuery(TopHighestSkillSet.class);
+
+        Root<SkillSetEvaluation> sseRoot = criteriaQuery.from(SkillSetEvaluation.class);
+        Join<SkillSetEvaluation, ProficiencyLevel> plJoin = sseRoot.join("finalProficiencyLevel");
+        Join<SkillSetEvaluation, SkillSet> ssJoin = sseRoot.join("skillSet");
+        Join<SkillSetEvaluation, Employee> eJoin = sseRoot.join("employee");
+
+        criteriaQuery.multiselect(
+                eJoin.alias("e"),
+                ssJoin.alias("ss"),
+                plJoin.alias("pl")
+        );
+
+        criteriaQuery.where(
+                criteriaBuilder.and(
+                        criteriaBuilder.equal(sseRoot.get("competencyCycle").get("id"), evalLatestCycle.getId()),
+                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId)
+                )
+        );
+
+        criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
+
+        TypedQuery<TopHighestSkillSet> query = entityManager.createQuery(criteriaQuery);
+        List<TopHighestSkillSet> results = query.getResultList();
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<TopHighestSkillSet> topsHighest = new PageImpl<>(results, pageable, results.size());
+        Pagination pagination = setupPaging(topsHighest, pageNo, pageSize);
+        return new TopSkillSetPaging(topsHighest.getContent(), pagination);
+    }
+
+    @Override
+    public TopSkillSetPaging getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TopHighestSkillSet> criteriaQuery = criteriaBuilder.createQuery(TopHighestSkillSet.class);
+
+        Root<SkillSetTarget> sseRoot = criteriaQuery.from(SkillSetTarget.class);
+        Join<SkillSetTarget, ProficiencyLevel> plJoin = sseRoot.join("targetProficiencyLevel");
+        Join<SkillSetTarget, SkillSet> ssJoin = sseRoot.join("skillSet");
+        Join<SkillSetTarget, Employee> eJoin = sseRoot.join("employee");
+
+        criteriaQuery.multiselect(
+                eJoin.alias("e"),
+                ssJoin.alias("ss"),
+                plJoin.alias("pl")
+        );
+
+        criteriaQuery.where(
+                criteriaBuilder.and(
+                        criteriaBuilder.equal(sseRoot.get("competencyCycle").get("id"), latestCycle.getId()),
+                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId)
+                )
+        );
+
+        criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
+
+        TypedQuery<TopHighestSkillSet> query = entityManager.createQuery(criteriaQuery);
+        List<TopHighestSkillSet> results = query.getResultList();
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<TopHighestSkillSet> topsHighest = new PageImpl<>(results, pageable, results.size());
+        Pagination pagination = setupPaging(topsHighest, pageNo, pageSize);
+        return new TopSkillSetPaging(topsHighest.getContent(), pagination);
+    }
+
+    @Override
     public RadarChart getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
+        competencyRepository.findAll();
         var competencyIds = competencyRepository.findAll().stream().map(Competency::getId).toList();
         var competencyEvaluates = findByCyclesAndDepartment(competencyCyclesId, departmentId);
         proficiencyLevelRepository.findAll();
@@ -390,38 +487,6 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .map(Competency::getCompetencyName)
                 .toList();
         return new RadarChart(labels, listDataset);
-    }
-
-    @Override
-    public TopSkillSetPaging getTopHighestSkillSet(@Nullable Integer employeeId,
-                                                   Integer competencyCycleId, int pageNo, int pageSize) {
-        CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        skillSetRepository.findAll();
-        proficiencyLevelRepository.findAll();
-
-        Specification<SkillSetEvaluation> spec = employeeId == null
-                ?
-                (root, query, builder) -> {
-                    query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
-                    query.where(builder.equal(root.get("competencyCycle").get("id"), competencyCycleId));
-                    return query.getRestriction();
-                }
-                :
-                (root, query, builder) -> {
-                    query.orderBy(builder.desc(root.get("finalProficiencyLevel")));
-                    query.where(builder.equal(root.get("competencyCycle").get("id"), evalLatestCycle.getId()),
-                            builder.equal(root.get("employee").get("id"), employeeId));
-                    return query.getRestriction();
-                };
-
-        Page<TopHighestSkillSet> ssEvaluates = skillSetEvaluationRepository
-                .findAll(spec, pageable)
-                .map(item -> new TopHighestSkillSet(item.getEmployee(),
-                        item.getSkillSet(),
-                        item.getFinalProficiencyLevel()));
-        Pagination pagination = setupPaging(ssEvaluates, pageNo, pageSize);
-        return new TopSkillSetPaging(ssEvaluates.getContent(), pagination);
     }
 
     @Override
@@ -501,7 +566,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         CompetencyCycle latestCompEva = evaluationOverallRepository.latestEvalCompetencyCycle(empId);
         Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("employee").get("id"), empId),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCompEva)
+                criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCompEva.getId())
         );
 
         EvaluationOverall eval = evaluationOverallRepository.findOne(spec).orElse(null);
@@ -509,50 +574,6 @@ public class CompetencyServiceImpl implements CompetencyService {
         return SkillMatrixOverall.builder()
                 .managerName(employee.getDepartment().getSum().getFullName())
                 .status(Objects.requireNonNull(eval).getFinalStatus()).build();
-    }
-
-    @Override
-    public TopSkillSetPaging getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
-        CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
-        skillSetRepository.findAll();
-        proficiencyLevelRepository.findAll();
-
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Specification<SkillSetEvaluation> spec = (root, query, builder) -> {
-            query.orderBy(builder.asc(root.get("finalProficiencyLevel")));
-            query.where(builder.equal(root.get("competencyCycle").get("id"), evalLatestCycle.getId()),
-                    builder.equal(root.get("employee").get("id"), employeeId));
-            return query.getRestriction();
-        };
-
-        Page<TopHighestSkillSet> topsHighest = skillSetEvaluationRepository
-                .findAll(spec, pageable)
-                .map(item -> new TopHighestSkillSet(item.getEmployee(),
-                        item.getSkillSet(),
-                        item.getFinalProficiencyLevel()));
-        Pagination pagination = setupPaging(topsHighest, pageNo, pageSize);
-        return new TopSkillSetPaging(topsHighest.getContent(), pagination);
-    }
-
-    @Override
-    public TopSkillSetPaging getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        skillSetRepository.findAll();
-
-        Specification<SkillSetTarget> spec = (root, query, builder) -> {
-            query.orderBy(builder.desc(root.get("targetProficiencyLevel")));
-            query.where(builder.equal(root.get("competencyCycle").get("id"), latestCycle.getId()),
-                    builder.equal(root.get("employee").get("id"), employeeId));
-            return query.getRestriction();
-        };
-
-        Page<TopHighestSkillSet> topsHighest = skillSetTargetRepository
-                .findAll(spec, pageable)
-                .map(item -> new TopHighestSkillSet(item.getEmployee(),
-                        item.getSkillSet(),
-                        item.getTargetProficiencyLevel()));
-        Pagination pagination = setupPaging(topsHighest, pageNo, pageSize);
-        return new TopSkillSetPaging(topsHighest.getContent(), pagination);
     }
 
     @Override
@@ -621,6 +642,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public List<CompetencyChart> getCompetencyChart() {
+        //Find current cycle
         int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
                 ? latestCycle.getYear()
                 : latestCycle.getYear() - 1;

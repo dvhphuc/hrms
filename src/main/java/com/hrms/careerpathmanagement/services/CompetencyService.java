@@ -19,7 +19,7 @@ public interface CompetencyService {
     List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCycleIds, Integer departmentId);
     List<AvgCompetency> getAvgCompetencies(Integer positionId, Integer competencyCycleId);
     RadarChart getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
-    TopSkillSetPaging getTopHighestSkillSet(@Nullable Integer empId, Integer competencyCycleId, int pageNo, int pageSize);
+    TopSkillSetPaging getTopHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
     List<EmployeeSkillMatrix> getEmployeeSkillMatrix(Integer employeeId);
     SkillMatrixOverall getSkillMatrixOverall(Integer employeeId);
     TopSkillSetPaging getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize);

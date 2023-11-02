@@ -28,7 +28,7 @@ type Query {
     performanceByJobLevel(positionId: Int!, cycleId: Int!) : PerformanceByJobLevelChart
     avgCompetencyScore(positionId: Int, competencyCycleId: Int!): [AvgCompetency]
     competencyRadarChart(competencyCyclesId: [Int]!, departmentId: Int!): RadarChart
-    topHighestSkillSet(employeeId: Int, competencyCycleId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
+    topHighestSkillSet(employeeId: Int, competencyCycleId: Int, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topKeenSkillSetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     topHighestSkillSetTargetEmployee(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): TopSkillSetProficiencyPaging
     employeePerformanceRatingScore(employeeId: Int!, pageNo: Int = 1, pageSize: Int = 10): EmployeePerformanceRatingScorePaging

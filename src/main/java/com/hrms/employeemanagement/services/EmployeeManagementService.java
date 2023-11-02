@@ -7,6 +7,7 @@ import com.hrms.global.paging.PagingInfo;
 import java.util.List;
 
 public interface EmployeeManagementService {
+	List<Employee> getAllEmployees();
 	Employee createEmployee(EmployeeDTO input) throws Exception;
 	Employee findEmployee(Integer id);
 	EmployeeDetail getEmployeeDetail(Integer id);

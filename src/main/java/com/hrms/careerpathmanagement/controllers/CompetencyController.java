@@ -85,7 +85,7 @@ public class CompetencyController {
 
     @QueryMapping(name = "topHighestSkillSet")
     public TopSkillSetPaging getTopHighestSkill(@Argument(name = "employeeId") @Nullable Integer empId,
-                                                @Argument Integer competencyCycleId,
+                                                @Argument @Nullable Integer competencyCycleId,
                                                 @Argument int pageNo, @Argument int pageSize) {
         return competencyService.getTopHighestSkillSet(empId, competencyCycleId, pageNo, pageSize);
     }

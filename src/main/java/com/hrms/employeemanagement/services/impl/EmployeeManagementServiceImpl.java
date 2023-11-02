@@ -45,6 +45,13 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
+    public List<Employee> getAllEmployees() {
+        //Find all employee have status not equal "Terminated"
+        Specification<Employee> spec = (root, query, builder) -> builder.notEqual(root.get("status"), 0);
+        return employeeRepository.findAll(spec);
+    }
+
+    @Override
     public Employee findEmployee(Integer id) {
         Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
         return employeeRepository
@@ -73,7 +80,11 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
 
     @Override
     public List<Employee> findEmployees(Integer departmentId) {
-        Specification<Employee> spec = (root, query, builder) -> builder.equal(root.get("department").get("id"), departmentId);
+        //have departmentId = departmentId and status not equal to 0
+        Specification<Employee> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("department").get("id"), departmentId),
+                criteriaBuilder.notEqual(root.get("status"), 0)
+        );
         return employeeRepository.findAll(spec);
     }
 
@@ -122,7 +133,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
         LocalDate toDateCurrent = LocalDate.now();
         var countCurrentEmployees = countEmployeesByYear(fromDateCurrent, toDateCurrent);
 
-        var countAllEmployee = employeeRepository.count();
+        var countAllEmployee = getAllEmployees().size();
 
         float diffPercent = ((float) (countCurrentEmployees - countPreviousEmployees) / countPreviousEmployees) * 100;
 
@@ -133,8 +144,11 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     public List<HeadcountChartData> getHeadcountChartData() {
         List<Department> department = departmentRepository.findAll();
         List<Integer> departmentIds = department.stream().map(Department::getId).toList();
-        //Find all employees in departmentIds
-        Specification<Employee> spec = (root, query, builder) -> root.get("department").get("id").in(departmentIds);
+        //Find all employees in departmentIds and have status not equal to 0
+        Specification<Employee> spec = (root, query, builder) -> builder.and(
+                builder.in(root.get("department").get("id")).value(departmentIds),
+                builder.notEqual(root.get("status"), 0)
+        );
         List<Employee> employees = employeeRepository.findAll(spec);
 
         return department.stream().map(item -> {

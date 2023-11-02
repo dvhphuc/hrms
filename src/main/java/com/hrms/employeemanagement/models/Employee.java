@@ -58,9 +58,6 @@ public class Employee {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "job_level_id")
 	private JobLevel jobLevel;
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
 	@Column(name = "status")
 	private Integer status;
 	@Column(name = "left_date")

@@ -52,6 +52,18 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
     }
 
+    @Override
+    public EmployeeDetail getEmployeeDetail(Integer id) {
+        Specification<Employee> spec = ((root, query, builder) -> builder.equal(root.get("id"), id));
+        Employee employee = employeeRepository
+                .findOne(spec)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+        Specification<EmergencyContact> contactSpec = (root, query, builder)
+                -> builder.equal(root.get("employee").get("id"), id);
+        List<EmergencyContact> emergencyContacts = emergencyContactRepository.findAll(contactSpec);
+        return new EmployeeDetail(employee, emergencyContacts);
+    }
+
     //TODO:Input DepartmentIds
     @Override
     public List<Employee> findEmployees(List<Integer> departmentIds) {

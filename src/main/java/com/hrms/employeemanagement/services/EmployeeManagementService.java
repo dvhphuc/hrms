@@ -1,10 +1,7 @@
 package com.hrms.employeemanagement.services;
 
-import com.hrms.employeemanagement.dto.Headcount;
-import com.hrms.employeemanagement.dto.EmployeeDTO;
-import com.hrms.employeemanagement.dto.HeadcountChartData;
+import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.Employee;
-import com.hrms.employeemanagement.dto.EmployeePaging;
 import com.hrms.global.paging.PagingInfo;
 
 import java.util.List;
@@ -12,6 +9,7 @@ import java.util.List;
 public interface EmployeeManagementService {
 	Employee createEmployee(EmployeeDTO input) throws Exception;
 	Employee findEmployee(Integer id);
+	EmployeeDetail getEmployeeDetail(Integer id);
 	List<Employee> findEmployees(List<Integer> departmentIds);
 	List<Employee> findEmployees(Integer departmentId);
 	List<Employee> getNewEmployees();

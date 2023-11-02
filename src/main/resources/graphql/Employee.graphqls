@@ -19,11 +19,14 @@ type Employee {
     position: Position
     jobLevel: JobLevel
     sourceFile: ImageSource
-    emergencyContacts: [EmergencyContact]
-    employeeSkills: [EmployeeSkill]
-    employeeProjects: [EmployeeProject]
-    user: User
+    status: Int
+    leftDate: String
     damId: Int
+}
+
+type EmployeeDetail {
+    employee: Employee
+    emergencyContacts: [EmergencyContact]
 }
 
 type EmployeePaging {

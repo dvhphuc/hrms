@@ -8,16 +8,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "employee_performance")
+@Table(name = "performance_evaluation")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeePerformance {
+public class PerformanceEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "employee_performance_id")
-    private Integer employeePerformanceId;
+    @Column(name = "performance_evaluation_id")
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")

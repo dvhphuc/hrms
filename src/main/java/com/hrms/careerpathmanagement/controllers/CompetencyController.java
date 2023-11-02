@@ -27,31 +27,14 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @Slf4j
 public class CompetencyController {
+    @Autowired
     EmployeeManagementService employeeManagementService;
-    CompetencyService competencyService;
-    DepartmentRepository departmentRepository;
-    JobLevelRepository jobLevelRepository;
-    CompetencyCycleRepository competencyCycleRepository;
-    CompetencyRepository competencyRepository;
-    ProficiencyLevelRepository proficiencyLevelRepository;
-
-    SourceFileService sourceFileService;
 
     @Autowired
-    public CompetencyController(EmployeeManagementService employeeManagementService,
-                                CompetencyService competencyService, DepartmentRepository departmentRepository,
-                                JobLevelRepository jobLevelRepository, CompetencyCycleRepository competencyCycleRepository,
-                                CompetencyRepository competencyRepository, ProficiencyLevelRepository proficiencyLevelRepository,
-                                SourceFileService sourceFileService) {
-        this.employeeManagementService = employeeManagementService;
-        this.competencyService = competencyService;
-        this.departmentRepository = departmentRepository;
-        this.jobLevelRepository = jobLevelRepository;
-        this.competencyCycleRepository = competencyCycleRepository;
-        this.competencyRepository = competencyRepository;
-        this.proficiencyLevelRepository = proficiencyLevelRepository;
-        this.sourceFileService = sourceFileService;
-    }
+    CompetencyService competencyService;
+
+    @Autowired
+    SourceFileService sourceFileService;
 
     public static <T> Pagination setupPaging(Page<T> page, Integer pageNo, Integer pageSize) {
         long totalCount = page.getTotalElements();
@@ -59,10 +42,10 @@ public class CompetencyController {
         return new Pagination(pageNo, pageSize, totalCount, numberOfPages);
     }
 
-    @QueryMapping(name = "competencyCycles")
-    public List<CompetencyCycle> getCompetencyCycles() {
-        return competencyCycleRepository.findAll();
-    }
+//    @QueryMapping(name = "competencyCycles")
+//    public List<CompetencyCycle> getCompetencyCycles() {
+//        return competencyService.();
+//    }
 
     @QueryMapping(name = "competencyTimeLine")
     public List<CompetencyTimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
@@ -79,15 +62,15 @@ public class CompetencyController {
         return competencyService.getCompanyIncompletePercent(competencyCycleId);
     }
 
-    @QueryMapping(name = "competencies")
-    public List<Competency> getCompetencies() {
-        return competencyRepository.findAll();
-    }
-
-    @QueryMapping(name = "proficiencyLevels")
-    public List<ProficiencyLevel> getProficiencyLevels() {
-        return proficiencyLevelRepository.findAll();
-    }
+//    @QueryMapping(name = "competencies")
+//    public List<Competency> getCompetencies() {
+//        return competencyRepository.findAll();
+//    }
+//
+//    @QueryMapping(name = "proficiencyLevels")
+//    public List<ProficiencyLevel> getProficiencyLevels() {
+//        return proficiencyLevelRepository.findAll();
+//    }
 
     @QueryMapping(name = "avgCompetencyScore")
     public List<AvgCompetency> getAvgCompetencyScore(@Argument @Nullable Integer positionId, @Argument Integer competencyCycleId) {

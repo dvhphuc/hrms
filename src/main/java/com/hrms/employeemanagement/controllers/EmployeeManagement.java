@@ -48,8 +48,8 @@ public class EmployeeManagement {
     }
 
     @QueryMapping(name = "employee")
-    public Employee findEmployeeById(@Argument int id) {
-        return employeeManagementService.findEmployee(id);
+    public EmployeeDetail findEmployeeById(@Argument int id) {
+        return employeeManagementService.getEmployeeDetail(id);
     }
 
     @QueryMapping(name = "newEmployees")

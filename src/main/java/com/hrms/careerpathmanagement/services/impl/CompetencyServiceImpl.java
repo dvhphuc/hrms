@@ -15,6 +15,7 @@ import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -620,27 +621,31 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public List<CompetencyChart> getCompetencyChart() {
-        //Get all competencyEvaluation have competencyCycle = competencyCycle and proficiencyLevel != null
-        Specification<CompetencyEvaluation> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCycle.getId()),
-                criteriaBuilder.isNotNull(root.get("proficiencyLevel"))
-        );
-        List<CompetencyEvaluation> competencyEvaluations = competencyEvaluationRepository.findAll(spec);
+        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
+                ? latestCycle.getYear()
+                : latestCycle.getYear() - 1;
+        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
 
-        List<Competency> competencies = competencyRepository.findAll();
-        return competencies.stream().map(item -> {
-            List<CompetencyEvaluation> competencyEvaluates = competencyEvaluations.stream()
-                    .filter(competencyEvaluate -> competencyEvaluate.getCompetency().getId().equals(item.getId()))
-                    .toList();
-            float avgScore = competencyEvaluates.isEmpty() ? 0
-                    : (float) competencyEvaluates.stream()
-                    .map(CompetencyEvaluation::getProficiencyLevel)
-                    .filter(Objects::nonNull)
-                    .mapToInt(ProficiencyLevel::getScore)
-                    .average()
-                    .orElse(0);
-            return new CompetencyChart(item.getCompetencyName(), avgScore);
-        }).toList();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CompetencyChart> criteriaQuery = criteriaBuilder.createQuery(CompetencyChart.class);
+
+        Root<CompetencyEvaluation> plRoot = criteriaQuery.from(CompetencyEvaluation.class);
+        Join<CompetencyEvaluation, ProficiencyLevel> ceJoin = plRoot.join("proficiencyLevel");
+        Join<CompetencyEvaluation, Competency> cJoin = plRoot.join("competency");
+
+        criteriaQuery.multiselect(
+                cJoin.get("competencyName"),
+                criteriaBuilder.avg(ceJoin.get("score"))
+        );
+
+        criteriaQuery.where(
+                criteriaBuilder.equal(plRoot.get("competencyCycle").get("id"), currentCycleId)
+        );
+
+        criteriaQuery.groupBy(plRoot.get("competency").get("id"));
+
+        TypedQuery<CompetencyChart> query = entityManager.createQuery(criteriaQuery);
+        return query.getResultList();
     }
 }
 

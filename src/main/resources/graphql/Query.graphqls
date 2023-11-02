@@ -1,7 +1,7 @@
 # Define a query to fetch employees
 type Query {
     employees(departmentIds: [Int], currentContracts: [Int],status: Boolean, name: String, pagingInfo: PagingInfo!): EmployeePaging!
-    employee(id: Int!): Employee
+    employee(id: Int!): EmployeeDetail
     newEmployees: [Employee]
     departments: [Department]
     NumberOfDepartments: Int

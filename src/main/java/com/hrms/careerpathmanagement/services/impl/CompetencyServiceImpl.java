@@ -651,32 +651,6 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         TypedQuery<CompetencyChart> query = entityManager.createQuery(criteriaQuery);
         return query.getResultList();
-//        proficiencyLevelRepository.findAll();
-//        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
-//                ? latestCycle.getYear()
-//                : latestCycle.getYear() - 1;
-//        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
-//        //Get all competencyEvaluation have competencyCycle = competencyCycle and proficiencyLevel != null
-//        Specification<CompetencyEvaluation> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-//                criteriaBuilder.equal(root.get("competencyCycle").get("id"), currentCycleId),
-//                criteriaBuilder.isNotNull(root.get("proficiencyLevel"))
-//        );
-//        List<CompetencyEvaluation> competencyEvaluations = competencyEvaluationRepository.findAll(spec);
-//
-//        List<Competency> competencies = competencyRepository.findAll();
-//        return competencies.stream().map(item -> {
-//            List<CompetencyEvaluation> competencyEvaluates = competencyEvaluations.stream()
-//                    .filter(competencyEvaluate -> competencyEvaluate.getCompetency().getId().equals(item.getId()))
-//                    .toList();
-//            float avgScore = competencyEvaluates.isEmpty() ? 0
-//                    : (float) competencyEvaluates.stream()
-//                    .map(CompetencyEvaluation::getProficiencyLevel)
-//                    .filter(Objects::nonNull)
-//                    .mapToInt(ProficiencyLevel::getScore)
-//                    .average()
-//                    .orElse(0);
-//            return new CompetencyChart(item.getCompetencyName(), avgScore);
-//        }).toList();
     }
 }
 

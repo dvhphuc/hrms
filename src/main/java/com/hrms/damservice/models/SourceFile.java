@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
+
+
 @Entity
 @Getter
 @Setter
@@ -23,6 +26,9 @@ public class SourceFile {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "file_type")
-    private String fileType;
+    @Column(name = "extension")
+    private String extension;
+
+    @Column(name = "uploaded_at")
+    private Date uploadedAt;
 }

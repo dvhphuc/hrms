@@ -1,7 +1,5 @@
 package com.hrms.employeemanagement.models;
 
-import com.hrms.usermanagement.model.User;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
@@ -62,9 +59,6 @@ public class Employee {
 	private Integer status;
 	@Column(name = "left_date")
 	private Date leftDate;
-	@Nullable
-	@Column(name = "dam_id")
-	private Integer damId;
 	public String getFullName() {
 		return this.lastName + " " + this.firstName;
 	}

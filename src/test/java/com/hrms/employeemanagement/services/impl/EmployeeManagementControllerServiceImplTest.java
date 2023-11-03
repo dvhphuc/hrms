@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-class EmployeeManagementServiceImplTest {
+class EmployeeManagementControllerServiceImplTest {
 
     @MockBean
     private EmployeeRepository employeeRepository;

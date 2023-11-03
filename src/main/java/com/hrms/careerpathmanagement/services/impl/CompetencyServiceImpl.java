@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static com.hrms.careerpathmanagement.controllers.CompetencyController.setupPaging;
+import static com.hrms.global.paging.PaginationSetup.setupPaging;
 
 @Service
 @Transactional
@@ -195,7 +195,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<DepartmentInComplete> getDepartmentIncompletePercent(Integer competencyCycleId) {
+    public List<DepartmentInCompleteDTO> getDepartmentIncompletePercent(Integer competencyCycleId) {
         List<Integer> departmentIds = departmentRepository
                 .findAll()
                 .stream()
@@ -214,7 +214,7 @@ public class CompetencyServiceImpl implements CompetencyService {
             float employeePercent = getEmployeeIncompletedPercent(competencyCycleId, empIdSet);
             float evaluatorPercent = getEvaluatorInCompletePercent(competencyCycleId, empIdSet);
 
-            return new DepartmentInComplete(item, employeePercent, evaluatorPercent);
+            return new DepartmentInCompleteDTO(item, employeePercent, evaluatorPercent);
         }).toList();
     }
 
@@ -245,8 +245,8 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<CompanyEvaPercent> getCompanyIncompletePercent(Integer competencyCycleId) {
-        List<CompanyEvaPercent> companyEvaPercents = new ArrayList<>();
+    public List<CompanyEvaPercentDTO> getCompanyIncompletePercent(Integer competencyCycleId) {
+        List<CompanyEvaPercentDTO> companyEvaPercents = new ArrayList<>();
         List<Integer> empIdSet = employeeRepository
                 .findAll()
                 .stream()
@@ -263,8 +263,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         var hasCompletedPercent = (float) evaluationOverallRepository.count(spec) / empIdSet.size() * 100;
         var hasInCompleted = 100 - hasCompletedPercent;
 
-        companyEvaPercents.add(new CompanyEvaPercent("Completed", hasCompletedPercent));
-        companyEvaPercents.add(new CompanyEvaPercent("InCompleted", hasInCompleted));
+        companyEvaPercents.add(new CompanyEvaPercentDTO("Completed", hasCompletedPercent));
+        companyEvaPercents.add(new CompanyEvaPercentDTO("InCompleted", hasInCompleted));
         return companyEvaPercents;
     }
 
@@ -289,7 +289,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<AvgCompetency> getAvgCompetencies(Integer positionId, Integer competencyCycleId) {
+    public List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId) {
         List<CompetencyEvaluation> compEvaluates = positionId != null
                 ? findByPositionAndCycle(positionId, competencyCycleId)
                 : findByCycle(competencyCycleId);
@@ -325,7 +325,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                     .mapToInt(ProficiencyLevel::getScore)
                     .average()
                     .orElse(0);
-            return new AvgCompetency(jobLevel, competency, avgScore);
+            return new AvgCompetencyDTO(jobLevel, competency, avgScore);
         }).toList();
     }
 
@@ -388,7 +388,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public TopSkillSetPaging getTopHighestSkillSet(@Nullable Integer employeeId,
+    public SkillSetPagingDTO getTopHighestSkillSet(@Nullable Integer employeeId,
                                                    Integer competencyCycleId, int pageNo, int pageSize) {
         CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
@@ -410,13 +410,13 @@ public class CompetencyServiceImpl implements CompetencyService {
                     return query.getRestriction();
                 };
 
-        Page<TopHighestSkillSet> ssEvaluates = skillSetEvaluationRepository
+        Page<SkillSetDTO> ssEvaluates = skillSetEvaluationRepository
                 .findAll(spec, pageable)
-                .map(item -> new TopHighestSkillSet(item.getEmployee(),
+                .map(item -> new SkillSetDTO(item.getEmployee(),
                         item.getSkillSet(),
                         item.getFinalProficiencyLevel()));
-        Pagination pagination = setupPaging(ssEvaluates, pageNo, pageSize);
-        return new TopSkillSetPaging(ssEvaluates.getContent(), pagination);
+        Pagination pagination = setupPaging(ssEvaluates.getTotalElements(), pageNo, pageSize);
+        return new SkillSetPagingDTO(ssEvaluates.getContent(), pagination);
     }
 
     @Override
@@ -507,7 +507,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public TopSkillSetPaging getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
+    public SkillSetPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
         CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
         skillSetRepository.findAll();
         proficiencyLevelRepository.findAll();
@@ -520,17 +520,17 @@ public class CompetencyServiceImpl implements CompetencyService {
             return query.getRestriction();
         };
 
-        Page<TopHighestSkillSet> topsHighest = skillSetEvaluationRepository
+        Page<SkillSetDTO> topsHighest = skillSetEvaluationRepository
                 .findAll(spec, pageable)
-                .map(item -> new TopHighestSkillSet(item.getEmployee(),
+                .map(item -> new SkillSetDTO(item.getEmployee(),
                         item.getSkillSet(),
                         item.getFinalProficiencyLevel()));
-        Pagination pagination = setupPaging(topsHighest, pageNo, pageSize);
-        return new TopSkillSetPaging(topsHighest.getContent(), pagination);
+        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
+        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
     }
 
     @Override
-    public TopSkillSetPaging getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
+    public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         skillSetRepository.findAll();
 
@@ -541,13 +541,13 @@ public class CompetencyServiceImpl implements CompetencyService {
             return query.getRestriction();
         };
 
-        Page<TopHighestSkillSet> topsHighest = skillSetTargetRepository
+        Page<SkillSetDTO> topsHighest = skillSetTargetRepository
                 .findAll(spec, pageable)
-                .map(item -> new TopHighestSkillSet(item.getEmployee(),
+                .map(item -> new SkillSetDTO(item.getEmployee(),
                         item.getSkillSet(),
                         item.getTargetProficiencyLevel()));
-        Pagination pagination = setupPaging(topsHighest, pageNo, pageSize);
-        return new TopSkillSetPaging(topsHighest.getContent(), pagination);
+        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
+        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
     }
 
     @Override

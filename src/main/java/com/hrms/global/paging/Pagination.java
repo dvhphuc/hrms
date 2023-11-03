@@ -15,3 +15,4 @@ public class Pagination {
     private long totalItems;
     private long totalPages;
 }
+

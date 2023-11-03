@@ -5,13 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class DepartmentInComplete {
-    private Integer departmentId;
-    private float employeePercentage;
-    private float evaluatorPercentage;
+public class AvgCompetencyDTO {
+    private Integer jobLevelId;
+    private Integer competencyId;
+    private Float average;
 }

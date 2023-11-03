@@ -4,5 +4,5 @@ import com.hrms.global.paging.Pagination;
 
 import java.util.List;
 
-public record TopSkillSetPaging(List<TopHighestSkillSet> data, Pagination pagination) {
+public record SkillSetPagingDTO(List<SkillSetDTO> data, Pagination pagination) {
 }

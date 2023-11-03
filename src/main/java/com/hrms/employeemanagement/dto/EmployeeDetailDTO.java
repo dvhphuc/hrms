@@ -5,6 +5,6 @@ import com.hrms.employeemanagement.models.Employee;
 
 import java.util.List;
 
-public record EmployeeDetail(Employee employee, List<EmergencyContact> emergencyContacts) {
+public record EmployeeDetailDTO(Employee employee, List<EmergencyContact> emergencyContacts) {
 
 }

@@ -12,7 +12,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TopHighestSkillSet {
+//TODO: GET ID AND NESSCESSARY DATA
+public class SkillSetDTO {
     private Employee employee;
     private SkillSet skillSet;
     private ProficiencyLevel proficiencyLevel;

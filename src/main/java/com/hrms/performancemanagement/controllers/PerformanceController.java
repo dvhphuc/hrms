@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static com.hrms.careerpathmanagement.controllers.CompetencyController.setupPaging;
+import static com.hrms.global.paging.PaginationSetup.setupPaging;
+
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -37,7 +38,7 @@ public class PerformanceController {
                         new EmployeePerformanceRatingScore(empPerformance.getPerformanceCycle().getPerformanceCycleName(),
                                 empPerformance.getFinalAssessment()))
                 .toList();
-        Pagination pagination = setupPaging(empPerformances, pageNo, pageSize);
+        Pagination pagination = setupPaging(empPerformances.getTotalElements(), pageNo, pageSize);
         return new PerformanceRatingScorePaging(data, pagination);
     }
 

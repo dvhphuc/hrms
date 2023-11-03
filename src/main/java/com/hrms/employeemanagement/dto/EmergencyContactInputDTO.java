@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmergencyContactInput {
+public class EmergencyContactInputDTO {
     private Integer id;
     private String firstName;
     private String lastName;

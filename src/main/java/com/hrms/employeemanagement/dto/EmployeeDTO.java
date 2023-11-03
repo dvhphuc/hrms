@@ -29,5 +29,5 @@ public class EmployeeDTO {
     private Integer positionId;
     private Integer jobLevelId;
     private Integer departmentId;
-    private List<EmergencyContactInput> emergencyContacts;
+    private List<EmergencyContactInputDTO> emergencyContacts;
 }

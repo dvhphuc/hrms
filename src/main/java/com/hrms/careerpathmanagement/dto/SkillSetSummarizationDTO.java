@@ -9,11 +9,11 @@ import java.util.Optional;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SkillSetSummarization {
+public class SkillSetSummarizationDTO {
     Float currentRating;
     Float targetRating;
 
-    public SkillSetSummarization(Optional<Double> skillSetAvgScore, Optional<Double> skillSetBaselineScore) {
+    public SkillSetSummarizationDTO(Optional<Double> skillSetAvgScore, Optional<Double> skillSetBaselineScore) {
         this.currentRating = skillSetAvgScore.isPresent() ? skillSetAvgScore.get().floatValue() : null;
         this.targetRating = skillSetBaselineScore.isPresent() ? skillSetBaselineScore.get().floatValue() : null;
     }

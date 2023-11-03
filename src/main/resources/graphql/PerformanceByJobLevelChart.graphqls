@@ -1,9 +1,9 @@
 type PerformanceByJobLevelChart {
-    labels: [String]
+    labels: [JobLevel!]!
     datasets: [Dataset]
 }
 
 type Dataset {
-    columnsName: String
+    columnName: String
     data: [Float]
 }

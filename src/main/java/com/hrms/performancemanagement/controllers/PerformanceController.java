@@ -2,7 +2,7 @@ package com.hrms.performancemanagement.controllers;
 
 import com.hrms.global.paging.Pagination;
 import com.hrms.performancemanagement.dto.EmployeePerformanceRatingScore;
-import com.hrms.performancemanagement.dto.PerformanceByJobLevelChart;
+import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
 import com.hrms.performancemanagement.dto.PerformanceRatingScorePaging;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
@@ -30,7 +30,7 @@ public class PerformanceController {
                                                                           @Argument int pageSize)
     {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        performanceService.getPerformanceCycles();
+        performanceService.getAllPerformanceCycles();
         Page<PerformanceEvaluation> empPerformances = performanceService.getPerformanceEvaluations(empId, pageable);
         List<EmployeePerformanceRatingScore> data = empPerformances.stream()
                 .map(empPerformance ->
@@ -42,8 +42,9 @@ public class PerformanceController {
     }
 
     @QueryMapping
-    public PerformanceByJobLevelChart performanceByJobLevel(@Argument Integer positionId,
-                                                            @Argument Integer cycleId) {
-        return performanceService.getPerformanceStatisticByJobLevel(positionId, cycleId);
+    public PerformanceByJobLevalChartDTO performanceByJobLevel(@Argument Integer positionId,
+                                                               @Argument Integer cycleId)
+    {
+        return performanceService.getPerformanceStatistic(positionId, cycleId);
     }
 }

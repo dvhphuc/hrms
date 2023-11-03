@@ -10,6 +10,10 @@ public class EmployeeSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("id"), employeeId);
     }
 
+    public <T> Specification<T> hasJobLevelId(Integer levelId) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("jobLevel").get("id"), levelId);
+    }
+
     public <T> Specification<T> hasPositionId(Integer positionId) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("employee").get("position").get("id"), positionId);
     }

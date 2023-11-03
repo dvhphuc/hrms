@@ -1,13 +1,13 @@
 package com.hrms.performancemanagement.services.impl;
 
+import com.hrms.careerpathmanagement.models.PerformanceRange;
 import com.hrms.careerpathmanagement.repositories.PerformanceRangeRepository;
-import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.JobLevel;
-import com.hrms.employeemanagement.models.Position;
+import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
 import com.hrms.performancemanagement.dto.Dataset;
-import com.hrms.performancemanagement.dto.PerformanceByJobLevelChart;
+import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
 import com.hrms.performancemanagement.model.PerformanceCycle;
@@ -45,6 +45,9 @@ public class PerformanceServiceImpl implements PerformanceService {
     PerformanceRangeRepository performanceRangeRepository;
 
     @Autowired
+    EmployeeRepository employeeRepository;
+
+    @Autowired
     EmployeeSpecification employeeSpecification;
 
     @Autowired
@@ -55,7 +58,7 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public List<PerformanceCycle> getPerformanceCycles() {
+    public List<PerformanceCycle> getAllPerformanceCycles() {
         return performanceCycleRepository.findAll();
     }
 
@@ -65,7 +68,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         return performanceEvaluationRepository.findAll(spec, pageable);
     }
 
-    public List<PerformanceEvaluation> getLatestEvaluation(Integer departmentId) {
+    public List<PerformanceEvaluation> getLatestEvaluations(Integer departmentId) {
         Specification<PerformanceEvaluation> departmentSpec = employeeSpecification.hasDepartmentId(departmentId);
         Specification<PerformanceEvaluation> cycleSpec = performanceSpecification.hasPerformanceCycleId(getLatestCycleId());
 
@@ -80,36 +83,95 @@ public class PerformanceServiceImpl implements PerformanceService {
     }
 
     @Override
-    public PerformanceByJobLevelChart getPerformanceStatisticByJobLevel(Integer positionId, Integer cycleId) {
-        var evaluations = performanceEvaluationRepository.findByCycleIdAndPositionId(cycleId, positionId);
-        log.info("EVALUATIONS: {}", evaluations);
-
-        //"Unsatisfactory", "Partially meet expectation", "Meet expectation", "Exceed expectation", "Outstanding"
+    public PerformanceByJobLevalChartDTO getPerformanceStatistic(Integer positionId, Integer cycleId) {
+        var evaluations = performanceEvaluationRepository.findByCycleIdAndPositionId(positionId, cycleId);
+        var performanceRanges = performanceRangeRepository.findAll();
         var labels = jobLevelRepository.findAll();
+        var datasets = createDatasets(evaluations, performanceRanges, labels);
 
+        return new PerformanceByJobLevalChartDTO(labels, datasets);
+   }
 
-        var datasets = performanceRangeRepository.findAll().stream()
-                .map(range -> {
-                    var dataset = new Dataset(range.getText(), new ArrayList());
-                    labels.forEach(level -> {
-                        var count = (float) evaluations.stream()
-                                .filter(eval -> eval.getEmployee().getJobLevel().getId() == level.getId())
-                                .filter(eval -> eval.getFinalAssessment() >= range.getMinValue())
-                                .filter(eval -> eval.getFinalAssessment() <= range.getMaxValue())
-                                .count();
-                        dataset.getData().add(count);
-                    });
-                    return dataset;
-                })
-                .toList();
+    private List<Dataset> createDatasets(List<PerformanceEvaluation> evaluations,
+                                         List<PerformanceRange> performanceRanges,
+                                         List<JobLevel> labels)
+    {
+        List<Dataset> datasets = new ArrayList<>();
 
+        performanceRanges.forEach(range -> {
+            var dataset = createDatasetForRange(evaluations, range, labels);
+            datasets.add(dataset);
+        });
 
-        return new PerformanceByJobLevelChart(labels.stream().map(
-                JobLevel::getJobLevelName
-        ).toList(
-        ), datasets);
+        return datasets;
     }
+
+    private Dataset createDatasetForRange(List<PerformanceEvaluation> evaluations,
+                                          PerformanceRange range,
+                                          List<JobLevel> labels)
+    {
+        Dataset dataset = new Dataset(range.getText(), new ArrayList<>());
+        labels.forEach( label -> {
+            long countEvalsInPositionLevel = countEvals(label, evaluations);
+            long count = countPerformancesInRange(label, range, evaluations);
+            float percentage = calculatePercentage(count, countEvalsInPositionLevel);
+            dataset.getData().add(percentage);
+        });
+        return dataset;
+    }
+
+    private long countEvals(JobLevel jobLevel, List<PerformanceEvaluation> evaluations) {
+        return evaluations.stream()
+                .filter(e -> e.getEmployee().getJobLevel().getId() == jobLevel.getId())
+                .count();
+    }
+
+    private long countPerformancesInRange(JobLevel jobLevel, PerformanceRange range, List<PerformanceEvaluation> evaluations) {
+        return evaluations.stream()
+                .filter(eval -> eval.getEmployee().getJobLevel().getId() == jobLevel.getId())
+                .filter(eval -> eval.getFinalAssessment() >= range.getMinValue())
+                .filter(eval -> eval.getFinalAssessment() <= range.getMaxValue())
+                .count();
+    }
+
+    private float calculatePercentage(long amount, long total) {
+        return total == 0 ? 0 : (float) (amount * 100) / total;
+    }
+
 }
+
+
+//"Unsatisfactory", "Partially meet expectation", "Meet expectation", "Exceed expectation", "Outstanding"
+//        var labels = jobLevelRepository.findAll();
+//
+//        Map<JobLevel, Integer> jobLevelCount = countEmpInJoblevel();
+//
+//        var datasets = performanceRangeRepository.findAll().stream()
+//                .map(range -> {
+//                    var dataset = new Dataset(range.getText(), new ArrayList());
+//                    labels.forEach(level -> {
+//                        Specification<PerformanceEvaluation> posSpec = employeeSpecification.hasPositionId(positionId);
+//                        Specification<PerformanceEvaluation> levelSpec = employeeSpecification.hasJobLevelId(level.getId());
+//                        var countEmpIsLevelPosition = performanceEvaluationRepository.count(posSpec.and(levelSpec));
+//                        var count = (float) evaluations.stream()
+//                                .filter(eval -> eval.getEmployee().getJobLevel().getId() == level.getId())
+//                                .filter(eval -> eval.getFinalAssessment() >= range.getMinValue())
+//                                .filter(eval -> eval.getFinalAssessment() <= range.getMaxValue())
+//                                .count();
+//                        dataset.getData().add( (float)  (count / countEmpIsLevelPosition) * 100);
+//                    });
+//                    return dataset;
+//                })
+//                .toList();
+//
+//
+//        return new PerformanceByJobLevelChart(labels.stream().map(l -> l.getJobLevelName()).toList(),
+//                datasets);
+//    }
+//
+//    private HashMap<JobLevel, Integer> countEmpInJoblevel() {
+//        HashMap<Job, Integer> countMap = new HashMap<>();
+//
 
 
 //THIS SOLUTION IS NOT WORKING FOR N+1 PROBLEM

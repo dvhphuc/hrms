@@ -2,15 +2,10 @@ package com.hrms.careerpathmanagement.controllers;
 
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
-import com.hrms.careerpathmanagement.repositories.CompetencyCycleRepository;
-import com.hrms.careerpathmanagement.repositories.CompetencyRepository;
-import com.hrms.careerpathmanagement.repositories.ProficiencyLevelRepository;
 import com.hrms.careerpathmanagement.services.CompetencyService;
 import com.hrms.damservice.models.SourceFile;
 import com.hrms.damservice.services.SourceFileService;
 import com.hrms.global.paging.Pagination;
-import com.hrms.employeemanagement.repositories.DepartmentRepository;
-import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -130,7 +125,7 @@ public class CompetencyController {
     }
 
     @QueryMapping
-    public SkillSetSummarization skillSetSummarization(@Argument Integer employeeId, @Argument Integer cycleId) {
+    public SkillSetSummarizationDTO skillSetSummarization(@Argument Integer employeeId, @Argument Integer cycleId) {
         return competencyService.getSkillSummarization(employeeId, cycleId);
     }
 

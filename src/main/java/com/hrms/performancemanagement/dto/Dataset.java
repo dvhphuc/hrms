@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class Dataset {
-    private String columnsName;
+    private String columnName;
     private List<Float> data;
 }

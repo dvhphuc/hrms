@@ -27,7 +27,7 @@ public interface CompetencyService {
     CurrentEvaluation getCurrentEvaluation(Integer employeeId);
     List<HistoryEvaluation> getHistoryEvaluations(Integer employeeId);
 
-    SkillSetSummarization getSkillSummarization(Integer employeeId, Integer cycleId);
+    SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId);
 
 
     CompanyCompetencyDiffPercent getCompanyCompetencyDiffPercent();

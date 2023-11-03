@@ -16,8 +16,7 @@ public class LoginController {
 
     @QueryMapping
     public Token login(@Argument String username, @Argument String password)
-            throws UserNotFoundException, WrongPasswordException
-    {
+            throws Exception {
         var token = authenticationService.login(username, password);
         var user = authenticationService.getUser(username);
         return new Token(user, token);

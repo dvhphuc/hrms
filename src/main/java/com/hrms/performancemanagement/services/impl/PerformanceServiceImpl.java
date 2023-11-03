@@ -90,7 +90,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         var datasets = createDatasets(evaluations, performanceRanges, labels);
 
         return new PerformanceByJobLevalChartDTO(labels, datasets);
-   }
+    }
 
     private List<Dataset> createDatasets(List<PerformanceEvaluation> evaluations,
                                          List<PerformanceRange> performanceRanges,

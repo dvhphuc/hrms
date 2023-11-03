@@ -1,6 +1,6 @@
 package com.hrms.careerpathmanagement.mapper;
 
-import com.hrms.careerpathmanagement.dto.EmployeeOverviewDto;
+import com.hrms.careerpathmanagement.dto.EmployeeOverviewDTO;
 import com.hrms.employeemanagement.models.Employee;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -11,17 +11,17 @@ public class EmployeeMapperService {
 
 //    @Bean
 //    void initEmployeeMapper() {
-//        employeeMapper.typeMap(Employee.class, EmployeeOverviewDto.class).addMappings(mapper -> {
-//            mapper.map(Employee::getEmployeeSkills, EmployeeOverviewDto::setSkills);
-//            mapper.map(Employee::getFirstName, EmployeeOverviewDto::setFirstName);
-//            mapper.map(Employee::getLastName, EmployeeOverviewDto::setLastName);
-//            mapper.map(Employee::getId, EmployeeOverviewDto::setEmployeeId);
-//            mapper.map(Employee::getAddress, EmployeeOverviewDto::setAddress);
-//            mapper.map(Employee::getPositionLevel, EmployeeOverviewDto::setPositionLevel);
+//        employeeMapper.typeMap(Employee.class, EmployeeOverviewDTO.class).addMappings(mapper -> {
+//            mapper.map(Employee::getEmployeeSkills, EmployeeOverviewDTO::setSkills);
+//            mapper.map(Employee::getFirstName, EmployeeOverviewDTO::setFirstName);
+//            mapper.map(Employee::getLastName, EmployeeOverviewDTO::setLastName);
+//            mapper.map(Employee::getId, EmployeeOverviewDTO::setEmployeeId);
+//            mapper.map(Employee::getAddress, EmployeeOverviewDTO::setAddress);
+//            mapper.map(Employee::getPositionLevel, EmployeeOverviewDTO::setPositionLevel);
 //        });
 //    }
 
-    public EmployeeOverviewDto employeeOverview(Employee employee) {
-        return employeeMapper.map(employee, EmployeeOverviewDto.class);
+    public EmployeeOverviewDTO employeeOverview(Employee employee) {
+        return employeeMapper.map(employee, EmployeeOverviewDTO.class);
     }
 }

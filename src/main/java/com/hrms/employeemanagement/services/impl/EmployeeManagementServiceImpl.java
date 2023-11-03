@@ -1,6 +1,6 @@
 package com.hrms.employeemanagement.services.impl;
 
-import com.hrms.damservice.services.DamService;
+import com.hrms.damservice.DamService;
 import com.hrms.employeemanagement.dto.*;
 import com.hrms.employeemanagement.models.*;
 import com.hrms.global.paging.Pagination;
@@ -241,7 +241,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     }
 
     @Override
-    public void uploadProfileImage (MultipartFile file, Integer employeeId, String type) throws IOException {
+    public void uploadFile(MultipartFile file, Integer employeeId, String type) throws IOException {
         // Upload the image using the DamService with the original file name
         String publicId = damService.uploadFile(file);
 
@@ -260,7 +260,7 @@ public class EmployeeManagementServiceImpl implements EmployeeManagementService 
     public String getEmployeeProfilePictureUrl(Integer employeeId) {
         Specification<EmployeeDam> spec = (root, query, builder) -> builder.and(
                 builder.equal(root.get("employee").get("id"), employeeId),
-                builder.equal(root.get("type"), "profile_picture")
+                builder.equal(root.get("type"), "Profile Image")
         );
         EmployeeDam employeeDam = employeeDamRepository.findOne(spec).orElse(null);
         return employeeDam != null ? damService.getFileUrl(employeeDam.getPublicId()) : null;

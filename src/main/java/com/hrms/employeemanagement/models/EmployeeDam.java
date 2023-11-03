@@ -1,7 +1,5 @@
 package com.hrms.employeemanagement.models;
 
-import com.hrms.damservice.models.SourceFile;
-import com.hrms.damservice.models.SourceType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +11,7 @@ import lombok.*;
 @Builder
 public class EmployeeDam {
     @Id
-    @Column(name = "employee_source_id", nullable = false)
+    @Column(name = "employee_dam_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -21,10 +19,10 @@ public class EmployeeDam {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @Column(name = "employee_id")
+    @Column(name = "public_id")
     private String publicId;
 
-    @Column(name = "employee_name")
+    @Column(name = "type")
     private String type;
 }
 

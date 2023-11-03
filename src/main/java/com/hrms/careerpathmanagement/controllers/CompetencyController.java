@@ -3,8 +3,6 @@ package com.hrms.careerpathmanagement.controllers;
 import com.hrms.careerpathmanagement.dto.*;
 import com.hrms.careerpathmanagement.models.*;
 import com.hrms.careerpathmanagement.services.CompetencyService;
-import com.hrms.damservice.models.SourceFile;
-import com.hrms.damservice.services.DamService;
 import com.hrms.employeemanagement.services.EmployeeManagementService;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +23,6 @@ public class CompetencyController {
 
     @Autowired
     CompetencyService competencyService;
-
-    @Autowired
-    DamService damService;
 
     @QueryMapping(name = "competencyTimeLine")
     public List<CompetencyTimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
@@ -52,8 +47,8 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "competencyRadarChart")
-    public RadarChart getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId,
-                                              @Argument Integer departmentId) {
+    public RadarChartDTO getCompetencyRadarChart(@Argument List<Integer> competencyCyclesId,
+                                                 @Argument Integer departmentId) {
         return competencyService.getCompetencyRadarChart(competencyCyclesId, departmentId);
     }
 
@@ -61,16 +56,16 @@ public class CompetencyController {
     public SkillSetPagingDTO getTopHighestSkill(@Argument @Nullable Integer employeeId,
                                                 @Argument @Nullable Integer competencyCycleId,
                                                 @Argument int pageNo, @Argument int pageSize) {
-        return competencyService.getTopHighestSkillSet(employeeId, competencyCycleId, pageNo, pageSize);
+        return competencyService.getHighestSkillSet(employeeId, competencyCycleId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "employeeSkillMatrix")
-    public List<EmployeeSkillMatrix> getEmployeeSkillMatrix(@Argument(name = "employeeId") Integer empId) {
+    public List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(@Argument(name = "employeeId") Integer empId) {
         return competencyService.getEmployeeSkillMatrix(empId);
     }
 
     @QueryMapping(name = "skillMatrixOverall")
-    public SkillMatrixOverall getEmpSkillMatrixOverall(@Argument(name = "employeeId") Integer empId){
+    public SkillMatrixOverallDTO getEmpSkillMatrixOverall(@Argument(name = "employeeId") Integer empId){
         return competencyService.getSkillMatrixOverall(empId);
     }
 
@@ -88,7 +83,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "currentEvaluation")
-    public CurrentEvaluation getCurrentEvaluation(@Argument("employeeId") Integer empId) {
+    public CurrentEvaluationDTO getCurrentEvaluation(@Argument("employeeId") Integer empId) {
         return competencyService.getCurrentEvaluation(empId);
     }
 
@@ -99,7 +94,7 @@ public class CompetencyController {
 //    }
 
     @QueryMapping(name = "historyEvaluation")
-    public List<HistoryEvaluation> getHistoryEvaluations(@Argument("employeeId" ) Integer empId) {
+    public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument("employeeId" ) Integer empId) {
         return competencyService.getHistoryEvaluations(empId);
     }
 
@@ -109,12 +104,12 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "companyCompetencyDiffPercent")
-    public CompanyCompetencyDiffPercent getCompanyCompetencyDiffPercent() {
+    public CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent() {
         return competencyService.getCompanyCompetencyDiffPercent();
     }
 
     @QueryMapping(name = "competencyChart")
-    public List<CompetencyChart> getCompetencyChart() {
+    public List<CompetencyChartDTO> getCompetencyChart() {
         return competencyService.getCompetencyChart();
     }
 

@@ -18,19 +18,19 @@ public interface CompetencyService {
     List<CompetencyEvaluation> findByCycle(Integer competencyCycleId);
     List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCycleIds, Integer departmentId);
     List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId);
-    RadarChart getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
-    SkillSetPagingDTO getTopHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
-    List<EmployeeSkillMatrix> getEmployeeSkillMatrix(Integer employeeId);
-    SkillMatrixOverall getSkillMatrixOverall(Integer employeeId);
+    RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
+    SkillSetPagingDTO getHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
+    List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer employeeId);
+    SkillMatrixOverallDTO getSkillMatrixOverall(Integer employeeId);
     SkillSetPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize);
     SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize);
-    CurrentEvaluation getCurrentEvaluation(Integer employeeId);
-    List<HistoryEvaluation> getHistoryEvaluations(Integer employeeId);
+    CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId);
+    List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
 
     SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId);
 
 
-    CompanyCompetencyDiffPercent getCompanyCompetencyDiffPercent();
+    CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent();
 
-    List<CompetencyChart> getCompetencyChart();
+    List<CompetencyChartDTO> getCompetencyChart();
 }

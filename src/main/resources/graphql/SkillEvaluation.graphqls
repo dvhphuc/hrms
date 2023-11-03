@@ -1,7 +1,7 @@
 type TopSkillSetProficiency{
-    employee: Employee
-    skillSet: SkillSet
-    proficiencyLevel: ProficiencyLevel
+    employeeId: Int
+    skillSetName: String
+    score: Int
 }
 
 type TopSkillSetProficiencyPaging{

@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeePotentialPerformance {
+public class EmployeePotentialPerformanceDTO {
     Employee employee;
     String profileImgUri;
     int potential;

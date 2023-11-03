@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PositionMatch {
+public class PositionMatchDTO {
     PositionLevel positionLevel;
     Float matchPercentage;
 }

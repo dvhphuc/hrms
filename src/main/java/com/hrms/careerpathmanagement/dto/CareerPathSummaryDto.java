@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class CareerPathSummaryDto {
-    List<PositionMatch> positionLevels;
+    List<PositionMatchDTO> positionLevels;
 }

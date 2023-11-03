@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RadarDataset {
+public class RadarDatasetDTO {
     private String lineName;
     private List<Float> datasets;
 }

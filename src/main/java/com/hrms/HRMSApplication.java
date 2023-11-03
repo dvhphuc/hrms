@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
                 "com.hrms.damservice.*",
                 "com.hrms.performancemanagement.*",
                 "com.hrms.global.*"
-
         }))
 @EntityScan({"com.hrms.usermanagement.model",
         "com.hrms.employeemanagement.models",

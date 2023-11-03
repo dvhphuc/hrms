@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @Getter
 @Setter
-public class EmployeeOverviewDto {
+public class EmployeeOverviewDTO {
     Employee employee;
     String address;
     List<SkillSet> skills;

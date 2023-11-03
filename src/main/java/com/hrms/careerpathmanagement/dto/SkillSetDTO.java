@@ -14,7 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 //TODO: GET ID AND NESSCESSARY DATA
 public class SkillSetDTO {
-    private Employee employee;
-    private SkillSet skillSet;
-    private ProficiencyLevel proficiencyLevel;
+    private Integer employeeId;
+    private String skillSetName;
+    private Integer score;
 }

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class EmployeeRating {
+public class EmployeeRatingDTO {
     Employee employee;
     Float rating;
 }

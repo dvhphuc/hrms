@@ -8,7 +8,7 @@ import com.hrms.employeemanagement.repositories.DepartmentRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.repositories.PositionRepository;
 import com.hrms.employeemanagement.services.*;
-import com.hrms.damservice.services.DamService;
+import com.hrms.damservice.DamService;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,27 +19,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
 //Controller
 public class EmployeeManagementController {
+    @Autowired
     EmployeeManagementService employeeManagementService;
+    @Autowired
     DamService damService;
+    @Autowired
     DepartmentRepository departmentRepository;
+    @Autowired
     JobLevelRepository jobLevelRepository;
+    @Autowired
     PositionRepository positionRepository;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
-
-    @Autowired
-    public EmployeeManagementController(EmployeeManagementService employeeManagementService, DamService damService) {
-        this.employeeManagementService = employeeManagementService;
-        this.damService = damService;
-    }
 
     @QueryMapping(name = "employees")
     public EmployeePagingDTO findAllEmployees(@Nullable @Argument List<Integer> departmentIds,
@@ -75,7 +73,7 @@ public class EmployeeManagementController {
     }
 
     @MutationMapping
-    public Employee updateEmployee(@Argument EmployeeDTO input) throws Exception {
+    public Employee updateEmployee(@Argument EmployeeDTO input) {
         return employeeManagementService.updateEmployee(input);
     }
 
@@ -104,7 +102,7 @@ public class EmployeeManagementController {
                                                                @RequestParam("file") MultipartFile file,
                                                                @RequestParam("type") String type) {
         try {
-            employeeManagementService.uploadProfileImage(file, employeeId, type);
+            employeeManagementService.uploadFile(file, employeeId, type);
             return ResponseEntity.ok("Profile picture uploaded for Employee ID: " + employeeId);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to upload profile picture.");

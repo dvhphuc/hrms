@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GlanceDto {
+public class GlanceDTO {
     Float skillGapCurrentScore;
     Float skillGapTargetScore;
     Float competencyLevelPercentage;

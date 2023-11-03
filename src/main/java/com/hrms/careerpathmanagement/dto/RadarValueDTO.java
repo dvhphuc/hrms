@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RadarValue {
+public class RadarValueDTO {
     private Integer competencyCycleId;
     private Integer competencyId;
     private Float average;

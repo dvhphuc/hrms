@@ -1,6 +1,6 @@
 package com.hrms.careerpathmanagement.dto;
 
-public enum Potential {
+public enum PotentialDTO {
     HIGH,
     MEDIUM,
     LOW

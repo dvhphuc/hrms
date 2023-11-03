@@ -21,6 +21,7 @@ import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -106,7 +107,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         Specification<PositionJobLevelSkillSet> levelSpec = careerSpecification.hasJobLevelId(levelId);
         return positionLevelSkillSetRepository.findAll(posSpec.and(levelSpec))
                 .stream()
-                .map(PositionJobLevelSkillSet::getSkillSet) //NOTE: THIS IS NOT A OPTIMIZED SOLUTION BECAUSE IT GET ALL COLUMNS
+                .map(PositionJobLevelSkillSet::getSkillSet)
                 .toList();  //Have not optimized yet
     }
 
@@ -124,7 +125,7 @@ public class CompetencyServiceImpl implements CompetencyService {
         return competencyEvaluationRepository.findAll(empSpec.and(cycleSpec));
     }
 
-     /**
+    /**
      * if skillEval is null, currentScore will be null
      * if targetSkill is null, targetScore will be null
      *
@@ -149,7 +150,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         Join<SkillSetEvaluation, ProficiencyLevel> proficencyJoin = root.join("employeeProficiencyLevel");
 
         query.select(cb.avg(proficencyJoin.get("score")));
-        query.where(cb.equal(root.get("employee").get("id"), empId), cb.equal(root.get("competencyCycle").get("id"), cycleId));
+        query.where(cb.equal(root.get("employee").get("id"), empId),
+                cb.equal(root.get("competencyCycle").get("id"), cycleId));
 
         return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
     }
@@ -161,7 +163,8 @@ public class CompetencyServiceImpl implements CompetencyService {
         Join<PositionJobLevelSkillSet, ProficiencyLevel> proficencyJoin = root.join("proficiencyLevel");
 
         query.select(cb.avg(proficencyJoin.get("score")));
-        query.where(cb.equal(root.get("position").get("id"), positionId), cb.equal(root.get("jobLevel").get("id"), levelId));
+        query.where(cb.equal(root.get("position").get("id"), positionId),
+                cb.equal(root.get("jobLevel").get("id"), levelId));
 
         return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
     }
@@ -330,7 +333,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public RadarChart getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
+    public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
         var competencyIds = competencyRepository.findAll().stream().map(Competency::getId).toList();
         var competencyEvaluates = findByCyclesAndDepartment(competencyCyclesId, departmentId);
         proficiencyLevelRepository.findAll();
@@ -342,8 +345,8 @@ public class CompetencyServiceImpl implements CompetencyService {
                         .map(competency -> new Pair<>(cycle, competency)))
                 .toList();
 
-        //Get label for each dataset and RadarDataset have sture list of score RadarDataset(competencyCycleName, listScore)
-        List<RadarValue> avgCompetencies = pairItems.stream().map(pair -> {
+        //Get label for each dataset and RadarDatasetDTO have sture list of score RadarDatasetDTO(competencyCycleName, listScore)
+        List<RadarValueDTO> avgCompetencies = pairItems.stream().map(pair -> {
             var cycle = pair.getFirst();
             var competency = pair.getSecond();
             List<CompetencyEvaluation> compEvaluate = competencyEvaluates.stream()
@@ -357,18 +360,18 @@ public class CompetencyServiceImpl implements CompetencyService {
                     .mapToInt(ProficiencyLevel::getScore)
                     .average()
                     .orElse(0);
-            return new RadarValue(cycle, competency, avgScore);
+            return new RadarValueDTO(cycle, competency, avgScore);
         }).toList();
 
-        List<RadarDataset> listDataset = competencyCyclesId.stream().map(cycle -> {
+        List<RadarDatasetDTO> listDataset = competencyCyclesId.stream().map(cycle -> {
             List<Float> listScore = competencyIds
                     .stream()
                     .map(competency -> avgCompetencies.stream().filter(avgCompetency ->
                                     avgCompetency.getCompetencyId().equals(competency) &&
                                             avgCompetency.getCompetencyCycleId().equals(cycle))
                             .findFirst()
-                            .map(RadarValue::getAverage).orElse(null)).toList();
-            return new RadarDataset(competencyCycleRepository
+                            .map(RadarValueDTO::getAverage).orElse(null)).toList();
+            return new RadarDatasetDTO(competencyCycleRepository
                     .findAll()
                     .stream()
                     .filter(competencyCycle -> competencyCycle.getId() == cycle)
@@ -377,19 +380,19 @@ public class CompetencyServiceImpl implements CompetencyService {
                     .getCompetencyCycleName(), listScore);
         }).toList();
 
-        //Get list labels using spec and return RadarChart
+        //Get list labels using spec and return RadarChartDTO
         Specification<Competency> specComp = (root, query, criteriaBuilder) -> root.get("id").in(competencyIds);
         List<String> labels = competencyRepository
                 .findAll(specComp)
                 .stream()
                 .map(Competency::getCompetencyName)
                 .toList();
-        return new RadarChart(labels, listDataset);
+        return new RadarChartDTO(labels, listDataset);
     }
 
     @Override
-    public SkillSetPagingDTO getTopHighestSkillSet(@Nullable Integer employeeId,
-                                                   Integer competencyCycleId, int pageNo, int pageSize) {
+    public SkillSetPagingDTO getHighestSkillSet(@Nullable Integer employeeId,
+                                                Integer competencyCycleId, int pageNo, int pageSize) {
         CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         skillSetRepository.findAll();
@@ -412,15 +415,180 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         Page<SkillSetDTO> ssEvaluates = skillSetEvaluationRepository
                 .findAll(spec, pageable)
-                .map(item -> new SkillSetDTO(item.getEmployee(),
-                        item.getSkillSet(),
-                        item.getFinalProficiencyLevel()));
+                .map(item -> new SkillSetDTO(item.getEmployee().getId(),
+                        item.getSkillSet().getSkillSetName(),
+                        item.getFinalProficiencyLevel().getScore()));
         Pagination pagination = setupPaging(ssEvaluates.getTotalElements(), pageNo, pageSize);
         return new SkillSetPagingDTO(ssEvaluates.getContent(), pagination);
     }
 
     @Override
-    public List<EmployeeSkillMatrix> getEmployeeSkillMatrix(Integer empId) {
+    public SkillSetPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
+        CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SkillSetDTO> criteriaQuery = criteriaBuilder.createQuery(SkillSetDTO.class);
+
+        Root<SkillSetEvaluation> sseRoot = criteriaQuery.from(SkillSetEvaluation.class);
+        Join<SkillSetEvaluation, ProficiencyLevel> plJoin = sseRoot.join("finalProficiencyLevel");
+        Join<SkillSetEvaluation, SkillSet> ssJoin = sseRoot.join("skillSet");
+        Join<SkillSetEvaluation, Employee> eJoin = sseRoot.join("employee");
+
+        criteriaQuery.multiselect(
+                eJoin.alias("e"),
+                ssJoin.alias("ss"),
+                plJoin.alias("pl")
+        );
+
+        criteriaQuery.where(
+                criteriaBuilder.and(
+                        criteriaBuilder.equal(sseRoot.get("competencyCycle").get("id"), evalLatestCycle.getId()),
+                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId)
+                )
+        );
+
+        criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
+
+        TypedQuery<SkillSetDTO> query = entityManager.createQuery(criteriaQuery);
+        List<SkillSetDTO> results = query.getResultList();
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<SkillSetDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
+        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
+        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
+    }
+
+    @Override
+    public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SkillSetDTO> criteriaQuery = criteriaBuilder.createQuery(SkillSetDTO.class);
+
+        Root<SkillSetTarget> sseRoot = criteriaQuery.from(SkillSetTarget.class);
+        Join<SkillSetTarget, ProficiencyLevel> plJoin = sseRoot.join("targetProficiencyLevel");
+        Join<SkillSetTarget, SkillSet> ssJoin = sseRoot.join("skillSet");
+        Join<SkillSetTarget, Employee> eJoin = sseRoot.join("employee");
+
+        criteriaQuery.multiselect(
+                eJoin.get("id"),
+                ssJoin.get("skillSetName"),
+                plJoin.get("score")
+        );
+
+        criteriaQuery.where(
+                criteriaBuilder.and(
+                        criteriaBuilder.equal(sseRoot.get("competencyCycle").get("id"), latestCycle.getId()),
+                        criteriaBuilder.equal(sseRoot.get("employee").get("id"), employeeId)
+                )
+        );
+
+        criteriaQuery.orderBy(criteriaBuilder.asc(plJoin.get("score")));
+
+        TypedQuery<SkillSetDTO> query = entityManager.createQuery(criteriaQuery);
+        List<SkillSetDTO> results = query.getResultList();
+
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Page<SkillSetDTO> topsHighest = new PageImpl<>(results, pageable, results.size());
+        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
+        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
+    }
+
+    @Override
+    public CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId) {
+        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("employee").get("id"), employeeId),
+                criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCycle.getId())
+        );
+        EvaluationOverall evalOvr = evaluationOverallRepository.findOne(spec).orElse(null);
+        return evalOvr == null
+                ? new CurrentEvaluationDTO(latestCycle.getCompetencyCycleName(), "Not Started", null)
+                : new CurrentEvaluationDTO(evalOvr.getCompetencyCycle().getCompetencyCycleName(),
+                                           evalOvr.getFinalStatus(), evalOvr.getLastUpdated().toString());
+    }
+
+    @Override
+    public List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId) {
+        List<CompetencyCycle> compCycles = competencyCycleRepository.findAll();
+        List<Integer> cycleIds = compCycles.stream().map(CompetencyCycle::getId).toList();
+        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("employee").get("id"), employeeId),
+                root.get("competencyCycle").get("id").in(cycleIds)
+        );
+
+        return evaluationOverallRepository
+                .findAll(spec)
+                .stream()
+                .map(evalOvr -> new HistoryEvaluationDTO(evalOvr.getCompletedDate().toString(),
+                        evalOvr.getCompetencyCycle().getCompetencyCycleName(),
+                        evalOvr.getFinalStatus(), evalOvr.getScore()))
+                .toList();
+    }
+
+
+    @Override
+    public CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent() {
+        //Check if now is after latestCycle end date the current cycle is the latest cycle
+        // else get the previous cycle
+        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
+                ? latestCycle.getYear()
+                : latestCycle.getYear() - 1;
+        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
+        float avgCurrentEvalScore = getAvgEvalScore(currentCycleId);
+
+        //Get previous cycle by current year - 1
+        Integer previousYear = currentYear - 1;
+        Integer previousCycleId = competencyCycleRepository.findByYear(previousYear).getId();
+        float avgPreviousEvalScore = getAvgEvalScore(previousCycleId);
+
+        float diffPercentage = ((avgCurrentEvalScore - avgPreviousEvalScore) / avgPreviousEvalScore) * 100;
+
+        return new CompanyCompetencyDiffPercentDTO(avgCurrentEvalScore, diffPercentage, diffPercentage > 0);
+    }
+
+    private float getAvgEvalScore(Integer cycleId) {
+        //Get all evaluation overall of all employees have final status is agreed and get the latest cycle
+        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("finalStatus"), "Agreed"),
+                criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId)
+        );
+        List<Float> evalScores = evaluationOverallRepository.findAll(spec)
+                .stream()
+                .map(EvaluationOverall::getScore)
+                .toList();
+
+        return (float) evalScores.stream().mapToDouble(Float::doubleValue).average().orElse(0);
+    }
+
+    @Override
+    public List<CompetencyChartDTO> getCompetencyChart() {
+        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
+                ? latestCycle.getYear()
+                : latestCycle.getYear() - 1;
+        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
+
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<CompetencyChartDTO> criteriaQuery = criteriaBuilder.createQuery(CompetencyChartDTO.class);
+
+        Root<CompetencyEvaluation> plRoot = criteriaQuery.from(CompetencyEvaluation.class);
+        Join<CompetencyEvaluation, ProficiencyLevel> ceJoin = plRoot.join("proficiencyLevel");
+        Join<CompetencyEvaluation, Competency> cJoin = plRoot.join("competency");
+
+        criteriaQuery.multiselect(
+                cJoin.get("competencyName"),
+                criteriaBuilder.avg(ceJoin.get("score"))
+        );
+
+        criteriaQuery.where(
+                criteriaBuilder.equal(plRoot.get("competencyCycle").get("id"), currentCycleId)
+        );
+
+        criteriaQuery.groupBy(plRoot.get("competency").get("id"));
+
+        TypedQuery<CompetencyChartDTO> query = entityManager.createQuery(criteriaQuery);
+        return query.getResultList();
+    }
+
+
+    @Override
+    public List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer empId) {
         Employee employee = employeeManagementService.findEmployee(empId);
         List<Competency> competencies = competencyRepository.findAll();
         Integer latestCompEvaId = evaluationOverallRepository.latestEvalCompetencyCycle(empId).getId();
@@ -429,25 +597,41 @@ public class CompetencyServiceImpl implements CompetencyService {
         return competencies
                 .stream()
                 .map(item -> {
-                    List<EmployeeSkillMatrix> children = handleChildren(employee, latestCompEvaId, latestCompId, item);
+                    List<EmployeeSkillMatrixDTO> children = handleChildren(employee, latestCompEvaId, latestCompId, item);
                     int totalSkillSet = children.size();
-                    float selfScore = 0, evaluatorScore = 0, totalScore = 0, targetScore = 0, competencyScore = 0;
-                    for (EmployeeSkillMatrix ssMatrix : children) {
-                        selfScore += ssMatrix.data().skillLevelSelf();
-                        evaluatorScore += ssMatrix.data().skillLevelManager();
-                        totalScore += ssMatrix.data().skillLevelTotal();
-                        targetScore += ssMatrix.data().targetSkillLevel();
-                        competencyScore += ssMatrix.data().competencyLevel();
-                    }
-                    SkillMatrixData smData = new SkillMatrixData(item.getCompetencyName(), targetScore / totalSkillSet, totalScore / totalSkillSet,
-                            selfScore / totalSkillSet, evaluatorScore / totalSkillSet, competencyScore / totalSkillSet);
-                    return new EmployeeSkillMatrix(smData, children);
+                    double selfScore = children.stream()
+                            .mapToDouble(ssMatrix -> ssMatrix.data().skillLevelSelf())
+                            .sum();
+
+                    double evaluatorScore = children.stream()
+                            .mapToDouble(ssMatrix -> ssMatrix.data().skillLevelManager())
+                            .sum();
+
+                    double totalScore = children.stream()
+                            .mapToDouble(ssMatrix -> ssMatrix.data().skillLevelTotal())
+                            .sum();
+
+                    double targetScore = children.stream()
+                            .mapToDouble(ssMatrix -> ssMatrix.data().targetSkillLevel())
+                            .sum();
+
+                    double competencyScore = children.stream()
+                            .mapToDouble(ssMatrix -> ssMatrix.data().competencyLevel())
+                            .sum();
+                    SkillMatrixDataDTO smData = new SkillMatrixDataDTO(
+                            item.getCompetencyName(),
+                            targetScore / totalSkillSet,
+                            totalScore / totalSkillSet,
+                            selfScore / totalSkillSet,
+                            evaluatorScore / totalSkillSet,
+                            competencyScore / totalSkillSet);
+                    return new EmployeeSkillMatrixDTO(smData, children);
                 })
                 .toList();
     }
 
-    private List<EmployeeSkillMatrix> handleChildren(Employee employee, Integer latestCompEvaId,
-                                                     Integer latestCompId, Competency competency) {
+    private List<EmployeeSkillMatrixDTO> handleChildren(Employee employee, Integer latestCompEvaId,
+                                                        Integer latestCompId, Competency competency) {
         Specification<PositionSkillSet> posSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("position").get("id"), employee.getPosition().getId()),
                 criteriaBuilder.equal(root.get("skillSet").get("competency").get("id"), competency.getId())
@@ -480,19 +664,21 @@ public class CompetencyServiceImpl implements CompetencyService {
                             .filter(ssT -> ssT.getSkillSet().getId() == item.getSkillSet().getId())
                             .findFirst()
                             .orElse(null);
-                    SkillMatrixData smDataChild = ssEva != null && ssTarget != null ?
-                            new SkillMatrixData(item.getSkillSet().getSkillSetName(), (float) ssTarget.getTargetProficiencyLevel().getScore(),
-                                    (float) ssEva.getFinalProficiencyLevel().getScore(), (float) ssEva.getEmployeeProficiencyLevel().getScore(),
-                                    (float) ssEva.getEvaluatorProficiencyLevel().getScore(),
-                                    ((float) ssEva.getFinalProficiencyLevel().getScore() / (float) ssTarget.getTargetProficiencyLevel().getScore()) * 100)
+                    SkillMatrixDataDTO smDataChild = ssEva != null && ssTarget != null ?
+                            new SkillMatrixDataDTO(item.getSkillSet().getSkillSetName(),
+                                    (double) ssTarget.getTargetProficiencyLevel().getScore(),
+                                    (double) ssEva.getFinalProficiencyLevel().getScore(),
+                                    (double) ssEva.getEmployeeProficiencyLevel().getScore(),
+                                    (double) ssEva.getEvaluatorProficiencyLevel().getScore(),
+                                    ((double) ssEva.getFinalProficiencyLevel().getScore() / (double) ssTarget.getTargetProficiencyLevel().getScore()) * 100)
                             : null;
-                    return new EmployeeSkillMatrix(smDataChild, null);
+                    return new EmployeeSkillMatrixDTO(smDataChild, null);
                 })
                 .toList();
     }
 
     @Override
-    public SkillMatrixOverall getSkillMatrixOverall(Integer empId) {
+    public SkillMatrixOverallDTO getSkillMatrixOverall(Integer empId) {
         CompetencyCycle latestCompEva = evaluationOverallRepository.latestEvalCompetencyCycle(empId);
         Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("employee").get("id"), empId),
@@ -501,146 +687,9 @@ public class CompetencyServiceImpl implements CompetencyService {
 
         EvaluationOverall eval = evaluationOverallRepository.findOne(spec).orElse(null);
         Employee employee = employeeManagementService.findEmployee(empId);
-        return SkillMatrixOverall.builder()
+        return SkillMatrixOverallDTO.builder()
                 .managerName(employee.getDepartment().getSum().getFullName())
                 .status(Objects.requireNonNull(eval).getFinalStatus()).build();
-    }
-
-    @Override
-    public SkillSetPagingDTO getTopKeenSkillSetEmployee(Integer employeeId, int pageNo, int pageSize) {
-        CompetencyCycle evalLatestCycle = evaluationOverallRepository.latestEvalCompetencyCycle(employeeId);
-        skillSetRepository.findAll();
-        proficiencyLevelRepository.findAll();
-
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Specification<SkillSetEvaluation> spec = (root, query, builder) -> {
-            query.orderBy(builder.asc(root.get("finalProficiencyLevel")));
-            query.where(builder.equal(root.get("competencyCycle").get("id"), evalLatestCycle.getId()),
-                    builder.equal(root.get("employee").get("id"), employeeId));
-            return query.getRestriction();
-        };
-
-        Page<SkillSetDTO> topsHighest = skillSetEvaluationRepository
-                .findAll(spec, pageable)
-                .map(item -> new SkillSetDTO(item.getEmployee(),
-                        item.getSkillSet(),
-                        item.getFinalProficiencyLevel()));
-        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
-        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
-    }
-
-    @Override
-    public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(Integer employeeId, int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        skillSetRepository.findAll();
-
-        Specification<SkillSetTarget> spec = (root, query, builder) -> {
-            query.orderBy(builder.desc(root.get("targetProficiencyLevel")));
-            query.where(builder.equal(root.get("competencyCycle").get("id"), latestCycle.getId()),
-                    builder.equal(root.get("employee").get("id"), employeeId));
-            return query.getRestriction();
-        };
-
-        Page<SkillSetDTO> topsHighest = skillSetTargetRepository
-                .findAll(spec, pageable)
-                .map(item -> new SkillSetDTO(item.getEmployee(),
-                        item.getSkillSet(),
-                        item.getTargetProficiencyLevel()));
-        Pagination pagination = setupPaging(topsHighest.getTotalElements(), pageNo, pageSize);
-        return new SkillSetPagingDTO(topsHighest.getContent(), pagination);
-    }
-
-    @Override
-    public CurrentEvaluation getCurrentEvaluation(Integer employeeId) {
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("employee").get("id"), employeeId),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCycle.getId())
-        );
-        EvaluationOverall evalOvr = evaluationOverallRepository.findOne(spec).orElse(null);
-        if (evalOvr == null) return new CurrentEvaluation(latestCycle.getCompetencyCycleName(), "Not Started", null);
-        return new CurrentEvaluation(evalOvr.getCompetencyCycle().getCompetencyCycleName(),
-                evalOvr.getFinalStatus(), evalOvr.getLastUpdated().toString());
-    }
-
-    @Override
-    public List<HistoryEvaluation> getHistoryEvaluations(Integer employeeId) {
-        List<CompetencyCycle> compCycles = competencyCycleRepository.findAll();
-        List<Integer> cycleIds = compCycles.stream().map(CompetencyCycle::getId).toList();
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("employee").get("id"), employeeId),
-                root.get("competencyCycle").get("id").in(cycleIds)
-        );
-
-        return evaluationOverallRepository
-                .findAll(spec)
-                .stream()
-                .map(evalOvr -> new HistoryEvaluation(evalOvr.getCompletedDate().toString(),
-                        evalOvr.getCompetencyCycle().getCompetencyCycleName(), evalOvr.getFinalStatus(), evalOvr.getScore()))
-                .toList();
-    }
-
-
-    @Override
-    public CompanyCompetencyDiffPercent getCompanyCompetencyDiffPercent() {
-        //Check if now is after latestCycle end date the current cycle is the latest cycle
-        // else get the previous cycle
-        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
-                ? latestCycle.getYear()
-                : latestCycle.getYear() - 1;
-        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
-        float avgCurrentEvalScore = getAvgEvalScore(currentCycleId);
-
-        //Get previous cycle by current year - 1
-        Integer previousYear = currentYear - 1;
-        Integer previousCycleId = competencyCycleRepository.findByYear(previousYear).getId();
-        float avgPreviousEvalScore = getAvgEvalScore(previousCycleId);
-
-        float diffPercentage = ((avgCurrentEvalScore - avgPreviousEvalScore) / avgPreviousEvalScore) * 100;
-
-        return new CompanyCompetencyDiffPercent(avgCurrentEvalScore, diffPercentage, diffPercentage > 0);
-    }
-
-    private float getAvgEvalScore(Integer cycleId) {
-        //Get all evaluation overall of all employees have final status is agreed and get the latest cycle
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("finalStatus"), "Agreed"),
-                criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId)
-        );
-        List<Float> evalScores = evaluationOverallRepository.findAll(spec)
-                .stream()
-                .map(EvaluationOverall::getScore)
-                .toList();
-
-        return (float) evalScores.stream().mapToDouble(Float::doubleValue).average().orElse(0);
-    }
-
-    @Override
-    public List<CompetencyChart> getCompetencyChart() {
-        int currentYear = latestCycle.getDueDate().before(Calendar.getInstance().getTime())
-                ? latestCycle.getYear()
-                : latestCycle.getYear() - 1;
-        Integer currentCycleId = competencyCycleRepository.findByYear(currentYear).getId();
-
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<CompetencyChart> criteriaQuery = criteriaBuilder.createQuery(CompetencyChart.class);
-
-        Root<CompetencyEvaluation> plRoot = criteriaQuery.from(CompetencyEvaluation.class);
-        Join<CompetencyEvaluation, ProficiencyLevel> ceJoin = plRoot.join("proficiencyLevel");
-        Join<CompetencyEvaluation, Competency> cJoin = plRoot.join("competency");
-
-        criteriaQuery.multiselect(
-                cJoin.get("competencyName"),
-                criteriaBuilder.avg(ceJoin.get("score"))
-        );
-
-        criteriaQuery.where(
-                criteriaBuilder.equal(plRoot.get("competencyCycle").get("id"), currentCycleId)
-        );
-
-        criteriaQuery.groupBy(plRoot.get("competency").get("id"));
-
-        TypedQuery<CompetencyChart> query = entityManager.createQuery(criteriaQuery);
-        return query.getResultList();
     }
 }
 

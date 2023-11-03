@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RadarChart {
+public class RadarChartDTO {
     private List<String> labels;
-    private List<RadarDataset> datasets;
+    private List<RadarDatasetDTO> datasets;
 }

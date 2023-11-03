@@ -1,4 +1,4 @@
-package com.hrms.global;
+package com.hrms.global.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;

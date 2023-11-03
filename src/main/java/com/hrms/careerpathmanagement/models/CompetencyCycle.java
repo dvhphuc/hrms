@@ -18,12 +18,16 @@ public class CompetencyCycle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competency_cycle_id")
     private int id;
+
     @Column(name = "competency_cycle_name")
     private String competencyCycleName;
+
     @Column(name = "start_date")
     private Date startDate;
+
     @Column(name = "due_date")
     private Date dueDate;
+
     @Column(name = "year")
     private Integer year;
 }

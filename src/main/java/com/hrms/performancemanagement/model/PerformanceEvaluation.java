@@ -24,18 +24,18 @@ public class PerformanceEvaluation {
     private Employee employee;
 
     @Column(name = "self_assessment")
-    private Integer selfAssessment;
+    private Float selfAssessment;
 
     @Column(name = "supervisor_assessment")
-    private Integer supervisorAssessment;
+    private Float supervisorAssessment;
 
     @Column(name = "final_assessment")
-    private Integer finalAssessment;
+    private Float finalAssessment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "performance_cycle_id")
     private PerformanceCycle performanceCycle;
 
     @Column(name = "potential_score")
-    private Integer potentialScore;
+    private Float potentialScore;
 }

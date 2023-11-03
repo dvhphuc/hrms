@@ -17,7 +17,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -191,7 +190,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<CompetencyTimeLine> findCompetencyTimeline(Integer competencyCycleId) {
+    public List<CompetencyTimeLine> getCompetencyTimeline(Integer competencyCycleId) {
         Specification<CompetencyTimeLine> spec =
                 (root, query, cb) -> cb.equal(root.get("competencyCycle").get("id"), competencyCycleId);
         return competencyTimeLineRepository.findAll(spec);
@@ -223,7 +222,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private float getEvaluatorInCompletePercent(Integer competencyCycleId, List<Integer> empIdSet) {
         //get all employees who have completed evaluator-evaluation
-        Specification<EvaluationOverall> specCompleteEvaluator = (root, query, criteriaBuilder)
+        Specification<CompetencyEvaluationOverall> specCompleteEvaluator = (root, query, criteriaBuilder)
                 -> criteriaBuilder.and(
                 root.get("employee").get("id").in(empIdSet),
                 criteriaBuilder.equal(root.get("evaluatorStatus"), "Completed"),
@@ -236,7 +235,7 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private float getEmployeeIncompletedPercent(Integer competencyCycleId, List<Integer> empIdSet) {
         //get all employees who have completed self-evaluation
-        Specification<EvaluationOverall> specCompleteEval = (root, query, criteriaBuilder)
+        Specification<CompetencyEvaluationOverall> specCompleteEval = (root, query, criteriaBuilder)
                 -> criteriaBuilder.and(
                 root.get("employee").get("id").in(empIdSet),
                 criteriaBuilder.equal(root.get("employeeStatus"), "Completed"),
@@ -248,8 +247,8 @@ public class CompetencyServiceImpl implements CompetencyService {
     }
 
     @Override
-    public List<CompanyEvaPercentDTO> getCompanyIncompletePercent(Integer competencyCycleId) {
-        List<CompanyEvaPercentDTO> companyEvaPercents = new ArrayList<>();
+    public List<CompanyIncompletedDTO> getCompanyIncompletePercent(Integer competencyCycleId) {
+        List<CompanyIncompletedDTO> companyEvaPercents = new ArrayList<>();
         List<Integer> empIdSet = employeeRepository
                 .findAll()
                 .stream()
@@ -257,7 +256,7 @@ public class CompetencyServiceImpl implements CompetencyService {
                 .toList();
 
         //get all employees who have completed evaluation
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 root.get("employee").get("id").in(empIdSet),
                 criteriaBuilder.equal(root.get("finalStatus"), "Agreed"),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), competencyCycleId)
@@ -266,128 +265,112 @@ public class CompetencyServiceImpl implements CompetencyService {
         var hasCompletedPercent = (float) evaluationOverallRepository.count(spec) / empIdSet.size() * 100;
         var hasInCompleted = 100 - hasCompletedPercent;
 
-        companyEvaPercents.add(new CompanyEvaPercentDTO("Completed", hasCompletedPercent));
-        companyEvaPercents.add(new CompanyEvaPercentDTO("InCompleted", hasInCompleted));
+        companyEvaPercents.add(new CompanyIncompletedDTO("Completed", hasCompletedPercent));
+        companyEvaPercents.add(new CompanyIncompletedDTO("InCompleted", hasInCompleted));
         return companyEvaPercents;
     }
 
-    @Override
-    public List<CompetencyEvaluation> findByPositionAndCycle(Integer positionId, Integer competencyCycleId) {
-        Specification<CompetencyEvaluation> posSpec = employeeSpecification.hasPositionId(positionId);
-        Specification<CompetencyEvaluation> cycleSpec = competencySpecification.hasCycleId(competencyCycleId);
-        return competencyEvaluationRepository.findAll(posSpec.and(cycleSpec));
-    }
 
-    @Override
-    public List<CompetencyEvaluation> findByCycle(Integer competencyCycleId) {
-        Specification<CompetencyEvaluation> spec = competencySpecification.hasCycleId(competencyCycleId);
-        return competencyEvaluationRepository.findAll(spec);
-    }
-
-    @Override
-    public List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> cycleIds, Integer departmentId) {
-        Specification<CompetencyEvaluation> isInDepartmentSpec = competencySpecification.hasCycleIds(cycleIds);
-        Specification<CompetencyEvaluation> hasDepartSpec = employeeSpecification.hasDepartmentId(departmentId);
-        return competencyEvaluationRepository.findAll(isInDepartmentSpec.and(hasDepartSpec));
-    }
 
     @Override
     public List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId) {
-        List<CompetencyEvaluation> compEvaluates = positionId != null
-                ? findByPositionAndCycle(positionId, competencyCycleId)
-                : findByCycle(competencyCycleId);
-        List<Integer> jobLevelIds = jobLevelRepository
-                .findAll()
-                .stream()
-                .map(JobLevel::getId)
-                .toList();
-        List<Integer> competencyIds = competencyRepository
-                .findAll()
-                .stream().
-                map(Competency::getId)
-                .toList();
-
-        //Join 2 list using flatMap and store it by Pair
-        List<Pair<Integer, Integer>> pairItems = jobLevelIds.stream()
-                .flatMap(jobLevel -> competencyIds
-                        .stream()
-                        .map(competency -> new Pair<>(jobLevel, competency)))
-                .toList();
-
-        return pairItems.stream().map(pair -> {
-            var jobLevel = pair.getFirst();
-            var competency = pair.getSecond();
-            List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = compEvaluates.stream()
-                    .filter(compEva -> compEva.getEmployee().getJobLevel().getId() == jobLevel
-                            && compEva.getCompetency().getId().equals(competency))
-                    .toList();
-            float avgScore = evaluationsHasJobLevelAndCompetency.isEmpty() ? 0
-                    : (float) evaluationsHasJobLevelAndCompetency.stream()
-                    .map(CompetencyEvaluation::getProficiencyLevel)
-                    .filter(Objects::nonNull)
-                    .mapToInt(ProficiencyLevel::getScore)
-                    .average()
-                    .orElse(0);
-            return new AvgCompetencyDTO(jobLevel, competency, avgScore);
-        }).toList();
+//        List<CompetencyEvaluation> compEvaluates = positionId != null
+//                ? findByPositionAndCycle(positionId, competencyCycleId)
+//                : findByCycle(competencyCycleId);
+//        List<Integer> jobLevelIds = jobLevelRepository
+//                .findAll()
+//                .stream()
+//                .map(JobLevel::getId)
+//                .toList();
+//        List<Integer> competencyIds = competencyRepository
+//                .findAll()
+//                .stream().
+//                map(Competency::getId)
+//                .toList();
+//
+//        //Join 2 list using flatMap and store it by Pair
+//        List<Pair<Integer, Integer>> pairItems = jobLevelIds.stream()
+//                .flatMap(jobLevel -> competencyIds
+//                        .stream()
+//                        .map(competency -> new Pair<>(jobLevel, competency)))
+//                .toList();
+//
+//        return pairItems.stream().map(pair -> {
+//            var jobLevel = pair.getFirst();
+//            var competency = pair.getSecond();
+//            List<CompetencyEvaluation> evaluationsHasJobLevelAndCompetency = compEvaluates.stream()
+//                    .filter(compEva -> compEva.getEmployee().getJobLevel().getId() == jobLevel
+//                            && compEva.getCompetency().getId().equals(competency))
+//                    .toList();
+//            float avgScore = evaluationsHasJobLevelAndCompetency.isEmpty() ? 0
+//                    : (float) evaluationsHasJobLevelAndCompetency.stream()
+//                    .map(CompetencyEvaluation::getProficiencyLevel)
+//                    .filter(Objects::nonNull)
+//                    .mapToInt(ProficiencyLevel::getScore)
+//                    .average()
+//                    .orElse(0);
+//            return new AvgCompetencyDTO(jobLevel, competency, avgScore);
+//        }).toList();
+        return null;
     }
 
     @Override
     public RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId) {
-        var competencyIds = competencyRepository.findAll().stream().map(Competency::getId).toList();
-        var competencyEvaluates = findByCyclesAndDepartment(competencyCyclesId, departmentId);
-        proficiencyLevelRepository.findAll();
-
-        //Join 2 list using flatMap and store it by Pair
-        List<Pair<Integer, Integer>> pairItems = competencyCyclesId.stream()
-                .flatMap(cycle -> competencyIds
-                        .stream()
-                        .map(competency -> new Pair<>(cycle, competency)))
-                .toList();
-
-        //Get label for each dataset and RadarDatasetDTO have sture list of score RadarDatasetDTO(competencyCycleName, listScore)
-        List<RadarValueDTO> avgCompetencies = pairItems.stream().map(pair -> {
-            var cycle = pair.getFirst();
-            var competency = pair.getSecond();
-            List<CompetencyEvaluation> compEvaluate = competencyEvaluates.stream()
-                    .filter(compEva -> compEva.getCompetencyCycle().getId() == cycle
-                            && compEva.getCompetency().getId().equals(competency))
-                    .toList();
-            float avgScore = compEvaluate.isEmpty() ? 0
-                    : (float) compEvaluate.stream()
-                    .map(CompetencyEvaluation::getProficiencyLevel)
-                    .filter(Objects::nonNull)
-                    .mapToInt(ProficiencyLevel::getScore)
-                    .average()
-                    .orElse(0);
-            return new RadarValueDTO(cycle, competency, avgScore);
-        }).toList();
-
-        List<RadarDatasetDTO> listDataset = competencyCyclesId.stream().map(cycle -> {
-            List<Float> listScore = competencyIds
-                    .stream()
-                    .map(competency -> avgCompetencies.stream().filter(avgCompetency ->
-                                    avgCompetency.getCompetencyId().equals(competency) &&
-                                            avgCompetency.getCompetencyCycleId().equals(cycle))
-                            .findFirst()
-                            .map(RadarValueDTO::getAverage).orElse(null)).toList();
-            return new RadarDatasetDTO(competencyCycleRepository
-                    .findAll()
-                    .stream()
-                    .filter(competencyCycle -> competencyCycle.getId() == cycle)
-                    .findFirst()
-                    .orElseThrow()
-                    .getCompetencyCycleName(), listScore);
-        }).toList();
-
-        //Get list labels using spec and return RadarChartDTO
-        Specification<Competency> specComp = (root, query, criteriaBuilder) -> root.get("id").in(competencyIds);
-        List<String> labels = competencyRepository
-                .findAll(specComp)
-                .stream()
-                .map(Competency::getCompetencyName)
-                .toList();
-        return new RadarChartDTO(labels, listDataset);
+//        var competencyIds = competencyRepository.findAll().stream().map(Competency::getId).toList();
+//        var competencyEvaluates = findByCyclesAndDepartment(competencyCyclesId, departmentId);
+//        proficiencyLevelRepository.findAll();
+//
+//        //Join 2 list using flatMap and store it by Pair
+//        List<Pair<Integer, Integer>> pairItems = competencyCyclesId.stream()
+//                .flatMap(cycle -> competencyIds
+//                        .stream()
+//                        .map(competency -> new Pair<>(cycle, competency)))
+//                .toList();
+//
+//        //Get label for each dataset and RadarDatasetDTO have sture list of score RadarDatasetDTO(competencyCycleName, listScore)
+//        List<RadarValueDTO> avgCompetencies = pairItems.stream().map(pair -> {
+//            var cycle = pair.getFirst();
+//            var competency = pair.getSecond();
+//            List<CompetencyEvaluation> compEvaluate = competencyEvaluates.stream()
+//                    .filter(compEva -> compEva.getCompetencyCycle().getId() == cycle
+//                            && compEva.getCompetency().getId().equals(competency))
+//                    .toList();
+//            float avgScore = compEvaluate.isEmpty() ? 0
+//                    : (float) compEvaluate.stream()
+//                    .map(CompetencyEvaluation::getProficiencyLevel)
+//                    .filter(Objects::nonNull)
+//                    .mapToInt(ProficiencyLevel::getScore)
+//                    .average()
+//                    .orElse(0);
+//            return new RadarValueDTO(cycle, competency, avgScore);
+//        }).toList();
+//
+//        List<RadarDatasetDTO> listDataset = competencyCyclesId.stream().map(cycle -> {
+//            List<Float> listScore = competencyIds
+//                    .stream()
+//                    .map(competency -> avgCompetencies.stream().filter(avgCompetency ->
+//                                    avgCompetency.getCompetencyId().equals(competency) &&
+//                                            avgCompetency.getCompetencyCycleId().equals(cycle))
+//                            .findFirst()
+//                            .map(RadarValueDTO::getAverage).orElse(null)).toList();
+//            return new RadarDatasetDTO(competencyCycleRepository
+//                    .findAll()
+//                    .stream()
+//                    .filter(competencyCycle -> competencyCycle.getId() == cycle)
+//                    .findFirst()
+//                    .orElseThrow()
+//                    .getCompetencyCycleName(), listScore);
+//        }).toList();
+//
+//        //Get list labels using spec and return RadarChartDTO
+//        Specification<Competency> specComp = (root, query, criteriaBuilder) -> root.get("id").in(competencyIds);
+//        List<String> labels = competencyRepository
+//                .findAll(specComp)
+//                .stream()
+//                .map(Competency::getCompetencyName)
+//                .toList();
+//        return new RadarChartDTO(labels, listDataset);
+        return null;
     }
 
     @Override
@@ -493,11 +476,11 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     @Override
     public CurrentEvaluationDTO getCurrentEvaluation(Integer employeeId) {
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("employee").get("id"), employeeId),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCycle.getId())
         );
-        EvaluationOverall evalOvr = evaluationOverallRepository.findOne(spec).orElse(null);
+        CompetencyEvaluationOverall evalOvr = evaluationOverallRepository.findOne(spec).orElse(null);
         return evalOvr == null
                 ? new CurrentEvaluationDTO(latestCycle.getCompetencyCycleName(), "Not Started", null)
                 : new CurrentEvaluationDTO(evalOvr.getCompetencyCycle().getCompetencyCycleName(),
@@ -508,7 +491,7 @@ public class CompetencyServiceImpl implements CompetencyService {
     public List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId) {
         List<CompetencyCycle> compCycles = competencyCycleRepository.findAll();
         List<Integer> cycleIds = compCycles.stream().map(CompetencyCycle::getId).toList();
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("employee").get("id"), employeeId),
                 root.get("competencyCycle").get("id").in(cycleIds)
         );
@@ -545,13 +528,13 @@ public class CompetencyServiceImpl implements CompetencyService {
 
     private float getAvgEvalScore(Integer cycleId) {
         //Get all evaluation overall of all employees have final status is agreed and get the latest cycle
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("finalStatus"), "Agreed"),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), cycleId)
         );
         List<Float> evalScores = evaluationOverallRepository.findAll(spec)
                 .stream()
-                .map(EvaluationOverall::getScore)
+                .map(CompetencyEvaluationOverall::getScore)
                 .toList();
 
         return (float) evalScores.stream().mapToDouble(Float::doubleValue).average().orElse(0);
@@ -680,12 +663,12 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public SkillMatrixOverallDTO getSkillMatrixOverall(Integer empId) {
         CompetencyCycle latestCompEva = evaluationOverallRepository.latestEvalCompetencyCycle(empId);
-        Specification<EvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+        Specification<CompetencyEvaluationOverall> spec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
                 criteriaBuilder.equal(root.get("employee").get("id"), empId),
                 criteriaBuilder.equal(root.get("competencyCycle").get("id"), latestCompEva)
         );
 
-        EvaluationOverall eval = evaluationOverallRepository.findOne(spec).orElse(null);
+        CompetencyEvaluationOverall eval = evaluationOverallRepository.findOne(spec).orElse(null);
         Employee employee = employeeManagementService.findEmployee(empId);
         return SkillMatrixOverallDTO.builder()
                 .managerName(employee.getDepartment().getSum().getFullName())

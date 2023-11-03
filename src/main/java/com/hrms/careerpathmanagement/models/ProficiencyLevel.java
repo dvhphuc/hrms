@@ -16,8 +16,10 @@ public class ProficiencyLevel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "proficiency_level_id")
     private Integer id;
+
     @Column(name = "proficiency_level_name")
-    private String ProficiencyLevelName;
+    private String proficiencyLevelName;
+
     @Column(name = "score")
     private Integer score;
 }

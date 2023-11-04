@@ -11,12 +11,9 @@ import java.util.List;
 public interface CompetencyService {
     @Scheduled(cron = "0 0 0 * * *")
     void updateIsDoneForOverdueItems();
-    List<CompetencyTimeLine> findCompetencyTimeline(Integer competencyCycleId);
+    List<CompetencyTimeLine> getCompetencyTimeline(Integer competencyCycleId);
     List<DepartmentInCompleteDTO> getDepartmentIncompletePercent(Integer competencyCycleId);
-    List<CompanyEvaPercentDTO> getCompanyIncompletePercent(Integer competencyCycleId);
-    List<CompetencyEvaluation> findByPositionAndCycle(Integer positionId, Integer competencyCycleId);
-    List<CompetencyEvaluation> findByCycle(Integer competencyCycleId);
-    List<CompetencyEvaluation> findByCyclesAndDepartment(List<Integer> competencyCycleIds, Integer departmentId);
+    List<CompanyIncompletedDTO> getCompanyIncompletePercent(Integer competencyCycleId);
     List<AvgCompetencyDTO> getAvgCompetencies(Integer positionId, Integer competencyCycleId);
     RadarChartDTO getCompetencyRadarChart(List<Integer> competencyCyclesId, Integer departmentId);
     SkillSetPagingDTO getHighestSkillSet(@Nullable Integer empId, @Nullable Integer competencyCycleId, int pageNo, int pageSize);
@@ -28,7 +25,6 @@ public interface CompetencyService {
     List<HistoryEvaluationDTO> getHistoryEvaluations(Integer employeeId);
 
     SkillSetSummarizationDTO getSkillSummarization(Integer employeeId, Integer cycleId);
-
 
     CompanyCompetencyDiffPercentDTO getCompanyCompetencyDiffPercent();
 

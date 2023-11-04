@@ -16,6 +16,7 @@ public class CompetencyGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competency_group_id")
     private Integer id;
+
     @Column(name = "competency_group_name")
     private String competencyGroupName;
 }

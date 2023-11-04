@@ -6,7 +6,7 @@ import com.hrms.employeemanagement.models.JobLevel;
 import com.hrms.employeemanagement.repositories.EmployeeRepository;
 import com.hrms.employeemanagement.repositories.JobLevelRepository;
 import com.hrms.employeemanagement.specification.EmployeeSpecification;
-import com.hrms.performancemanagement.dto.Dataset;
+import com.hrms.performancemanagement.dto.DatasetDTO;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.careerpathmanagement.repositories.PerformanceEvaluationRepository;
@@ -92,32 +92,32 @@ public class PerformanceServiceImpl implements PerformanceService {
         return new PerformanceByJobLevalChartDTO(labels, datasets);
     }
 
-    private List<Dataset> createDatasets(List<PerformanceEvaluation> evaluations,
-                                         List<PerformanceRange> performanceRanges,
-                                         List<JobLevel> labels)
+    private List<DatasetDTO> createDatasets(List<PerformanceEvaluation> evaluations,
+                                            List<PerformanceRange> performanceRanges,
+                                            List<JobLevel> labels)
     {
-        List<Dataset> datasets = new ArrayList<>();
+        List<DatasetDTO> datasetDTOS = new ArrayList<>();
 
         performanceRanges.forEach(range -> {
             var dataset = createDatasetForRange(evaluations, range, labels);
-            datasets.add(dataset);
+            datasetDTOS.add(dataset);
         });
 
-        return datasets;
+        return datasetDTOS;
     }
 
-    private Dataset createDatasetForRange(List<PerformanceEvaluation> evaluations,
-                                          PerformanceRange range,
-                                          List<JobLevel> labels)
+    private DatasetDTO createDatasetForRange(List<PerformanceEvaluation> evaluations,
+                                             PerformanceRange range,
+                                             List<JobLevel> labels)
     {
-        Dataset dataset = new Dataset(range.getText(), new ArrayList<>());
+        DatasetDTO datasetDTO = new DatasetDTO(range.getText(), new ArrayList<>());
         labels.forEach( label -> {
             long countEvalsInPositionLevel = countEvals(label, evaluations);
             long count = countPerformancesInRange(label, range, evaluations);
             float percentage = calculatePercentage(count, countEvalsInPositionLevel);
-            dataset.getData().add(percentage);
+            datasetDTO.getData().add(percentage);
         });
-        return dataset;
+        return datasetDTO;
     }
 
     private long countEvals(JobLevel jobLevel, List<PerformanceEvaluation> evaluations) {

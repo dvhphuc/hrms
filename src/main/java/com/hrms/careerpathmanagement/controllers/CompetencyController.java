@@ -26,7 +26,7 @@ public class CompetencyController {
 
     @QueryMapping(name = "competencyTimeLine")
     public List<CompetencyTimeLine> getCompetencyTimeLine(@Argument Integer competencyCycleId) {
-        return competencyService.findCompetencyTimeline(competencyCycleId);
+        return competencyService.getCompetencyTimeline(competencyCycleId);
     }
 
     //TODO:DTO
@@ -36,7 +36,7 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "companyInComplete")
-    public List<CompanyEvaPercentDTO> getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
+    public List<CompanyIncompletedDTO> getCompanyInCompletePercentage(@Argument Integer competencyCycleId) {
         return competencyService.getCompanyIncompletePercent(competencyCycleId);
     }
 
@@ -60,42 +60,36 @@ public class CompetencyController {
     }
 
     @QueryMapping(name = "employeeSkillMatrix")
-    public List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(@Argument(name = "employeeId") Integer empId) {
-        return competencyService.getEmployeeSkillMatrix(empId);
+    public List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(@Argument Integer employeeId) {
+        return competencyService.getEmployeeSkillMatrix(employeeId);
     }
 
     @QueryMapping(name = "skillMatrixOverall")
-    public SkillMatrixOverallDTO getEmpSkillMatrixOverall(@Argument(name = "employeeId") Integer empId){
-        return competencyService.getSkillMatrixOverall(empId);
+    public SkillMatrixOverallDTO getEmpSkillMatrixOverall(@Argument Integer employeeId){
+        return competencyService.getSkillMatrixOverall(employeeId);
     }
 
     @QueryMapping(name = "topKeenSkillSetEmployee")
-    public SkillSetPagingDTO getTopKeenSkillSetEmployee(@Argument(name = "employeeId") Integer empId,
+    public SkillSetPagingDTO getTopKeenSkillSetEmployee(@Argument Integer employeeId,
                                                         @Argument Integer pageNo, @Argument Integer pageSize) {
-        return competencyService.getTopKeenSkillSetEmployee(empId, pageNo, pageSize);
+        return competencyService.getTopKeenSkillSetEmployee(employeeId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "topHighestSkillSetTargetEmployee")
-    public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(@Argument(name = "employeeId") Integer empId,
+    public SkillSetPagingDTO getTopHighestSkillSetTargetEmployee(@Argument Integer employeeId,
                                                                  @Argument Integer pageNo,
                                                                  @Argument Integer pageSize) {
-        return competencyService.getTopHighestSkillSetTargetEmployee(empId, pageNo, pageSize);
+        return competencyService.getTopHighestSkillSetTargetEmployee(employeeId, pageNo, pageSize);
     }
 
     @QueryMapping(name = "currentEvaluation")
-    public CurrentEvaluationDTO getCurrentEvaluation(@Argument("employeeId") Integer empId) {
-        return competencyService.getCurrentEvaluation(empId);
+    public CurrentEvaluationDTO getCurrentEvaluation(@Argument Integer employeeId) {
+        return competencyService.getCurrentEvaluation(employeeId);
     }
 
-//    @QueryMapping
-//    public List<SourceFile> getQualifications(@Argument Integer employeeId, @Argument @Nullable String search, @Argument String sort)
-//    {
-//        return damService.getQualifications(employeeId, search, sort);
-//    }
-
     @QueryMapping(name = "historyEvaluation")
-    public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument("employeeId" ) Integer empId) {
-        return competencyService.getHistoryEvaluations(empId);
+    public List<HistoryEvaluationDTO> getHistoryEvaluations(@Argument Integer employeeId) {
+        return competencyService.getHistoryEvaluations(employeeId);
     }
 
     @QueryMapping

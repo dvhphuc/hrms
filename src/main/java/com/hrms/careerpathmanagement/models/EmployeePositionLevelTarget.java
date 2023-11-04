@@ -1,4 +1,4 @@
-package com.hrms.employeecompetency.models;
+package com.hrms.careerpathmanagement.models;
 
 import com.hrms.employeemanagement.models.Employee;
 import com.hrms.employeemanagement.models.PositionLevel;
@@ -9,12 +9,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "employee_position_target")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeePositionTarget {
+public class EmployeePositionLevelTarget {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

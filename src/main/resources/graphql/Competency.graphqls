@@ -7,12 +7,12 @@ type Competency {
 
 type RadarChart{
     labels: [String]
-    datasets: [RadarDataset]
+    datasetDTOS: [RadarDataset]
 }
 
 type RadarDataset{
     lineName: String
-    datasets: [Float]
+    datasetDTOS: [Float]
 }
 
 type CompanyCompetencyDiffPercent{

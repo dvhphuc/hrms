@@ -1,6 +1,6 @@
 type PerformanceByJobLevelChart {
     labels: [JobLevel!]!
-    datasets: [Dataset]
+    datasetDTOS: [Dataset]
 }
 
 type Dataset {

@@ -1,9 +1,9 @@
 package com.hrms.performancemanagement.controllers;
 
 import com.hrms.global.paging.Pagination;
-import com.hrms.performancemanagement.dto.EmployeePerformanceRatingScore;
+import com.hrms.performancemanagement.dto.EmployeePerformanceRatingScoreDTO;
 import com.hrms.performancemanagement.dto.PerformanceByJobLevalChartDTO;
-import com.hrms.performancemanagement.dto.PerformanceRatingScorePaging;
+import com.hrms.performancemanagement.dto.PerformanceRatingScorePagingDTO;
 import com.hrms.performancemanagement.model.PerformanceEvaluation;
 import com.hrms.performancemanagement.services.PerformanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +26,20 @@ public class PerformanceController {
     @Autowired
     PerformanceService performanceService;
     @QueryMapping(name = "employeePerformanceRatingScore")
-    public PerformanceRatingScorePaging getEmployeePerformanceRatingScore(@Argument(name = "employeeId") Integer empId,
-                                                                          @Argument int pageNo,
-                                                                          @Argument int pageSize)
+    public PerformanceRatingScorePagingDTO getEmployeePerformanceRatingScore(@Argument(name = "employeeId") Integer empId,
+                                                                             @Argument int pageNo,
+                                                                             @Argument int pageSize)
     {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
         performanceService.getAllPerformanceCycles();
         Page<PerformanceEvaluation> empPerformances = performanceService.getPerformanceEvaluations(empId, pageable);
-        List<EmployeePerformanceRatingScore> data = empPerformances.stream()
+        List<EmployeePerformanceRatingScoreDTO> data = empPerformances.stream()
                 .map(empPerformance ->
-                        new EmployeePerformanceRatingScore(empPerformance.getPerformanceCycle().getPerformanceCycleName(),
-                                empPerformance.getFinalAssessment()))
+                        new EmployeePerformanceRatingScoreDTO(empPerformance.getPerformanceCycle().getPerformanceCycleName(),
+                                empPerformance.getFinalAssessment().intValue())) /////////CONVERT TO FLOAT
                 .toList();
         Pagination pagination = setupPaging(empPerformances.getTotalElements(), pageNo, pageSize);
-        return new PerformanceRatingScorePaging(data, pagination);
+        return new PerformanceRatingScorePagingDTO(data, pagination);
     }
 
     @QueryMapping

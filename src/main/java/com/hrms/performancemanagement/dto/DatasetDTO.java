@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class Dataset {
+public class DatasetDTO {
     private String columnName;
     private List<Float> data;
 }

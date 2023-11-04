@@ -16,13 +16,12 @@ public class Department {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "department_id")
     private int id;
+
     @Column(name = "department_name")
     private String departmentName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sum_id")
     private Employee sum;
 
-    public Department(Integer id) {
-        this.id = id;
-    }
 }

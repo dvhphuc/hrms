@@ -1,6 +1,18 @@
 package com.hrms.careerpathmanagement.dto;
 
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record EmployeeSkillMatrixDTO(SkillMatrixDataDTO data, List<EmployeeSkillMatrixDTO> children) {
+import java.util.List;
+import java.util.Objects;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public final class EmployeeSkillMatrixDTO {
+    private SkillMatrixDataDTO data;
+    private List<EmployeeSkillMatrixDTO> children;
 }

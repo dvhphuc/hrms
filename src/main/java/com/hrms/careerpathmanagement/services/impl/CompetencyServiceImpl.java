@@ -573,92 +573,132 @@ public class CompetencyServiceImpl implements CompetencyService {
     @Override
     public List<EmployeeSkillMatrixDTO> getEmployeeSkillMatrix(Integer empId) {
         Employee employee = employeeManagementService.findEmployee(empId);
-        List<Competency> competencies = competencyRepository.findAll();
         Integer latestCompEvaId = evaluationOverallRepository.latestEvalCompetencyCycle(empId).getId();
         Integer latestCompId = latestCycle.getId();
 
-        return competencies
-                .stream()
-                .map(item -> {
-                    List<EmployeeSkillMatrixDTO> children = handleChildren(employee, latestCompEvaId, latestCompId, item);
-                    int totalSkillSet = children.size();
-                    double selfScore = children.stream()
-                            .mapToDouble(ssMatrix -> ssMatrix.data().skillLevelSelf())
-                            .sum();
+        List<Competency> competencies = competencyRepository.findAll();
 
-                    double evaluatorScore = children.stream()
-                            .mapToDouble(ssMatrix -> ssMatrix.data().skillLevelManager())
-                            .sum();
-
-                    double totalScore = children.stream()
-                            .mapToDouble(ssMatrix -> ssMatrix.data().skillLevelTotal())
-                            .sum();
-
-                    double targetScore = children.stream()
-                            .mapToDouble(ssMatrix -> ssMatrix.data().targetSkillLevel())
-                            .sum();
-
-                    double competencyScore = children.stream()
-                            .mapToDouble(ssMatrix -> ssMatrix.data().competencyLevel())
-                            .sum();
-                    SkillMatrixDataDTO smData = new SkillMatrixDataDTO(
-                            item.getCompetencyName(),
-                            targetScore / totalSkillSet,
-                            totalScore / totalSkillSet,
-                            selfScore / totalSkillSet,
-                            evaluatorScore / totalSkillSet,
-                            competencyScore / totalSkillSet);
+        return competencies.stream()
+                .map(competency -> {
+                    List<EmployeeSkillMatrixDTO> children =
+                            handleChildren(employee, latestCompEvaId, latestCompId, competency.getId());
+                    SkillMatrixDataDTO smData = calculateSkillMatrixData(competency.getCompetencyName(), children);
                     return new EmployeeSkillMatrixDTO(smData, children);
                 })
                 .toList();
     }
 
+    private SkillMatrixDataDTO calculateSkillMatrixData(String competencyName, List<EmployeeSkillMatrixDTO> children) {
+        int totalSkillSet = children.size();
+
+        double targetScore = children.stream()
+                .map(EmployeeSkillMatrixDTO::getData)
+                .filter(Objects::nonNull)
+                .mapToDouble(SkillMatrixDataDTO::getTargetSkillLevel)
+                .sum();
+
+        double totalScore = children.stream()
+                .map(EmployeeSkillMatrixDTO::getData)
+                .filter(Objects::nonNull)
+                .mapToDouble(SkillMatrixDataDTO::getSkillLevelTotal)
+                .sum();
+
+        double selfScore = children.stream()
+                .map(EmployeeSkillMatrixDTO::getData)
+                .filter(Objects::nonNull)
+                .mapToDouble(SkillMatrixDataDTO::getSkillLevelSelf)
+                .sum();
+
+        double evaluatorScore = children.stream()
+                .map(EmployeeSkillMatrixDTO::getData)
+                .filter(Objects::nonNull)
+                .mapToDouble(SkillMatrixDataDTO::getSkillLevelManager)
+                .sum();
+
+        double competencyScore = children.stream()
+                .map(EmployeeSkillMatrixDTO::getData)
+                .filter(Objects::nonNull)
+                .mapToDouble(SkillMatrixDataDTO::getCompetencyLevel)
+                .sum();
+
+
+        return new SkillMatrixDataDTO(
+                competencyName,
+                targetScore / totalSkillSet,
+                totalScore / totalSkillSet,
+                selfScore / totalSkillSet,
+                evaluatorScore / totalSkillSet,
+                competencyScore / totalSkillSet
+        );
+    }
+
     private List<EmployeeSkillMatrixDTO> handleChildren(Employee employee, Integer latestCompEvaId,
-                                                        Integer latestCompId, Competency competency) {
-        Specification<PositionSkillSet> posSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
-                criteriaBuilder.equal(root.get("position").get("id"), employee.getPosition().getId()),
-                criteriaBuilder.equal(root.get("skillSet").get("competency").get("id"), competency.getId())
-        );
-        List<PositionSkillSet> listPoSs = positionSkillSetRepository.findAll(posSpec);
+                                                        Integer latestCompId, Integer competencyId) {
+        List<PositionSkillSet> listPoSs = getPositionSkillSets(employee.getPosition().getId(), competencyId);
 
-        List<Integer> skillSetIds = listPoSs.stream().map(poSs -> poSs.getSkillSet().getId()).toList();
-        Specification<SkillSetEvaluation> ssEvaSpec = (root, query, builder) -> builder.and(
-                builder.equal(root.get("employee").get("id"), employee.getId()),
-                builder.equal(root.get("competencyCycle").get("id"), latestCompEvaId),
-                root.get("skillSet").get("id").in(skillSetIds)
-        );
-        List<SkillSetEvaluation> ssEvaluates = skillSetEvaluationRepository.findAll(ssEvaSpec);
+        List<Integer> listPoSsIds = listPoSs.stream().map(item -> item.getSkillSet().getId()).toList();
+        List<SkillSetEvaluation> ssEvaluates = getSkillSetEvaluations(employee.getId(), latestCompEvaId, listPoSsIds);
+        List<SkillSetTarget> ssTargets = getSkillSetTargets(employee.getId(), latestCompId, listPoSsIds);
 
-        Specification<SkillSetTarget> ssTSpec = (root, query, builder) -> builder.and(
-                builder.equal(root.get("employee").get("id"), employee.getId()),
-                builder.equal(root.get("competencyCycle").get("id"), latestCompId),
-                root.get("skillSet").get("id").in(skillSetIds)
-        );
-        List<SkillSetTarget> ssTargets = skillSetTargetRepository.findAll(ssTSpec);
-
-        return listPoSs
-                .stream()
+        return listPoSs.stream()
                 .map(item -> {
-                    SkillSetEvaluation ssEva = ssEvaluates.stream()
-                            .filter(ssEvaluate -> ssEvaluate.getSkillSet().getId() == item.getSkillSet().getId())
-                            .findFirst()
-                            .orElse(null);
-                    SkillSetTarget ssTarget = ssTargets.stream()
-                            .filter(ssT -> ssT.getSkillSet().getId() == item.getSkillSet().getId())
-                            .findFirst()
-                            .orElse(null);
-                    SkillMatrixDataDTO smDataChild = ssEva != null && ssTarget != null ?
-                            new SkillMatrixDataDTO(item.getSkillSet().getSkillSetName(),
-                                    (double) ssTarget.getTargetProficiencyLevel().getScore(),
-                                    (double) ssEva.getFinalProficiencyLevel().getScore(),
-                                    (double) ssEva.getEmployeeProficiencyLevel().getScore(),
-                                    (double) ssEva.getEvaluatorProficiencyLevel().getScore(),
-                                    ((double) ssEva.getFinalProficiencyLevel().getScore() / (double) ssTarget.getTargetProficiencyLevel().getScore()) * 100)
-                            : null;
+                    SkillMatrixDataDTO smDataChild = calculateSkillMatrixDataChild(item, ssEvaluates, ssTargets);
                     return new EmployeeSkillMatrixDTO(smDataChild, null);
                 })
                 .toList();
     }
+
+    private SkillMatrixDataDTO calculateSkillMatrixDataChild(PositionSkillSet item,
+                                                             List<SkillSetEvaluation> ssEvaluates,
+                                                             List<SkillSetTarget> ssTargets) {
+        SkillSetEvaluation ssEva = ssEvaluates.stream()
+                .filter(ssEvaluate -> ssEvaluate.getSkillSet().getId() == item.getSkillSet().getId())
+                .findFirst()
+                .orElse(null);
+
+        SkillSetTarget ssTarget = ssTargets.stream()
+                .filter(ssT -> ssT.getSkillSet().getId() == item.getSkillSet().getId())
+                .findFirst()
+                .orElse(null);
+
+        return ssEva != null && ssTarget != null ? new SkillMatrixDataDTO(
+                item.getSkillSet().getSkillSetName(),
+                (double) ssTarget.getTargetProficiencyLevel().getScore(),
+                (double) ssEva.getFinalProficiencyLevel().getScore(),
+                (double) ssEva.getEmployeeProficiencyLevel().getScore(),
+                (double) ssEva.getEvaluatorProficiencyLevel().getScore(),
+                ((double) ssEva.getFinalProficiencyLevel().getScore() / (double) ssTarget.getTargetProficiencyLevel().getScore()) * 100)
+                : null;
+    }
+
+    private List<SkillSetTarget> getSkillSetTargets(Integer employeeId, Integer latestCompId,
+                                                    List<Integer> listPoSsIds) {
+        Specification<SkillSetTarget> ssTSpec = (root, query, builder) -> builder.and(
+                builder.equal(root.get("employee").get("id"), employeeId),
+                builder.equal(root.get("competencyCycle").get("id"), latestCompId),
+                root.get("skillSet").get("id").in(listPoSsIds)
+        );
+        return skillSetTargetRepository.findAll(ssTSpec);
+    }
+
+    private List<PositionSkillSet> getPositionSkillSets(Integer positionId, Integer competencyId) {
+        Specification<PositionSkillSet> posSpec = (root, query, criteriaBuilder) -> criteriaBuilder.and(
+                criteriaBuilder.equal(root.get("position").get("id"), positionId),
+                criteriaBuilder.equal(root.get("skillSet").get("competency").get("id"), competencyId)
+        );
+        return positionSkillSetRepository.findAll(posSpec);
+    }
+
+    private List<SkillSetEvaluation> getSkillSetEvaluations(Integer employeeId, Integer latestCompEvaId,
+                                                            List<Integer> listPoSsIds) {
+        Specification<SkillSetEvaluation> ssEvaSpec = (root, query, builder) -> builder.and(
+                builder.equal(root.get("employee").get("id"), employeeId),
+                builder.equal(root.get("competencyCycle").get("id"), latestCompEvaId),
+                root.get("skillSet").get("id").in(listPoSsIds)
+        );
+        return skillSetEvaluationRepository.findAll(ssEvaSpec);
+    }
+
 
     @Override
     public SkillMatrixOverallDTO getSkillMatrixOverall(Integer empId) {
